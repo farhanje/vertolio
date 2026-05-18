@@ -1,7 +1,7 @@
 import {sanity} from '../../lib/sanity.client'
 import {ORGANIZATIONS_QUERY, WORK_INDEX_QUERY} from '../../lib/sanity.queries'
 
-export const revalidate = 60
+export const dynamic = 'force-dynamic'
 
 function groupByOrg(items = []) {
   const map = new Map()
