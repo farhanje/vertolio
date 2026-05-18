@@ -15,7 +15,7 @@ function Nav() {
           <a className="nav-work" href="/work">Work</a>
           <a className="nav-blog" href="/blog">Blog</a>
           <a className="nav-about" href="/about">About</a>
-          <a className="nav-studio" href="/studio">Studio</a>
+          {/* Studio intentionally hidden from public nav */}
         </nav>
       </div>
     </header>
