@@ -2,7 +2,7 @@ import {sanity} from '../../../lib/sanity.client'
 import {POST_BY_SLUG_QUERY} from '../../../lib/sanity.queries'
 import {RichText} from '../../../lib/portableText'
 
-export const revalidate = 60
+export const dynamic = 'force-dynamic'
 
 export default async function BlogPost({ params }) {
   const post = await sanity.fetch(POST_BY_SLUG_QUERY, { slug: params.slug })
