@@ -1,7 +1,7 @@
 import {sanity} from '../../lib/sanity.client'
 import {BLOG_INDEX_QUERY} from '../../lib/sanity.queries'
 
-export const revalidate = 60
+export const dynamic = 'force-dynamic'
 
 export default async function BlogIndex() {
   const posts = await sanity.fetch(BLOG_INDEX_QUERY)
