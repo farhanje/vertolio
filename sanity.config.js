@@ -9,8 +9,13 @@ const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'production';
 export default defineConfig({
   name: 'default',
   title: 'Vertolio Studio',
+
+  // Important for next-sanity Studio routing
+  basePath: '/studio',
+
   projectId,
   dataset,
+
   plugins: [deskTool(), visionTool()],
   schema: { types: schemaTypes },
 });
