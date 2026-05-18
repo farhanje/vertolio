@@ -16,6 +16,20 @@ Set these in Vercel Project → Settings → Environment Variables (Production +
 - `NEXT_PUBLIC_SANITY_PROJECT_ID=iq6vjwu7`
 - `NEXT_PUBLIC_SANITY_DATASET=production`
 
+### Protect Studio (only you)
+This repo includes `middleware.js` that protects `/studio/*` with **Basic Auth**.
+
+Add these env vars in Vercel (Production + Preview + Development):
+- `STUDIO_USER` (example: `farhan`)
+- `STUDIO_PASS` (set a password only you know)
+
+After saving env vars, **Redeploy** once.
+
+**Where do you login?**
+- Open `https://<your-domain>/studio`
+- Your browser will show a small username/password popup.
+- Use the values from `STUDIO_USER` / `STUDIO_PASS`.
+
 ## What to do in Studio (CMS)
 Open `/studio` and create:
 
