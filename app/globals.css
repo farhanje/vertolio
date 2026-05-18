@@ -27,8 +27,8 @@ a:focus-visible,button:focus-visible{outline:3px solid rgba(0,64,146,.22);outlin
 .mark{width:10px;height:10px;background:var(--primary);border-radius:2px;}
 .nav-links{display:flex;gap:10px;align-items:center;font-weight:500;color:var(--muted);}
 .nav-links a{padding:8px 10px;border-radius:10px;}
-.nav-links a.active{color:var(--text);background:var(--surface);border:1px solid var(--border);}
 .nav-links a:hover{background:rgba(0,64,146,.04);text-decoration:none;}
+.nav-links a.active{color:var(--text);background:var(--surface);border:1px solid var(--border);}
 
 .section{padding:64px 0;}
 .section.tight{padding:48px 0;}
