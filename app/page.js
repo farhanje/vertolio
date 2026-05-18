@@ -1,7 +1,7 @@
 import {sanity} from '../lib/sanity.client'
 import {SITE_SETTINGS_QUERY} from '../lib/sanity.queries'
 
-export const revalidate = 60
+export const dynamic = 'force-dynamic'
 
 export default async function Home() {
   const settings = await sanity.fetch(SITE_SETTINGS_QUERY)
