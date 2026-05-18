@@ -2,7 +2,7 @@ import {sanity} from '../../../lib/sanity.client'
 import {PROJECT_BY_SLUG_QUERY} from '../../../lib/sanity.queries'
 import {RichText} from '../../../lib/portableText'
 
-export const revalidate = 60
+export const dynamic = 'force-dynamic'
 
 export default async function ProjectPage({ params }) {
   const project = await sanity.fetch(PROJECT_BY_SLUG_QUERY, { slug: params.slug })
