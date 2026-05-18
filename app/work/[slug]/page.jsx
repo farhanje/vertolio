@@ -1,6 +1,7 @@
 import {sanity} from '../../../lib/sanity.client'
 import {PROJECT_BY_SLUG_QUERY} from '../../../lib/sanity.queries'
 import {RichText} from '../../../lib/portableText'
+import Toc from '../../../components/Toc'
 
 export const dynamic = 'force-dynamic'
 
@@ -34,14 +35,18 @@ export default async function ProjectPage({ params }) {
 
         <div className="cta-row" style={{ marginTop: 16 }}>
           <a className="btn" href="/work">← Back to Work</a>
-          <a className="btn ghost" href="/studio">Edit in Studio →</a>
         </div>
       </section>
 
       <div className="hr" />
 
       <section className="section">
-        <RichText value={project.body} />
+        <div className="content-grid">
+          <div id="content">
+            <RichText value={project.body} />
+          </div>
+          <Toc contentId="content" />
+        </div>
       </section>
     </main>
   )
