@@ -5,21 +5,17 @@ export const metadata = {
   description: 'Portfolio + Blog powered by Sanity',
 };
 
-function Nav({ active }) {
-  const A = ({ href, k, children }) => (
-    <a className={active === k ? 'active' : ''} href={href}>{children}</a>
-  );
-
+function Nav() {
   return (
     <header className="nav">
       <div className="container nav-inner">
         <div className="brand"><span className="mark" /> Farhan</div>
         <nav className="nav-links">
-          <A href="/" k="home">Home</A>
-          <A href="/work" k="work">Work</A>
-          <A href="/blog" k="blog">Blog</A>
-          <A href="/about" k="about">About</A>
-          <A href="/studio" k="studio">Studio</A>
+          <a className="nav-home" href="/">Home</a>
+          <a className="nav-work" href="/work">Work</a>
+          <a className="nav-blog" href="/blog">Blog</a>
+          <a className="nav-about" href="/about">About</a>
+          <a className="nav-studio" href="/studio">Studio</a>
         </nav>
       </div>
     </header>
@@ -35,7 +31,6 @@ function Footer() {
 }
 
 export default function RootLayout({ children }) {
-  // active state is handled per-page for now (simple)
   return (
     <html lang="en">
       <body>
