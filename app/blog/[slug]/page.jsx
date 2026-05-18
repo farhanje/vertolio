@@ -1,6 +1,7 @@
 import {sanity} from '../../../lib/sanity.client'
 import {POST_BY_SLUG_QUERY} from '../../../lib/sanity.queries'
 import {RichText} from '../../../lib/portableText'
+import Toc from '../../../components/Toc'
 
 export const dynamic = 'force-dynamic'
 
@@ -31,14 +32,18 @@ export default async function BlogPost({ params }) {
         </div>
         <div className="cta-row" style={{ marginTop: 16 }}>
           <a className="btn" href="/blog">← Back to Blog</a>
-          <a className="btn ghost" href="/studio">Edit in Studio →</a>
         </div>
       </section>
 
       <div className="hr" />
 
       <section className="section">
-        <RichText value={post.body} />
+        <div className="content-grid">
+          <div id="content">
+            <RichText value={post.body} />
+          </div>
+          <Toc contentId="content" />
+        </div>
       </section>
     </main>
   )
