@@ -1,21 +1,29 @@
 import {sanity} from '../lib/sanity.client'
 import {SITE_SETTINGS_QUERY} from '../lib/sanity.queries'
+import {placeholderSiteSettings} from '../lib/placeholders'
 
 export const dynamic = 'force-dynamic'
 
 export default async function Home() {
-  const settings = await sanity.fetch(SITE_SETTINGS_QUERY)
+  let settings = null
+  try {
+    settings = await sanity.fetch(SITE_SETTINGS_QUERY)
+  } catch (e) {
+    settings = null
+  }
 
-  const name = settings?.name || 'Farhan'
-  const tagline = settings?.tagline || 'UI/UX • research-driven • metrics-minded'
-  const subtitle = settings?.heroSubtitle || 'Portfolio + Blog powered by Sanity. Edit content in Studio.'
-  const links = settings?.links || [
+  const s = settings || placeholderSiteSettings
+
+  const name = s?.name || 'Farhan'
+  const tagline = s?.tagline || 'UI/UX • research-driven • metrics-minded'
+  const subtitle = s?.heroSubtitle || 'Portfolio + Blog powered by Sanity. Edit content in Studio.'
+  const links = s?.links || [
     { label: 'Work →', url: '/work' },
     { label: 'Blog →', url: '/blog' },
     { label: 'Studio →', url: '/studio' },
   ]
 
-  const featured = settings?.featuredWork || []
+  const featured = s?.featuredWork || []
 
   return (
     <main className="container">
@@ -26,8 +34,8 @@ export default async function Home() {
             <h1>{name}</h1>
             <p className="lead">{subtitle}</p>
             <div className="cta-row">
-              {links.slice(0, 3).map((l) => (
-                <a key={l.url} className={l.url === '/work' ? 'btn primary' : 'btn'} href={l.url}>{l.label}</a>
+              {links.slice(0, 3).map((l, idx) => (
+                <a key={l.url} className={idx === 0 ? 'btn primary' : 'btn'} href={l.url}>{l.label}</a>
               ))}
             </div>
           </div>
@@ -44,7 +52,7 @@ export default async function Home() {
           <div className="span-12">
             <h2 style={{ margin: 0 }}>Featured work</h2>
             <p className="lead" style={{ marginTop: 10 }}>
-              Edit these in Studio → Site Settings → Featured work.
+              Showing placeholders until your Sanity content is ready.
             </p>
           </div>
 
@@ -58,19 +66,6 @@ export default async function Home() {
               </div>
             </a>
           ))}
-
-          {featured.length === 0 && (
-            <div className="card span-12">
-              <h3 style={{ marginTop: 0 }}>Nothing featured yet</h3>
-              <p>
-                Open Studio, create Organizations + Projects, then set Site Settings → Featured work.
-              </p>
-              <div className="cta-row" style={{ marginTop: 12 }}>
-                <a className="btn primary" href="/studio">Open Studio →</a>
-                <a className="btn" href="/work">Go to Work →</a>
-              </div>
-            </div>
-          )}
         </div>
       </section>
     </main>
