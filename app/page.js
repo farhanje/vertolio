@@ -26,8 +26,8 @@ export default async function Home() {
     { label: 'Resume →', url: '/resume' },
   ]
 
-  const featuredWork = s?.featuredWork || []
-  const featuredPosts = s?.featuredPosts || []
+  const featuredWork = (s?.featuredWork || []).slice(0, 4)
+  const featuredPosts = (s?.featuredPosts || []).slice(0, 4)
   const tickerWords = s?.heroTickerWords || []
 
   return (
@@ -87,13 +87,6 @@ export default async function Home() {
               </div>
             </a>
           ))}
-
-          {(featuredWork.length === 0 && featuredPosts.length === 0) && (
-            <div className="card span-12">
-              <h3 style={{ marginTop: 0 }}>—</h3>
-              <p style={{ margin: 0 }}> </p>
-            </div>
-          )}
         </div>
       </section>
     </main>
