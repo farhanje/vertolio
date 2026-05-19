@@ -65,13 +65,9 @@ export default async function Work() {
           if (!list || list.length === 0) return null
           return (
             <div key={org} style={{ marginBottom: 40 }}>
-              <div className="grid12" style={{ marginBottom: 12, alignItems: 'center' }}>
-                <div style={{ gridColumn: '1 / span 4' }}>
-                  <h2>{org}</h2>
-                </div>
-                <div style={{ gridColumn: '5 / span 8' }}>
-                  <div className="hr" />
-                </div>
+              <div className="org-row" style={{ marginBottom: 12 }}>
+                <h2 style={{ margin: 0 }}>{org}</h2>
+                <div className="org-rule"><div className="hr" /></div>
               </div>
 
               <div className="grid12 work-grid">
