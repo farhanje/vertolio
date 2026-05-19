@@ -1,6 +1,6 @@
 import {sanityFetch} from '../../lib/sanity.client'
-import {ORGANIZATIONS_QUERY, WORK_INDEX_QUERY} from '../../lib/sanity.queries'
-import {placeholderOrganizations, placeholderProjects} from '../../lib/placeholders'
+import {SITE_SETTINGS_QUERY, ORGANIZATIONS_QUERY, WORK_INDEX_QUERY} from '../../lib/sanity.queries'
+import {placeholderOrganizations, placeholderProjects, placeholderSiteSettings} from '../../lib/placeholders'
 import CardMedia from '../../components/CardMedia'
 
 export const dynamic = 'force-dynamic'
@@ -17,18 +17,23 @@ function groupByOrg(items = []) {
 }
 
 export default async function Work() {
+  let settings = null
   let orgs = []
   let projects = []
 
   try {
-    ;[orgs, projects] = await Promise.all([
+    ;[settings, orgs, projects] = await Promise.all([
+      sanityFetch(SITE_SETTINGS_QUERY),
       sanityFetch(ORGANIZATIONS_QUERY),
       sanityFetch(WORK_INDEX_QUERY),
     ])
   } catch (_) {
+    settings = placeholderSiteSettings
     orgs = placeholderOrganizations
     projects = placeholderProjects
   }
+
+  const accent = settings?.pageAccents?.work || 'none'
 
   const grouped = groupByOrg(projects)
   const orgOrder = (orgs || []).map((o) => o.name)
@@ -39,7 +44,7 @@ export default async function Work() {
   ]
 
   return (
-    <main className="container page-work">
+    <main className="container page-work" data-accent={accent}>
       <section className="section tight">
         <div className="grid12">
           <div style={{ gridColumn: '1 / span 8' }}>
@@ -60,11 +65,13 @@ export default async function Work() {
           if (!list || list.length === 0) return null
           return (
             <div key={org} style={{ marginBottom: 40 }}>
-              <div className="grid12" style={{ marginBottom: 12 }}>
+              <div className="grid12" style={{ marginBottom: 12, alignItems: 'center' }}>
                 <div style={{ gridColumn: '1 / span 4' }}>
                   <h2>{org}</h2>
                 </div>
-                <div style={{ gridColumn: '5 / span 8' }} className="hr" />
+                <div style={{ gridColumn: '5 / span 8' }}>
+                  <div className="hr" />
+                </div>
               </div>
 
               <div className="grid12 work-grid">
