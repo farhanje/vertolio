@@ -54,7 +54,7 @@ export default async function ProjectPage({ params }) {
 
       <section className="section">
         <div className="content-grid">
-          <div className="contentbox" id="content">
+          <div id="content" className="content-nudge">
             <RichText value={project.body} />
           </div>
           <Toc contentId="content" />
