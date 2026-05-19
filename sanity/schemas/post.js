@@ -8,6 +8,18 @@ export default {
     { name: 'publishedAt', title: 'Published at', type: 'datetime' },
     { name: 'excerpt', title: 'Excerpt', type: 'text', rows: 3 },
     { name: 'tags', title: 'Tags', type: 'array', of: [{ type: 'string' }] },
+
+    {
+      name: 'cardImage',
+      title: 'Card image (optional)',
+      type: 'image',
+      options: { hotspot: true },
+      fields: [
+        { name: 'alt', title: 'Alt text', type: 'string' },
+      ],
+      description: 'Shown on blog cards. Leave empty to keep text-only cards.',
+    },
+
     {
       name: 'body',
       title: 'Body',
@@ -59,6 +71,6 @@ export default {
     },
   ],
   preview: {
-    select: { title: 'title', subtitle: 'publishedAt' },
+    select: { title: 'title', subtitle: 'publishedAt', media: 'cardImage' },
   },
 }
