@@ -28,21 +28,29 @@ export default async function BlogPost({ params }) {
   const defaultAcc = settings?.pageAccents?.postDefault || 'none'
   const accent = post?.accent && post.accent !== 'default' ? post.accent : defaultAcc
 
+  const safeDate = (iso) => {
+    if (!iso) return ''
+    const d = new Date(iso)
+    if (Number.isNaN(d.getTime())) return ''
+    return d.toISOString().slice(0, 10)
+  }
+
   return (
     <main className="container" data-accent={accent}>
       <section className="section tight">
         <div className="grid12">
           <div style={{ gridColumn: '1 / span 8' }}>
+            <a className="btn back-top" href="/blog">← Back</a>
             <div className="kicker"><span className="dot" /> Blog</div>
             <h1 className="h1-tight">{post.title}</h1>
             {post.excerpt && <p className="lead">{post.excerpt}</p>}
           </div>
           <div style={{ gridColumn: '9 / span 4', paddingTop: 10 }}>
             <div className="meta" style={{ marginTop: 0 }}>
-              {post.publishedAt && <span className="pill">{new Date(post.publishedAt).toISOString().slice(0,10)}</span>}
+              {post.publishedAt && <span className="pill">{safeDate(post.publishedAt)}</span>}
               {(post.tags || []).slice(0, 6).map((t) => <span key={t} className="pill">{t}</span>)}
             </div>
-            <div className="cta-row" style={{ marginTop: 14 }}>
+            <div className="cta-row back-meta" style={{ marginTop: 14 }}>
               <a className="btn" href="/blog">← Back</a>
             </div>
           </div>
