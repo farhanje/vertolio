@@ -1,7 +1,8 @@
-import {sanity} from '../../lib/sanity.client'
+import {sanityFetch} from '../../lib/sanity.client'
 import {ORGANIZATIONS_QUERY, WORK_INDEX_QUERY} from '../../lib/sanity.queries'
 
 export const dynamic = 'force-dynamic'
+export const fetchCache = 'force-no-store'
 
 function groupByOrg(items = []) {
   const map = new Map()
@@ -15,8 +16,8 @@ function groupByOrg(items = []) {
 
 export default async function Work() {
   const [orgs, projects] = await Promise.all([
-    sanity.fetch(ORGANIZATIONS_QUERY),
-    sanity.fetch(WORK_INDEX_QUERY),
+    sanityFetch(ORGANIZATIONS_QUERY),
+    sanityFetch(WORK_INDEX_QUERY),
   ])
 
   const grouped = groupByOrg(projects)
@@ -33,9 +34,6 @@ export default async function Work() {
         <div className="kicker"><span className="dot" /> Work</div>
         <h1>Work</h1>
         <p className="lead">Grouped by organization. Edit everything from Sanity Studio.</p>
-        <div className="cta-row">
-          <a className="btn" href="/studio">Open Studio →</a>
-        </div>
       </section>
 
       <div className="hr" />
@@ -69,9 +67,6 @@ export default async function Work() {
           <div className="card">
             <h3 style={{ marginTop: 0 }}>No projects yet</h3>
             <p>Add Organizations and Projects in Studio, then they will appear here.</p>
-            <div className="cta-row" style={{ marginTop: 12 }}>
-              <a className="btn primary" href="/studio">Go to Studio →</a>
-            </div>
           </div>
         )}
       </section>
