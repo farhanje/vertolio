@@ -15,6 +15,14 @@ export default {
       description: 'Words that loop subtly behind the hero. Keep it short and punchy.',
     },
 
+    {
+      name: 'resumePdf',
+      title: 'Resume PDF',
+      type: 'file',
+      options: { accept: 'application/pdf' },
+      description: 'Upload your resume as a PDF. Shown on /resume.',
+    },
+
     { name: 'links', title: 'Links', type: 'array', of: [{ type: 'object', fields: [
       { name: 'label', title: 'Label', type: 'string' },
       { name: 'url', title: 'URL', type: 'url' },
