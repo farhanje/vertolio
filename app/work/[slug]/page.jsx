@@ -33,6 +33,7 @@ export default async function ProjectPage({ params }) {
       <section className="section tight">
         <div className="grid12">
           <div style={{ gridColumn: '1 / span 8' }}>
+            <a className="btn back-top" href="/work">← Back</a>
             <div className="kicker"><span className="dot" /> {project.organization?.name || 'Project'}</div>
             <h1 className="h1-tight">{project.title}</h1>
             {project.summary && <p className="lead">{project.summary}</p>}
@@ -43,7 +44,7 @@ export default async function ProjectPage({ params }) {
               {project.timeline && <span className="pill">Timeline: {project.timeline}</span>}
               {(project.tags || []).slice(0, 6).map((t) => <span key={t} className="pill">{t}</span>)}
             </div>
-            <div className="cta-row" style={{ marginTop: 14 }}>
+            <div className="cta-row back-meta" style={{ marginTop: 14 }}>
               <a className="btn" href="/work">← Back</a>
             </div>
           </div>
