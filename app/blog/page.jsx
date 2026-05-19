@@ -1,5 +1,6 @@
 import {sanityFetch} from '../../lib/sanity.client'
 import {BLOG_INDEX_QUERY} from '../../lib/sanity.queries'
+import CardMedia from '../../components/CardMedia'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
@@ -21,6 +22,7 @@ export default async function BlogIndex() {
         <div className="grid">
           {(posts || []).map((p) => (
             <a key={p.slug?.current} className="card card-link span-12" href={`/blog/${p.slug?.current}`}>
+              <CardMedia image={p.cardImage} alt={p.cardImage?.alt} />
               <h3>{p.title}</h3>
               <p>{p.excerpt || ''}</p>
               <div className="meta">
