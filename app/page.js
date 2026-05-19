@@ -23,16 +23,14 @@ export default async function Home() {
     { label: 'Resume →', url: '/resume' },
   ]
 
-  // Preferred: curated lists from Site Settings.
-  // Fallback: per-document `featured==true` (so you can just toggle it on the doc).
   let featuredWork = (s?.featuredWork || []).slice(0, 4)
   let featuredPosts = (s?.featuredPosts || []).slice(0, 4)
 
   if (featuredWork.length === 0) {
-    try { featuredWork = await sanityFetch(HOME_FEATURED_PROJECTS_QUERY) } catch (_) { /* ignore */ }
+    try { featuredWork = await sanityFetch(HOME_FEATURED_PROJECTS_QUERY) } catch (_) {}
   }
   if (featuredPosts.length === 0) {
-    try { featuredPosts = await sanityFetch(HOME_FEATURED_POSTS_QUERY) } catch (_) { /* ignore */ }
+    try { featuredPosts = await sanityFetch(HOME_FEATURED_POSTS_QUERY) } catch (_) {}
   }
 
   const tickerWords = s?.heroTickerWords || []
@@ -68,7 +66,10 @@ export default async function Home() {
             <a key={p.slug?.current} className="card card-link" style={{ gridColumn: 'span 6' }} href={`/work/${p.slug?.current}`}>
               <CardMedia image={p.cardImage} alt={p.cardImage?.alt} logo={p.organization?.logo} />
               <h3>{p.title}</h3>
-              <p>{p.summary || ''}</p>
+              <p>
+                {p.summary || ''}
+                <span className="more">→ click more</span>
+              </p>
               <div className="meta">
                 {p.organization?.name && <span className="pill">{p.organization.name}</span>}
                 {(p.tags || []).slice(0, 3).map((t) => <span key={t} className="pill">{t}</span>)}
@@ -81,7 +82,10 @@ export default async function Home() {
             <a key={p.slug?.current} className="card card-link" style={{ gridColumn: 'span 6' }} href={`/blog/${p.slug?.current}`}>
               <CardMedia image={p.cardImage} alt={p.cardImage?.alt} />
               <h3>{p.title}</h3>
-              <p>{p.excerpt || ''}</p>
+              <p>
+                {p.excerpt || ''}
+                <span className="more">→ click more</span>
+              </p>
               <div className="meta">
                 {p.publishedAt && <span className="pill">{new Date(p.publishedAt).toISOString().slice(0,10)}</span>}
                 {(p.tags || []).slice(0, 3).map((t) => <span key={t} className="pill">{t}</span>)}
