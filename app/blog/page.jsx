@@ -13,7 +13,6 @@ export default async function BlogIndex() {
       <section className="section tight">
         <div className="kicker"><span className="dot" /> Blog</div>
         <h1>Blog</h1>
-        <p className="lead">Short notes on UX, experiments, and product thinking.</p>
       </section>
 
       <div className="hr" />
@@ -35,7 +34,6 @@ export default async function BlogIndex() {
           {(!posts || posts.length === 0) && (
             <div className="card span-12">
               <h3 style={{ marginTop: 0 }}>No posts yet</h3>
-              <p>Create your first post in Studio, then it will appear here.</p>
             </div>
           )}
         </div>
