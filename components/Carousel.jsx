@@ -3,7 +3,15 @@
 import {useMemo, useState} from 'react'
 import {urlFor} from '../lib/sanity.image'
 
-export default function Carousel({slides = [], title}) {
+function ratioToAspect(r) {
+  if (!r || r === 'auto') return null
+  if (r === '16:9') return '16 / 9'
+  if (r === '4:3') return '4 / 3'
+  if (r === '1:1') return '1 / 1'
+  return null
+}
+
+export default function Carousel({slides = [], title, ratio = '16:9'}) {
   const items = useMemo(() => (slides || []).filter(Boolean), [slides])
   const [i, setI] = useState(0)
 
@@ -14,7 +22,8 @@ export default function Carousel({slides = [], title}) {
   const prev = () => setI((v) => (v - 1 + items.length) % items.length)
   const next = () => setI((v) => (v + 1) % items.length)
 
-  const src = current?.image ? urlFor(current.image).width(1600).quality(85).auto('format').url() : null
+  const src = current?.image ? urlFor(current.image).width(1800).quality(85).auto('format').url() : null
+  const aspect = ratioToAspect(ratio)
 
   return (
     <figure className="figure" style={{ marginTop: 18 }}>
@@ -23,7 +32,7 @@ export default function Carousel({slides = [], title}) {
       <div className="carousel">
         <button className="car-btn left" onClick={prev} aria-label="Previous">‹</button>
 
-        <div className="car-frame">
+        <div className="car-frame" style={aspect ? { aspectRatio: aspect } : undefined}>
           {src ? (
             <img className="car-img" src={src} alt={current?.alt || ''} />
           ) : null}
