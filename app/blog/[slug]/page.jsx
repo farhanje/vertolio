@@ -60,7 +60,7 @@ export default async function BlogPost({ params }) {
 
       <section className="section">
         <div className="content-grid">
-          <div className="contentbox" id="content">
+          <div id="content" className="content-nudge">
             <RichText value={post.body} />
           </div>
           <Toc contentId="content" />
