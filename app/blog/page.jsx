@@ -6,6 +6,13 @@ import CardMedia from '../../components/CardMedia'
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
 
+function safeDate(iso) {
+  if (!iso) return ''
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return ''
+  return d.toISOString().slice(0, 10)
+}
+
 export default async function BlogIndex() {
   let settings = null
   let posts = []
@@ -41,13 +48,15 @@ export default async function BlogIndex() {
       <section className="section blog-list">
         <div className="grid12">
           {(posts || []).map((p) => {
-            const date = p.publishedAt ? new Date(p.publishedAt).toISOString().slice(0, 10) : ''
+            const slug = p?.slug?.current
+            if (!slug) return null
+            const date = safeDate(p.publishedAt)
             return (
               <a
-                key={p.slug?.current}
+                key={slug}
                 className="card card-link"
                 style={{ gridColumn: '1 / span 12' }}
-                href={`/blog/${p.slug?.current}`}
+                href={`/blog/${slug}`}
               >
                 <div className="grid12" style={{ gap: 12 }}>
                   <div style={{ gridColumn: '1 / span 2' }} className="small">{date}</div>
