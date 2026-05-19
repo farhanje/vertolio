@@ -1,5 +1,6 @@
 import {sanityFetch} from '../../lib/sanity.client'
 import {ORGANIZATIONS_QUERY, WORK_INDEX_QUERY} from '../../lib/sanity.queries'
+import {placeholderOrganizations, placeholderProjects} from '../../lib/placeholders'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
@@ -15,10 +16,19 @@ function groupByOrg(items = []) {
 }
 
 export default async function Work() {
-  const [orgs, projects] = await Promise.all([
-    sanityFetch(ORGANIZATIONS_QUERY),
-    sanityFetch(WORK_INDEX_QUERY),
-  ])
+  let orgs = []
+  let projects = []
+
+  try {
+    ;[orgs, projects] = await Promise.all([
+      sanityFetch(ORGANIZATIONS_QUERY),
+      sanityFetch(WORK_INDEX_QUERY),
+    ])
+  } catch (_) {
+    // If Sanity is unreachable / private dataset / env vars missing, fall back
+    orgs = placeholderOrganizations
+    projects = placeholderProjects
+  }
 
   const grouped = groupByOrg(projects)
   const orgOrder = (orgs || []).map(o => o.name)
@@ -33,7 +43,7 @@ export default async function Work() {
       <section className="section tight">
         <div className="kicker"><span className="dot" /> Work</div>
         <h1>Work</h1>
-        <p className="lead">Grouped by organization. Edit everything from Sanity Studio.</p>
+        <p className="lead">Grouped by organization.</p>
       </section>
 
       <div className="hr" />
@@ -63,7 +73,7 @@ export default async function Work() {
           )
         })}
 
-        {projects?.length === 0 && (
+        {(!projects || projects.length === 0) && (
           <div className="card">
             <h3 style={{ marginTop: 0 }}>No projects yet</h3>
             <p>Add Organizations and Projects in Studio, then they will appear here.</p>
