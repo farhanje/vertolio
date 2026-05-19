@@ -9,8 +9,12 @@ function ratioToAspect(r) {
 }
 
 export default function CardMedia({image, alt, logo}) {
-  const imgUrl = image ? urlFor(image).width(1400).quality(80).auto('format').url() : null
-  const logoUrl = logo ? urlFor(logo).width(48).height(48).fit('max').quality(80).auto('format').url() : null
+  const imgBuilder = image ? urlFor(image) : null
+  const imgUrl = imgBuilder ? imgBuilder.width(1400).quality(80).auto('format').url() : null
+
+  const logoBuilder = logo ? urlFor(logo) : null
+  const logoUrl = logoBuilder ? logoBuilder.width(48).height(48).fit('max').quality(80).auto('format').url() : null
+
   const aspect = ratioToAspect(image?.ratio)
 
   if (!imgUrl && !logoUrl) return null
