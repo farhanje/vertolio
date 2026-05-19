@@ -31,18 +31,25 @@ export default async function Work() {
   }
 
   const grouped = groupByOrg(projects)
-  const orgOrder = (orgs || []).map(o => o.name)
+  const orgOrder = (orgs || []).map((o) => o.name)
 
   const orderedKeys = [
     ...orgOrder,
-    ...Array.from(grouped.keys()).filter(k => !orgOrder.includes(k)),
+    ...Array.from(grouped.keys()).filter((k) => !orgOrder.includes(k)),
   ]
 
   return (
-    <main className="container">
+    <main className="container page-work">
       <section className="section tight">
-        <div className="kicker"><span className="dot" /> Work</div>
-        <h1>Work</h1>
+        <div className="grid12">
+          <div style={{ gridColumn: '1 / span 8' }}>
+            <div className="kicker"><span className="dot" /> Work</div>
+            <h1 className="h1-tight">Work</h1>
+          </div>
+          <div style={{ gridColumn: '9 / span 4', paddingTop: 10 }}>
+            <p className="lead">Selected case studies and experiments.</p>
+          </div>
+        </div>
       </section>
 
       <div className="hr" />
@@ -52,11 +59,22 @@ export default async function Work() {
           const list = grouped.get(org)
           if (!list || list.length === 0) return null
           return (
-            <div key={org} style={{ marginBottom: 28 }}>
-              <h2 style={{ margin: '0 0 12px' }}>{org}</h2>
-              <div className="grid">
+            <div key={org} style={{ marginBottom: 40 }}>
+              <div className="grid12" style={{ marginBottom: 12 }}>
+                <div style={{ gridColumn: '1 / span 4' }}>
+                  <h2>{org}</h2>
+                </div>
+                <div style={{ gridColumn: '5 / span 8' }} className="hr" />
+              </div>
+
+              <div className="grid12 work-grid">
                 {list.map((p) => (
-                  <a key={p.slug?.current} className="card card-link span-6" href={`/work/${p.slug?.current}`}>
+                  <a
+                    key={p.slug?.current}
+                    className="card card-link"
+                    style={{ gridColumn: 'span 6' }}
+                    href={`/work/${p.slug?.current}`}
+                  >
                     <CardMedia image={p.cardImage} alt={p.cardImage?.alt} logo={p.organization?.logo} />
                     <h3>{p.title}</h3>
                     <p>{p.summary || ''}</p>
