@@ -19,10 +19,11 @@ export default async function Home() {
 
   const name = s?.name || 'Farhan'
   const tagline = s?.tagline || 'UI/UX • research-driven • metrics-minded'
-  const subtitle = s?.heroSubtitle || 'Portfolio + Blog powered by Sanity. Edit content in Studio.'
+  const subtitle = s?.heroSubtitle || ''
   const links = s?.links || [
     { label: 'Work →', url: '/work' },
     { label: 'Blog →', url: '/blog' },
+    { label: 'Resume →', url: '/resume' },
   ]
 
   const featuredWork = s?.featuredWork || []
@@ -38,7 +39,7 @@ export default async function Home() {
           <div>
             <div className="kicker"><span className="dot" /> {tagline}</div>
             <h1>{name}</h1>
-            <p className="lead">{subtitle}</p>
+            {subtitle ? <p className="lead">{subtitle}</p> : null}
             <div className="cta-row">
               {links.slice(0, 3).map((l, idx) => (
                 <a key={l.url} className={idx === 0 ? 'btn primary' : 'btn'} href={l.url}>{l.label}</a>
@@ -57,9 +58,6 @@ export default async function Home() {
         <div className="grid">
           <div className="span-12">
             <h2 style={{ margin: 0 }}>Featured work</h2>
-            <p className="lead" style={{ marginTop: 10 }}>
-              Controlled from Sanity → Site Settings → Featured work.
-            </p>
           </div>
 
           {featuredWork.map((p) => (
@@ -76,9 +74,6 @@ export default async function Home() {
 
           <div className="span-12" style={{ marginTop: 10 }}>
             <h2 style={{ margin: 0 }}>Featured posts</h2>
-            <p className="lead" style={{ marginTop: 10 }}>
-              Controlled from Sanity → Site Settings → Featured posts.
-            </p>
           </div>
 
           {featuredPosts.map((p) => (
@@ -95,8 +90,8 @@ export default async function Home() {
 
           {(featuredWork.length === 0 && featuredPosts.length === 0) && (
             <div className="card span-12">
-              <h3 style={{ marginTop: 0 }}>Nothing featured yet</h3>
-              <p>Open Sanity Studio → Site Settings → choose Featured work and Featured posts.</p>
+              <h3 style={{ marginTop: 0 }}>—</h3>
+              <p style={{ margin: 0 }}> </p>
             </div>
           )}
         </div>
