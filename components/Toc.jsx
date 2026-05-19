@@ -61,7 +61,7 @@ export default function Toc({ contentId = 'content' }) {
   return (
     <>
       {/* Desktop / large screens sidebar */}
-      <div className="tocbox card toc-desktop">
+      <div className="tocbox toc-desktop">
         <div className="toc-title">Contents</div>
         <nav className="toc">
           {items.map((it) => (
@@ -84,7 +84,7 @@ export default function Toc({ contentId = 'content' }) {
       {open ? (
         <div className="toc-overlay" role="dialog" aria-modal="true">
           <button className="toc-backdrop" onClick={() => setOpen(false)} aria-label="Close" />
-          <div className="toc-drawer card">
+          <div className="toc-drawer">
             <div className="toc-drawer-head">
               <div className="toc-title">Contents</div>
               <button className="toc-close" onClick={() => setOpen(false)} aria-label="Close">✕</button>
