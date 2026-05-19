@@ -1,6 +1,18 @@
-export default function About() {
+import {sanityFetch} from '../../lib/sanity.client'
+import {SITE_SETTINGS_QUERY} from '../../lib/sanity.queries'
+import {placeholderSiteSettings} from '../../lib/placeholders'
+
+export const dynamic = 'force-dynamic'
+export const fetchCache = 'force-no-store'
+
+export default async function About() {
+  let settings = null
+  try { settings = await sanityFetch(SITE_SETTINGS_QUERY) } catch (_) { settings = placeholderSiteSettings }
+
+  const accent = settings?.pageAccents?.about || 'none'
+
   return (
-    <main className="container page-about">
+    <main className="container page-about" data-accent={accent}>
       <section className="section tight">
         <div className="grid12">
           <div style={{ gridColumn: '1 / span 5' }}>
