@@ -40,7 +40,6 @@ export default async function BlogPost({ params }) {
       <section className="section tight">
         <div className="grid12">
           <div style={{ gridColumn: '1 / span 8' }}>
-            <a className="btn back-top" href="/blog">← Back</a>
             <div className="kicker"><span className="dot" /> Blog</div>
             <h1 className="h1-tight">{post.title}</h1>
             {post.excerpt && <p className="lead">{post.excerpt}</p>}
@@ -50,7 +49,7 @@ export default async function BlogPost({ params }) {
               {post.publishedAt && <span className="pill">{safeDate(post.publishedAt)}</span>}
               {(post.tags || []).slice(0, 6).map((t) => <span key={t} className="pill">{t}</span>)}
             </div>
-            <div className="cta-row back-meta" style={{ marginTop: 14 }}>
+            <div className="cta-row" style={{ marginTop: 14 }}>
               <a className="btn" href="/blog">← Back</a>
             </div>
           </div>
@@ -61,7 +60,7 @@ export default async function BlogPost({ params }) {
 
       <section className="section">
         <div className="content-grid">
-          <div id="content">
+          <div className="contentbox" id="content">
             <RichText value={post.body} />
           </div>
           <Toc contentId="content" />
