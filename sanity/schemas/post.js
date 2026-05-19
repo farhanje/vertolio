@@ -29,6 +29,10 @@ export default {
     { name: 'excerpt', title: 'Excerpt', type: 'text', rows: 3 },
     { name: 'tags', title: 'Tags', type: 'array', of: [{ type: 'string' }] },
 
+    // Backward-compat: older documents may still contain `featured: true`.
+    // We no longer use this; Featured selection is controlled from Site Settings.
+    { name: 'featured', title: 'Featured (deprecated)', type: 'boolean', hidden: true, readOnly: true },
+
     {
       name: 'accent',
       title: 'Accent (optional)',
