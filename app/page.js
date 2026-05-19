@@ -12,6 +12,8 @@ export default async function Home() {
   try { settings = await sanityFetch(SITE_SETTINGS_QUERY) } catch (_) { settings = null }
 
   const s = settings || placeholderSiteSettings
+  const accent = s?.pageAccents?.home || 'none'
+
   const name = s?.name || 'Farhan'
   const tagline = s?.tagline || ''
   const subtitle = s?.heroSubtitle || ''
@@ -26,7 +28,7 @@ export default async function Home() {
   const tickerWords = s?.heroTickerWords || []
 
   return (
-    <main className="container page-home">
+    <main className="container page-home" data-accent={accent}>
       <section className="section tight hero-wrap">
         <HeroTicker words={tickerWords} />
 
