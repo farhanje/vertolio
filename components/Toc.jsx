@@ -1,6 +1,6 @@
 'use client'
 
-import {useEffect, useState} from 'react'
+import {useEffect, useRef, useState} from 'react'
 
 function slugify(input) {
   return String(input || '')
@@ -30,6 +30,7 @@ export default function Toc({ contentId = 'content' }) {
   const [items, setItems] = useState([])
   const [activeId, setActiveId] = useState('')
   const [open, setOpen] = useState(false)
+  const deskRef = useRef(null)
 
   useEffect(() => {
     const root = document.getElementById(contentId)
@@ -53,6 +54,25 @@ export default function Toc({ contentId = 'content' }) {
     return () => obs.disconnect()
   }, [contentId])
 
+  // Keep active item visible inside scrollable TOC (lyrics-like)
+  useEffect(() => {
+    if (!activeId) return
+    const root = deskRef.current
+    if (!root) return
+    const el = root.querySelector(`a[href="#${activeId}"]`)
+    if (!el) return
+
+    // only adjust when active goes out of view
+    const box = root.getBoundingClientRect()
+    const eb = el.getBoundingClientRect()
+    const topLimit = box.top + 56
+    const bottomLimit = box.bottom - 24
+
+    if (eb.top < topLimit || eb.bottom > bottomLimit) {
+      el.scrollIntoView({ block: 'center', behavior: 'smooth' })
+    }
+  }, [activeId])
+
   const hasItems = items && items.length > 0
   if (!hasItems) return null
 
@@ -61,7 +81,7 @@ export default function Toc({ contentId = 'content' }) {
   return (
     <>
       {/* Desktop / large screens sidebar */}
-      <div className="tocbox toc-desktop">
+      <div className="tocbox toc-desktop" ref={deskRef}>
         <div className="toc-title">Contents</div>
         <nav className="toc">
           {items.map((it) => (
