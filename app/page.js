@@ -1,5 +1,5 @@
 import {sanityFetch} from '../lib/sanity.client'
-import {SITE_SETTINGS_QUERY} from '../lib/sanity.queries'
+import {SITE_SETTINGS_QUERY, HOME_FEATURED_PROJECTS_QUERY, HOME_FEATURED_POSTS_QUERY} from '../lib/sanity.queries'
 import {placeholderSiteSettings} from '../lib/placeholders'
 import CardMedia from '../components/CardMedia'
 import HeroTicker from '../components/HeroTicker'
@@ -23,8 +23,18 @@ export default async function Home() {
     { label: 'Resume →', url: '/resume' },
   ]
 
-  const featuredWork = (s?.featuredWork || []).slice(0, 4)
-  const featuredPosts = (s?.featuredPosts || []).slice(0, 4)
+  // Preferred: curated lists from Site Settings.
+  // Fallback: per-document `featured==true` (so you can just toggle it on the doc).
+  let featuredWork = (s?.featuredWork || []).slice(0, 4)
+  let featuredPosts = (s?.featuredPosts || []).slice(0, 4)
+
+  if (featuredWork.length === 0) {
+    try { featuredWork = await sanityFetch(HOME_FEATURED_PROJECTS_QUERY) } catch (_) { /* ignore */ }
+  }
+  if (featuredPosts.length === 0) {
+    try { featuredPosts = await sanityFetch(HOME_FEATURED_POSTS_QUERY) } catch (_) { /* ignore */ }
+  }
+
   const tickerWords = s?.heroTickerWords || []
 
   return (
