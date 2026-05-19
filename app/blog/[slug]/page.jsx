@@ -24,15 +24,21 @@ export default async function BlogPost({ params }) {
   return (
     <main className="container">
       <section className="section tight">
-        <div className="kicker"><span className="dot" /> Blog post</div>
-        <h1>{post.title}</h1>
-        {post.excerpt && <p className="lead">{post.excerpt}</p>}
-        <div className="meta">
-          {post.publishedAt && <span className="pill">{new Date(post.publishedAt).toISOString().slice(0,10)}</span>}
-          {(post.tags || []).slice(0, 6).map((t) => <span key={t} className="pill">{t}</span>)}
-        </div>
-        <div className="cta-row" style={{ marginTop: 16 }}>
-          <a className="btn" href="/blog">← Back to Blog</a>
+        <div className="grid12">
+          <div style={{ gridColumn: '1 / span 8' }}>
+            <div className="kicker"><span className="dot" /> Blog</div>
+            <h1 className="h1-tight">{post.title}</h1>
+            {post.excerpt && <p className="lead">{post.excerpt}</p>}
+          </div>
+          <div style={{ gridColumn: '9 / span 4', paddingTop: 10 }}>
+            <div className="meta" style={{ marginTop: 0 }}>
+              {post.publishedAt && <span className="pill">{new Date(post.publishedAt).toISOString().slice(0,10)}</span>}
+              {(post.tags || []).slice(0, 6).map((t) => <span key={t} className="pill">{t}</span>)}
+            </div>
+            <div className="cta-row" style={{ marginTop: 14 }}>
+              <a className="btn" href="/blog">← Back</a>
+            </div>
+          </div>
         </div>
       </section>
 
