@@ -80,7 +80,10 @@ export default async function Work() {
                   >
                     <CardMedia image={p.cardImage} alt={p.cardImage?.alt} logo={p.organization?.logo} />
                     <h3>{p.title}</h3>
-                    <p>{p.summary || ''}</p>
+                    <p>
+                      {p.summary || ''}
+                      <span className="more">→ click more</span>
+                    </p>
                     <div className="meta">
                       <span className="pill">{p.organization?.name || 'Org'}</span>
                       {(p.tags || []).slice(0, 3).map((t) => (
