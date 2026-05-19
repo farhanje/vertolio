@@ -63,7 +63,10 @@ export default async function BlogIndex() {
                   <div style={{ gridColumn: '3 / span 10' }}>
                     <CardMedia image={p.cardImage} alt={p.cardImage?.alt} />
                     <h3>{p.title}</h3>
-                    <p>{p.excerpt || ''}</p>
+                    <p>
+                      {p.excerpt || ''}
+                      <span className="more">→ click more</span>
+                    </p>
                     <div className="meta">
                       {(p.tags || []).slice(0, 4).map((t) => <span key={t} className="pill">{t}</span>)}
                     </div>
