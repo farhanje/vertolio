@@ -1,10 +1,11 @@
-import {sanity} from '../../lib/sanity.client'
+import {sanityFetch} from '../../lib/sanity.client'
 import {BLOG_INDEX_QUERY} from '../../lib/sanity.queries'
 
 export const dynamic = 'force-dynamic'
+export const fetchCache = 'force-no-store'
 
 export default async function BlogIndex() {
-  const posts = await sanity.fetch(BLOG_INDEX_QUERY)
+  const posts = await sanityFetch(BLOG_INDEX_QUERY)
 
   return (
     <main className="container">
@@ -12,9 +13,6 @@ export default async function BlogIndex() {
         <div className="kicker"><span className="dot" /> Blog</div>
         <h1>Blog</h1>
         <p className="lead">Short notes on UX, experiments, and product thinking.</p>
-        <div className="cta-row">
-          <a className="btn" href="/studio">Write in Studio →</a>
-        </div>
       </section>
 
       <div className="hr" />
@@ -36,9 +34,6 @@ export default async function BlogIndex() {
             <div className="card span-12">
               <h3 style={{ marginTop: 0 }}>No posts yet</h3>
               <p>Create your first post in Studio, then it will appear here.</p>
-              <div className="cta-row" style={{ marginTop: 12 }}>
-                <a className="btn primary" href="/studio">Go to Studio →</a>
-              </div>
             </div>
           )}
         </div>
