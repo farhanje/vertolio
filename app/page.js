@@ -1,14 +1,15 @@
-import {sanity} from '../lib/sanity.client'
+import {sanityFetch} from '../lib/sanity.client'
 import {SITE_SETTINGS_QUERY} from '../lib/sanity.queries'
 import {placeholderSiteSettings} from '../lib/placeholders'
 
 export const dynamic = 'force-dynamic'
+export const fetchCache = 'force-no-store'
 
 export default async function Home() {
   let settings = null
   try {
-    settings = await sanity.fetch(SITE_SETTINGS_QUERY)
-  } catch (e) {
+    settings = await sanityFetch(SITE_SETTINGS_QUERY)
+  } catch (_) {
     settings = null
   }
 
