@@ -1,6 +1,7 @@
 import {sanityFetch} from '../../lib/sanity.client'
 import {ORGANIZATIONS_QUERY, WORK_INDEX_QUERY} from '../../lib/sanity.queries'
 import {placeholderOrganizations, placeholderProjects} from '../../lib/placeholders'
+import CardMedia from '../../components/CardMedia'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
@@ -25,7 +26,6 @@ export default async function Work() {
       sanityFetch(WORK_INDEX_QUERY),
     ])
   } catch (_) {
-    // If Sanity is unreachable / private dataset / env vars missing, fall back
     orgs = placeholderOrganizations
     projects = placeholderProjects
   }
@@ -58,6 +58,7 @@ export default async function Work() {
               <div className="grid">
                 {list.map((p) => (
                   <a key={p.slug?.current} className="card card-link span-6" href={`/work/${p.slug?.current}`}>
+                    <CardMedia image={p.cardImage} alt={p.cardImage?.alt} logo={p.organization?.logo} />
                     <h3>{p.title}</h3>
                     <p>{p.summary || ''}</p>
                     <div className="meta">
