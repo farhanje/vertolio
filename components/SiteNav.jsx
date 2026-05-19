@@ -33,7 +33,7 @@ export default function SiteNav({ brand = 'Farhan' }) {
         <div className="container nav-inner">
           <div className="brand"><span className="mark" /> {brand}</div>
           <nav className="nav-links">
-            {LINKS.filter(l => l.href !== '/about').map((l) => (
+            {LINKS.map((l) => (
               <a key={l.href} href={l.href} className={active[l.href] ? 'active' : ''}>{l.label}</a>
             ))}
           </nav>
