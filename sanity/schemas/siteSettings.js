@@ -28,7 +28,19 @@ export default {
       { name: 'url', title: 'URL', type: 'url' },
     ]}] },
 
-    { name: 'featuredWork', title: 'Featured work (projects)', type: 'array', of: [{ type: 'reference', to: [{ type: 'project' }] }] },
-    { name: 'featuredPosts', title: 'Featured posts (blog)', type: 'array', of: [{ type: 'reference', to: [{ type: 'post' }] }] },
+    {
+      name: 'featuredWork',
+      title: 'Featured work (projects)',
+      type: 'array',
+      of: [{ type: 'reference', to: [{ type: 'project' }] }],
+      validation: (Rule) => Rule.max(4),
+    },
+    {
+      name: 'featuredPosts',
+      title: 'Featured posts (blog)',
+      type: 'array',
+      of: [{ type: 'reference', to: [{ type: 'post' }] }],
+      validation: (Rule) => Rule.max(4),
+    },
   ],
 }
