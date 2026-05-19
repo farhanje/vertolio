@@ -2,6 +2,7 @@
 
 import {useMemo, useState} from 'react'
 import {urlFor} from '../lib/sanity.image'
+import Lightbox from './Lightbox'
 
 function ratioToAspect(r) {
   if (!r || r === 'auto') return null
@@ -14,6 +15,7 @@ function ratioToAspect(r) {
 export default function Carousel({slides = [], title, ratio = '16:9'}) {
   const items = useMemo(() => (slides || []).filter(Boolean), [slides])
   const [i, setI] = useState(0)
+  const [open, setOpen] = useState(false)
 
   if (!items.length) return null
 
@@ -22,21 +24,29 @@ export default function Carousel({slides = [], title, ratio = '16:9'}) {
   const prev = () => setI((v) => (v - 1 + items.length) % items.length)
   const next = () => setI((v) => (v + 1) % items.length)
 
-  const src = current?.image ? urlFor(current.image).width(1800).quality(85).auto('format').url() : null
+  const builder = current?.image ? urlFor(current.image) : null
+  const src = builder ? builder.width(2200).quality(85).auto('format').url() : null
   const aspect = ratioToAspect(ratio)
 
   return (
-    <figure className="figure" style={{ marginTop: 18 }}>
+    <figure className="figure">
       {title ? <div className="figure-title">{title}</div> : null}
 
       <div className="carousel">
         <button className="car-btn left" onClick={prev} aria-label="Previous">‹</button>
 
-        <div className="car-frame" style={aspect ? { aspectRatio: aspect } : undefined}>
+        <button
+          type="button"
+          className="car-frame car-zoom"
+          style={aspect ? { aspectRatio: aspect } : undefined}
+          onClick={() => setOpen(true)}
+          aria-label="Open image"
+        >
           {src ? (
             <img className="car-img" src={src} alt={current?.alt || ''} />
           ) : null}
-        </div>
+          <span className="zoom-hint">Click to zoom</span>
+        </button>
 
         <button className="car-btn right" onClick={next} aria-label="Next">›</button>
       </div>
@@ -56,6 +66,14 @@ export default function Carousel({slides = [], title, ratio = '16:9'}) {
       </div>
 
       {current?.caption ? <figcaption>{current.caption}</figcaption> : null}
+
+      <Lightbox
+        open={open}
+        src={src}
+        alt={current?.alt || ''}
+        caption={current?.caption || title || ''}
+        onClose={() => setOpen(false)}
+      />
     </figure>
   )
 }
