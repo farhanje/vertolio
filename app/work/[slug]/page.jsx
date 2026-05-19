@@ -24,18 +24,22 @@ export default async function ProjectPage({ params }) {
   return (
     <main className="container">
       <section className="section tight">
-        <div className="kicker"><span className="dot" /> {project.organization?.name || 'Project'}</div>
-        <h1>{project.title}</h1>
-        {project.summary && <p className="lead">{project.summary}</p>}
-
-        <div className="meta">
-          {project.role && <span className="pill">Role: {project.role}</span>}
-          {project.timeline && <span className="pill">Timeline: {project.timeline}</span>}
-          {(project.tags || []).slice(0, 6).map((t) => <span key={t} className="pill">{t}</span>)}
-        </div>
-
-        <div className="cta-row" style={{ marginTop: 16 }}>
-          <a className="btn" href="/work">← Back to Work</a>
+        <div className="grid12">
+          <div style={{ gridColumn: '1 / span 8' }}>
+            <div className="kicker"><span className="dot" /> {project.organization?.name || 'Project'}</div>
+            <h1 className="h1-tight">{project.title}</h1>
+            {project.summary && <p className="lead">{project.summary}</p>}
+          </div>
+          <div style={{ gridColumn: '9 / span 4', paddingTop: 10 }}>
+            <div className="meta" style={{ marginTop: 0 }}>
+              {project.role && <span className="pill">Role: {project.role}</span>}
+              {project.timeline && <span className="pill">Timeline: {project.timeline}</span>}
+              {(project.tags || []).slice(0, 6).map((t) => <span key={t} className="pill">{t}</span>)}
+            </div>
+            <div className="cta-row" style={{ marginTop: 14 }}>
+              <a className="btn" href="/work">← Back</a>
+            </div>
+          </div>
         </div>
       </section>
 
