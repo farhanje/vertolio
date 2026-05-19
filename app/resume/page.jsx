@@ -14,11 +14,9 @@ export default async function ResumePage() {
       <section className="section tight">
         <div className="kicker"><span className="dot" /> Resume</div>
         <h1>Resume</h1>
-        {!url ? (
-          <p className="lead">Upload your resume PDF in Sanity → Site Settings → Resume PDF.</p>
-        ) : (
-          <p className="lead">Download or preview the latest PDF.</p>
-        )}
+        <p className="lead">
+          {url ? 'Download or preview the latest PDF.' : 'Resume PDF is not available yet.'}
+        </p>
       </section>
 
       <div className="hr" />
@@ -27,7 +25,6 @@ export default async function ResumePage() {
         {!url ? (
           <div className="card">
             <h3 style={{ marginTop: 0 }}>No resume uploaded</h3>
-            <p>Open Sanity Studio and upload a PDF in Site Settings.</p>
           </div>
         ) : (
           <>
