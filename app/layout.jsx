@@ -1,5 +1,6 @@
 import './globals.css';
 import SiteNav from '../components/SiteNav';
+import { GeistSans, GeistMono } from 'geist/font';
 
 export const metadata = {
   title: 'Vertolio',
@@ -16,8 +17,8 @@ function Footer() {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <body>
+    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
+      <body className="app">
         <SiteNav brand="Farhan" />
         {children}
         <Footer />
