@@ -9,16 +9,11 @@ export const fetchCache = 'force-no-store'
 
 export default async function Home() {
   let settings = null
-  try {
-    settings = await sanityFetch(SITE_SETTINGS_QUERY)
-  } catch (_) {
-    settings = null
-  }
+  try { settings = await sanityFetch(SITE_SETTINGS_QUERY) } catch (_) { settings = null }
 
   const s = settings || placeholderSiteSettings
-
   const name = s?.name || 'Farhan'
-  const tagline = s?.tagline || 'UI/UX • research-driven • metrics-minded'
+  const tagline = s?.tagline || ''
   const subtitle = s?.heroSubtitle || ''
   const links = s?.links || [
     { label: 'Work →', url: '/work' },
@@ -31,14 +26,14 @@ export default async function Home() {
   const tickerWords = s?.heroTickerWords || []
 
   return (
-    <main className="container">
-      <section className="section tight" style={{ position: 'relative' }}>
+    <main className="container page-home">
+      <section className="section tight hero-wrap">
         <HeroTicker words={tickerWords} />
 
         <div className="hero-grid" style={{ position: 'relative', zIndex: 1 }}>
           <div>
-            <div className="kicker"><span className="dot" /> {tagline}</div>
-            <h1>{name}</h1>
+            {tagline ? <div className="kicker"><span className="dot" /> {tagline}</div> : null}
+            <h1 className="h1-tight">{name}</h1>
             {subtitle ? <p className="lead">{subtitle}</p> : null}
             <div className="cta-row">
               {links.slice(0, 3).map((l, idx) => (
@@ -55,13 +50,10 @@ export default async function Home() {
       <div className="hr" />
 
       <section className="section">
-        <div className="grid">
-          <div className="span-12">
-            <h2 style={{ margin: 0 }}>Featured work</h2>
-          </div>
-
+        <div className="grid12">
+          <div style={{ gridColumn: '1 / span 12' }}><h2>Featured work</h2></div>
           {featuredWork.map((p) => (
-            <a key={p.slug?.current} className="card card-link span-6" href={`/work/${p.slug?.current}`}>
+            <a key={p.slug?.current} className="card card-link" style={{ gridColumn: 'span 6' }} href={`/work/${p.slug?.current}`}>
               <CardMedia image={p.cardImage} alt={p.cardImage?.alt} logo={p.organization?.logo} />
               <h3>{p.title}</h3>
               <p>{p.summary || ''}</p>
@@ -72,12 +64,9 @@ export default async function Home() {
             </a>
           ))}
 
-          <div className="span-12" style={{ marginTop: 10 }}>
-            <h2 style={{ margin: 0 }}>Featured posts</h2>
-          </div>
-
+          <div style={{ gridColumn: '1 / span 12', marginTop: 6 }}><h2>Featured posts</h2></div>
           {featuredPosts.map((p) => (
-            <a key={p.slug?.current} className="card card-link span-6" href={`/blog/${p.slug?.current}`}>
+            <a key={p.slug?.current} className="card card-link" style={{ gridColumn: 'span 6' }} href={`/blog/${p.slug?.current}`}>
               <CardMedia image={p.cardImage} alt={p.cardImage?.alt} />
               <h3>{p.title}</h3>
               <p>{p.excerpt || ''}</p>
