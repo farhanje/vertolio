@@ -11,6 +11,17 @@ export default {
     { name: 'tags', title: 'Tags', type: 'array', of: [{ type: 'string' }] },
     { name: 'featured', title: 'Featured on Home', type: 'boolean', initialValue: false },
 
+    {
+      name: 'cardImage',
+      title: 'Card image (optional)',
+      type: 'image',
+      options: { hotspot: true },
+      fields: [
+        { name: 'alt', title: 'Alt text', type: 'string' },
+      ],
+      description: 'Shown on project cards. Leave empty to keep text-only cards.',
+    },
+
     { name: 'role', title: 'Role', type: 'string' },
     { name: 'timeline', title: 'Timeline', type: 'string' },
     { name: 'tools', title: 'Tools', type: 'array', of: [{ type: 'string' }] },
@@ -66,6 +77,6 @@ export default {
     },
   ],
   preview: {
-    select: { title: 'title', subtitle: 'organization.name' },
+    select: { title: 'title', subtitle: 'organization.name', media: 'cardImage' },
   },
 }
