@@ -6,11 +6,13 @@ export const fetchCache = 'force-no-store'
 
 export default async function ResumePage() {
   const settings = await sanityFetch(SITE_SETTINGS_QUERY)
+  const accent = settings?.pageAccents?.resume || 'none'
+
   const url = settings?.resumePdf?.asset?.url
   const filename = settings?.resumePdf?.asset?.originalFilename || 'resume.pdf'
 
   return (
-    <main className="container page-resume">
+    <main className="container page-resume" data-accent={accent}>
       <section className="section tight">
         <div className="grid12">
           <div style={{ gridColumn: '1 / span 5' }}>
