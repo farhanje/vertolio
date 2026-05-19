@@ -7,6 +7,7 @@ const LINKS = [
   { href: '/', label: 'Home' },
   { href: '/work', label: 'Work' },
   { href: '/blog', label: 'Blog' },
+  { href: '/resume', label: 'Resume' },
   { href: '/about', label: 'About' },
 ]
 
@@ -32,7 +33,7 @@ export default function SiteNav({ brand = 'Farhan' }) {
         <div className="container nav-inner">
           <div className="brand"><span className="mark" /> {brand}</div>
           <nav className="nav-links">
-            {LINKS.map((l) => (
+            {LINKS.filter(l => l.href !== '/about').map((l) => (
               <a key={l.href} href={l.href} className={active[l.href] ? 'active' : ''}>{l.label}</a>
             ))}
           </nav>
@@ -44,6 +45,7 @@ export default function SiteNav({ brand = 'Farhan' }) {
         <a href="/" className={active['/'] ? 'mnav active' : 'mnav'}>Home</a>
         <a href="/work" className={active['/work'] ? 'mnav active' : 'mnav'}>Work</a>
         <a href="/blog" className={active['/blog'] ? 'mnav active' : 'mnav'}>Blog</a>
+        <a href="/resume" className={active['/resume'] ? 'mnav active' : 'mnav'}>Resume</a>
         <button className="mnav mnav-btn" onClick={() => setOpen(true)} aria-label="Open menu">☰</button>
       </div>
 
