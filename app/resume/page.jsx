@@ -10,36 +10,36 @@ export default async function ResumePage() {
   const filename = settings?.resumePdf?.asset?.originalFilename || 'resume.pdf'
 
   return (
-    <main className="container">
+    <main className="container page-resume">
       <section className="section tight">
-        <div className="kicker"><span className="dot" /> Resume</div>
-        <h1>Resume</h1>
-        <p className="lead">
-          {url ? 'Download or preview the latest PDF.' : 'Resume PDF is not available yet.'}
-        </p>
-      </section>
-
-      <div className="hr" />
-
-      <section className="section">
-        {!url ? (
-          <div className="card">
-            <h3 style={{ marginTop: 0 }}>No resume uploaded</h3>
+        <div className="grid12">
+          <div style={{ gridColumn: '1 / span 5' }}>
+            <div className="kicker"><span className="dot" /> Resume</div>
+            <h1 className="h1-tight">Resume</h1>
+            <p className="lead" style={{ marginTop: 10 }}>
+              {url ? 'Latest PDF.' : 'Resume PDF is not available yet.'}
+            </p>
+            {url ? (
+              <div className="cta-row">
+                <a className="btn primary" href={url} target="_blank" rel="noreferrer">Open PDF →</a>
+                <a className="btn" href={url} download={filename}>Download</a>
+              </div>
+            ) : null}
           </div>
-        ) : (
-          <>
-            <div className="cta-row" style={{ marginBottom: 14 }}>
-              <a className="btn primary" href={url} target="_blank" rel="noreferrer">Open PDF →</a>
-              <a className="btn" href={url} download={filename}>Download</a>
-            </div>
 
-            <div className="resume-frame card">
-              <iframe title="Resume PDF" src={url} />
-            </div>
-
-            <p className="resume-note">If the preview fails on your device, use “Open PDF”.</p>
-          </>
-        )}
+          <div style={{ gridColumn: '6 / span 7' }}>
+            {!url ? (
+              <div className="card">
+                <h3 style={{ margin: 0 }}>No resume uploaded</h3>
+              </div>
+            ) : (
+              <div className="resume-frame">
+                <iframe title="Resume PDF" src={url} />
+              </div>
+            )}
+            {url ? <p className="resume-note">If preview fails on your device, use “Open PDF”.</p> : null}
+          </div>
+        </div>
       </section>
     </main>
   )
