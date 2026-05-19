@@ -54,18 +54,19 @@ export default function Toc({ contentId = 'content' }) {
     return () => obs.disconnect()
   }, [contentId])
 
-  // Keep active item visible inside scrollable TOC (lyrics-like)
+  // Keep active item visible inside scrollable TOC — desktop only.
   useEffect(() => {
     if (!activeId) return
+    if (typeof window !== 'undefined' && window.matchMedia('(max-width: 980px)').matches) return
+
     const root = deskRef.current
     if (!root) return
     const el = root.querySelector(`a[href="#${activeId}"]`)
     if (!el) return
 
-    // only adjust when active goes out of view
     const box = root.getBoundingClientRect()
     const eb = el.getBoundingClientRect()
-    const topLimit = box.top + 56
+    const topLimit = box.top + 64
     const bottomLimit = box.bottom - 24
 
     if (eb.top < topLimit || eb.bottom > bottomLimit) {
