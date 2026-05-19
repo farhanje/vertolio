@@ -1,15 +1,29 @@
 import {sanityFetch} from '../../lib/sanity.client'
-import {BLOG_INDEX_QUERY} from '../../lib/sanity.queries'
+import {SITE_SETTINGS_QUERY, BLOG_INDEX_QUERY} from '../../lib/sanity.queries'
+import {placeholderSiteSettings} from '../../lib/placeholders'
 import CardMedia from '../../components/CardMedia'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
 
 export default async function BlogIndex() {
-  const posts = await sanityFetch(BLOG_INDEX_QUERY)
+  let settings = null
+  let posts = []
+
+  try {
+    ;[settings, posts] = await Promise.all([
+      sanityFetch(SITE_SETTINGS_QUERY),
+      sanityFetch(BLOG_INDEX_QUERY),
+    ])
+  } catch (_) {
+    settings = placeholderSiteSettings
+    posts = []
+  }
+
+  const accent = settings?.pageAccents?.blog || 'none'
 
   return (
-    <main className="container page-blog">
+    <main className="container page-blog" data-accent={accent}>
       <section className="section tight">
         <div className="grid12">
           <div style={{ gridColumn: '1 / span 8' }}>
