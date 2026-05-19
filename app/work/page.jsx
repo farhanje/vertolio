@@ -43,7 +43,6 @@ export default async function Work() {
       <section className="section tight">
         <div className="kicker"><span className="dot" /> Work</div>
         <h1>Work</h1>
-        <p className="lead">Grouped by organization.</p>
       </section>
 
       <div className="hr" />
@@ -73,13 +72,6 @@ export default async function Work() {
             </div>
           )
         })}
-
-        {(!projects || projects.length === 0) && (
-          <div className="card">
-            <h3 style={{ marginTop: 0 }}>No projects yet</h3>
-            <p>Add Organizations and Projects in Studio, then they will appear here.</p>
-          </div>
-        )}
       </section>
     </main>
   )
