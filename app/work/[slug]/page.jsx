@@ -1,12 +1,13 @@
-import {sanity} from '../../../lib/sanity.client'
+import {sanityFetch} from '../../../lib/sanity.client'
 import {PROJECT_BY_SLUG_QUERY} from '../../../lib/sanity.queries'
 import {RichText} from '../../../lib/portableText'
 import Toc from '../../../components/Toc'
 
 export const dynamic = 'force-dynamic'
+export const fetchCache = 'force-no-store'
 
 export default async function ProjectPage({ params }) {
-  const project = await sanity.fetch(PROJECT_BY_SLUG_QUERY, { slug: params.slug })
+  const project = await sanityFetch(PROJECT_BY_SLUG_QUERY, { slug: params.slug })
 
   if (!project) {
     return (
