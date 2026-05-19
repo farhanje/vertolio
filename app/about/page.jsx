@@ -5,11 +5,11 @@ export default function About() {
         <div className="kicker"><span className="dot" /> About</div>
         <h1>About</h1>
         <p className="lead">
-          This page will be editable from Sanity (siteSettings) in the next iteration.
+          UI/UX Designer at AstraPay. Research-driven and metrics-minded.
         </p>
         <div className="cta-row">
           <a className="btn primary" href="mailto:farhanf.jamaludin@gmail.com">Email</a>
-          <a className="btn ghost" href="/work">Work →</a>
+          <a className="btn" href="/resume">Resume →</a>
         </div>
       </section>
     </main>
