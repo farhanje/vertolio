@@ -1,12 +1,13 @@
-import {sanity} from '../../../lib/sanity.client'
+import {sanityFetch} from '../../../lib/sanity.client'
 import {POST_BY_SLUG_QUERY} from '../../../lib/sanity.queries'
 import {RichText} from '../../../lib/portableText'
 import Toc from '../../../components/Toc'
 
 export const dynamic = 'force-dynamic'
+export const fetchCache = 'force-no-store'
 
 export default async function BlogPost({ params }) {
-  const post = await sanity.fetch(POST_BY_SLUG_QUERY, { slug: params.slug })
+  const post = await sanityFetch(POST_BY_SLUG_QUERY, { slug: params.slug })
 
   if (!post) {
     return (
