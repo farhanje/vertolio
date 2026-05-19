@@ -15,11 +15,11 @@ export default async function About() {
     <main className="container page-about" data-accent={accent}>
       <section className="section tight">
         <div className="grid12">
-          <div style={{ gridColumn: '1 / span 5' }}>
+          <div className="col-left" style={{ gridColumn: '1 / span 5' }}>
             <div className="kicker"><span className="dot" /> About</div>
             <h1 className="h1-tight">About</h1>
           </div>
-          <div style={{ gridColumn: '6 / span 7', paddingTop: 10 }}>
+          <div className="col-right" style={{ gridColumn: '6 / span 7', paddingTop: 10 }}>
             <p className="lead">
               UI/UX Designer at AstraPay. Research-driven and metrics-minded.
             </p>
