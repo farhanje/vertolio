@@ -2,6 +2,7 @@ import {sanityFetch} from '../../lib/sanity.client'
 import {SITE_SETTINGS_QUERY, BLOG_INDEX_QUERY} from '../../lib/sanity.queries'
 import {placeholderSiteSettings} from '../../lib/placeholders'
 import CardMedia from '../../components/CardMedia'
+import {truncateText} from '../../lib/text'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
@@ -46,31 +47,30 @@ export default async function BlogIndex() {
       <div className="hr" />
 
       <section className="section blog-list">
-        <div className="grid12">
+        <div className="grid12" style={{ alignItems: 'stretch' }}>
           {(posts || []).map((p) => {
             const slug = p?.slug?.current
             if (!slug) return null
             const date = safeDate(p.publishedAt)
+            const desc = truncateText(p.excerpt || '', 180)
+
             return (
               <a
                 key={slug}
                 className="card card-link"
-                style={{ gridColumn: '1 / span 12' }}
+                style={{ gridColumn: 'span 6' }}
                 href={`/blog/${slug}`}
               >
-                <div className="grid12" style={{ gap: 12 }}>
-                  <div style={{ gridColumn: '1 / span 2' }} className="small">{date}</div>
-                  <div style={{ gridColumn: '3 / span 10' }}>
-                    <CardMedia image={p.cardImage} alt={p.cardImage?.alt} />
-                    <h3>{p.title}</h3>
-                    <p>
-                      {p.excerpt || ''}
-                      <span className="more">→ click more</span>
-                    </p>
-                    <div className="meta">
-                      {(p.tags || []).slice(0, 4).map((t) => <span key={t} className="pill">{t}</span>)}
-                    </div>
-                  </div>
+                <CardMedia image={p.cardImage} alt={p.cardImage?.alt} badge={date} />
+                <div className="card-body">
+                  <h3>{p.title}</h3>
+                  <p>
+                    {desc}
+                    <span className="more"> … → click more</span>
+                  </p>
+                </div>
+                <div className="meta tags card-meta">
+                  {(p.tags || []).slice(0, 4).map((t) => <span key={t} className="pill">{t}</span>)}
                 </div>
               </a>
             )
