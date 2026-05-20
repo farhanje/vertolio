@@ -4,10 +4,16 @@ import {placeholderSiteSettings} from '../lib/placeholders'
 import CardMedia from '../components/CardMedia'
 import HeroTicker from '../components/HeroTicker'
 import MarqueeText from '../components/MarqueeText'
-import {truncateText} from '../lib/text'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
+
+function trunc(input, max = 160) {
+  const s = String(input || '').trim().replace(/\s+/g, ' ')
+  if (!s) return ''
+  if (s.length <= max) return s
+  return s.slice(0, Math.max(0, max - 1)).trimEnd() + '…'
+}
 
 function TagPill({text}) {
   return (
@@ -76,7 +82,7 @@ export default async function Home() {
             const tags = p.tags || []
             const visible = tags.slice(0, 4)
             const extra = Math.max(0, tags.length - visible.length)
-            const desc = truncateText(p.summary || '', 160)
+            const desc = trunc(p.summary || '', 180)
 
             return (
               <a key={p.slug?.current} className="card card-link" style={{ gridColumn: 'span 6' }} href={`/work/${p.slug?.current}`}>
@@ -85,7 +91,7 @@ export default async function Home() {
                   <h3>{p.title}</h3>
                   <p>
                     {desc}
-                    <span className="more"> … → click more</span>
+                    <span className="more"> read more</span>
                   </p>
                 </div>
                 <div className="meta tags card-meta">
@@ -102,7 +108,7 @@ export default async function Home() {
             const tags = p.tags || []
             const visible = tags.slice(0, 4)
             const extra = Math.max(0, tags.length - visible.length)
-            const desc = truncateText(p.excerpt || '', 160)
+            const desc = trunc(p.excerpt || '', 180)
 
             return (
               <a key={p.slug?.current} className="card card-link" style={{ gridColumn: 'span 6' }} href={`/blog/${p.slug?.current}`}>
@@ -111,7 +117,7 @@ export default async function Home() {
                   <h3>{p.title}</h3>
                   <p>
                     {desc}
-                    <span className="more"> … → click more</span>
+                    <span className="more"> read more</span>
                   </p>
                 </div>
                 <div className="meta tags card-meta">
