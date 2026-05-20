@@ -62,6 +62,31 @@ export default {
     },
 
     {
+      name: 'footerLinks',
+      title: 'Footer icon links',
+      type: 'array',
+      of: [
+        {
+          type: 'object',
+          fields: [
+            { name: 'label', title: 'Label (tooltip)', type: 'string' },
+            { name: 'url', title: 'URL', type: 'url' },
+            {
+              name: 'icon',
+              title: 'Icon (square)',
+              type: 'image',
+              options: { hotspot: true },
+              fields: [
+                { name: 'alt', title: 'Alt text', type: 'string' },
+              ],
+            },
+          ],
+        },
+      ],
+      description: 'Upload any icons (LinkedIn, Gmail, Instagram, etc.) and link them.',
+    },
+
+    {
       name: 'featuredWork',
       title: 'Featured work (projects)',
       type: 'array',
