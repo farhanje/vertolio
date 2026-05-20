@@ -4,6 +4,7 @@ import {placeholderSiteSettings} from '../lib/placeholders'
 import CardMedia from '../components/CardMedia'
 import HeroTicker from '../components/HeroTicker'
 import MarqueeText from '../components/MarqueeText'
+import {truncateText} from '../lib/text'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
@@ -75,15 +76,19 @@ export default async function Home() {
             const tags = p.tags || []
             const visible = tags.slice(0, 4)
             const extra = Math.max(0, tags.length - visible.length)
+            const desc = truncateText(p.summary || '', 160)
+
             return (
               <a key={p.slug?.current} className="card card-link" style={{ gridColumn: 'span 6' }} href={`/work/${p.slug?.current}`}>
                 <CardMedia image={p.cardImage} alt={p.cardImage?.alt} logo={p.organization?.logo} />
-                <h3>{p.title}</h3>
-                <p>
-                  {p.summary || ''}
-                  <span className="more">→ click more</span>
-                </p>
-                <div className="meta tags">
+                <div className="card-body">
+                  <h3>{p.title}</h3>
+                  <p>
+                    {desc}
+                    <span className="more"> … → click more</span>
+                  </p>
+                </div>
+                <div className="meta tags card-meta">
                   {p.organization?.name && <TagPill text={p.organization.name} />}
                   {visible.map((t) => <TagPill key={t} text={t} />)}
                   {extra ? <span className="pill morepill">+{extra}</span> : null}
@@ -97,16 +102,19 @@ export default async function Home() {
             const tags = p.tags || []
             const visible = tags.slice(0, 4)
             const extra = Math.max(0, tags.length - visible.length)
+            const desc = truncateText(p.excerpt || '', 160)
+
             return (
               <a key={p.slug?.current} className="card card-link" style={{ gridColumn: 'span 6' }} href={`/blog/${p.slug?.current}`}>
-                <CardMedia image={p.cardImage} alt={p.cardImage?.alt} />
-                <h3>{p.title}</h3>
-                <p>
-                  {p.excerpt || ''}
-                  <span className="more">→ click more</span>
-                </p>
-                <div className="meta tags">
-                  {p.publishedAt && <TagPill text={new Date(p.publishedAt).toISOString().slice(0,10)} />}
+                <CardMedia image={p.cardImage} alt={p.cardImage?.alt} badge={p.publishedAt ? new Date(p.publishedAt).toISOString().slice(0,10) : ''} />
+                <div className="card-body">
+                  <h3>{p.title}</h3>
+                  <p>
+                    {desc}
+                    <span className="more"> … → click more</span>
+                  </p>
+                </div>
+                <div className="meta tags card-meta">
                   {visible.map((t) => <TagPill key={t} text={t} />)}
                   {extra ? <span className="pill morepill">+{extra}</span> : null}
                 </div>
