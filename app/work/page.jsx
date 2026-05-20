@@ -2,9 +2,7 @@ import {sanityFetch} from '../../lib/sanity.client'
 import {SITE_SETTINGS_QUERY, ORGANIZATIONS_QUERY, WORK_INDEX_QUERY} from '../../lib/sanity.queries'
 import {placeholderOrganizations, placeholderProjects, placeholderSiteSettings} from '../../lib/placeholders'
 import CardMedia from '../../components/CardMedia'
-import WorkTabs from '../../components/WorkTabs'
 import MarqueeText from '../../components/MarqueeText'
-import {truncateText} from '../../lib/text'
 import {urlFor} from '../../lib/sanity.image'
 
 export const dynamic = 'force-dynamic'
@@ -18,6 +16,23 @@ function groupByOrg(items = []) {
     map.get(org).push(it)
   }
   return map
+}
+
+function slugify(input) {
+  return String(input || '')
+    .toLowerCase()
+    .trim()
+    .replace(/['"`]/g, '')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+}
+
+function trunc(input, max = 180) {
+  const s = String(input || '').trim().replace(/\s+/g, ' ')
+  if (!s) return ''
+  if (s.length <= max) return s
+  return s.slice(0, Math.max(0, max - 1)).trimEnd() + '…'
 }
 
 function TagPill({text}) {
@@ -60,9 +75,12 @@ export default async function Work() {
       const o = (orgs || []).find((x) => x.name === name)
       const logoBuilder = o?.logo ? urlFor(o.logo) : null
       const logoUrl = logoBuilder ? logoBuilder.width(64).height(64).fit('max').quality(85).auto('format').url() : null
-      return { key: name, logoUrl }
+      const id = slugify(name)
+      return { key: name, id, logoUrl }
     })
     .filter((g) => grouped.get(g.key)?.length)
+
+  const defaultId = groups[0]?.id || 'all'
 
   return (
     <main className="container page-work" data-accent={accent}>
@@ -81,47 +99,76 @@ export default async function Work() {
       <div className="hr" />
 
       <section className="section">
-        <WorkTabs groups={groups} />
+        {/* CSS-only scalable tabs */}
+        <div className="work-tabs-wrap" role="tablist" aria-label="Organizations">
+          {groups.map((g, idx) => (
+            <input
+              key={g.id}
+              className="work-tab-radio"
+              type="radio"
+              name="orgtab"
+              id={`tab-${g.id}`}
+              defaultChecked={idx === 0}
+            />
+          ))}
 
-        {orderedKeys.map((org) => {
-          const list = grouped.get(org)
-          if (!list || list.length === 0) return null
-          return (
-            <div key={org} className="org-block" data-org={org} style={{ marginTop: 18 }}>
-              <div className="grid12 work-grid" style={{ alignItems: 'stretch' }}>
-                {list.map((p) => {
-                  const tags = p.tags || []
-                  const visible = tags.slice(0, 4)
-                  const extra = Math.max(0, tags.length - visible.length)
-                  const desc = truncateText(p.summary || '', 160)
-
-                  return (
-                    <a
-                      key={p.slug?.current}
-                      className="card card-link"
-                      style={{ gridColumn: 'span 6' }}
-                      href={`/work/${p.slug?.current}`}
-                    >
-                      <CardMedia image={p.cardImage} alt={p.cardImage?.alt} logo={p.organization?.logo} />
-                      <div className="card-body">
-                        <h3>{p.title}</h3>
-                        <p>
-                          {desc}
-                          <span className="more"> … → click more</span>
-                        </p>
-                      </div>
-                      <div className="meta tags card-meta">
-                        {p.organization?.name && <TagPill text={p.organization.name} />}
-                        {visible.map((t) => <TagPill key={t} text={t} />)}
-                        {extra ? <span className="pill morepill">+{extra}</span> : null}
-                      </div>
-                    </a>
-                  )
-                })}
-              </div>
+          <div className="work-tabs">
+            <div className="tabs-row">
+              {groups.map((g) => (
+                <label key={g.id} className="tab" htmlFor={`tab-${g.id}`}>
+                  {g.logoUrl ? (
+                    <img className="tab-logo" src={g.logoUrl} alt="" aria-hidden="true" />
+                  ) : (
+                    <span className="tab-mark" aria-hidden="true" />
+                  )}
+                  <span className="tab-text">{g.key}</span>
+                </label>
+              ))}
             </div>
-          )
-        })}
+          </div>
+
+          <div className="work-panels">
+            {groups.map((g, idx) => {
+              const list = grouped.get(g.key) || []
+              const isDefault = idx === 0
+              return (
+                <div key={g.id} className="work-panel" data-panel={g.id} data-default={isDefault ? '1' : '0'}>
+                  <div className="grid12 work-grid" style={{ alignItems: 'stretch' }}>
+                    {list.map((p) => {
+                      const tags = p.tags || []
+                      const visible = tags.slice(0, 4)
+                      const extra = Math.max(0, tags.length - visible.length)
+                      const desc = trunc(p.summary || '', 190)
+
+                      return (
+                        <a
+                          key={p.slug?.current}
+                          className="card card-link"
+                          style={{ gridColumn: 'span 6' }}
+                          href={`/work/${p.slug?.current}`}
+                        >
+                          <CardMedia image={p.cardImage} alt={p.cardImage?.alt} logo={p.organization?.logo} />
+                          <div className="card-body">
+                            <h3>{p.title}</h3>
+                            <p>
+                              {desc}
+                              <span className="more"> read more</span>
+                            </p>
+                          </div>
+                          <div className="meta tags card-meta">
+                            {p.organization?.name && <TagPill text={p.organization.name} />}
+                            {visible.map((t) => <TagPill key={t} text={t} />)}
+                            {extra ? <span className="pill morepill">+{extra}</span> : null}
+                          </div>
+                        </a>
+                      )
+                    })}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
       </section>
     </main>
   )
