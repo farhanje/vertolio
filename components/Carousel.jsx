@@ -45,7 +45,6 @@ export default function Carousel({slides = [], title, ratio = '16:9'}) {
           {src ? (
             <img className="car-img" src={src} alt={current?.alt || ''} />
           ) : null}
-          <span className="zoom-hint">Click to zoom</span>
         </button>
 
         <button className="car-btn right" onClick={next} aria-label="Next">›</button>
