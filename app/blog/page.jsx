@@ -2,7 +2,6 @@ import {sanityFetch} from '../../lib/sanity.client'
 import {SITE_SETTINGS_QUERY, BLOG_INDEX_QUERY} from '../../lib/sanity.queries'
 import {placeholderSiteSettings} from '../../lib/placeholders'
 import CardMedia from '../../components/CardMedia'
-import {truncateText} from '../../lib/text'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
@@ -12,6 +11,13 @@ function safeDate(iso) {
   const d = new Date(iso)
   if (Number.isNaN(d.getTime())) return ''
   return d.toISOString().slice(0, 10)
+}
+
+function trunc(input, max = 180) {
+  const s = String(input || '').trim().replace(/\s+/g, ' ')
+  if (!s) return ''
+  if (s.length <= max) return s
+  return s.slice(0, Math.max(0, max - 1)).trimEnd() + '…'
 }
 
 export default async function BlogIndex() {
@@ -52,7 +58,7 @@ export default async function BlogIndex() {
             const slug = p?.slug?.current
             if (!slug) return null
             const date = safeDate(p.publishedAt)
-            const desc = truncateText(p.excerpt || '', 180)
+            const desc = trunc(p.excerpt || '', 180)
 
             return (
               <a
@@ -66,7 +72,7 @@ export default async function BlogIndex() {
                   <h3>{p.title}</h3>
                   <p>
                     {desc}
-                    <span className="more"> … → click more</span>
+                    <span className="more"> read more</span>
                   </p>
                 </div>
                 <div className="meta tags card-meta">
