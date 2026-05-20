@@ -28,7 +28,7 @@ function slugify(input) {
     .replace(/-+/g, '-')
 }
 
-function trunc(input, max = 180) {
+function trunc(input, max = 190) {
   const s = String(input || '').trim().replace(/\s+/g, ' ')
   if (!s) return ''
   if (s.length <= max) return s
@@ -80,7 +80,13 @@ export default async function Work() {
     })
     .filter((g) => grouped.get(g.key)?.length)
 
-  const defaultId = groups[0]?.id || 'all'
+  const tabCss = (groups || [])
+    .map((g) => {
+      const tab = `#tab-${g.id}:checked ~ .work-tabs .tabs-row label[for="tab-${g.id}"]`
+      const panel = `#tab-${g.id}:checked ~ .work-panels .work-panel[data-panel="${g.id}"]`
+      return `${tab}{color:var(--fg);border-color:rgba(11,11,11,.32)}\n${panel}{display:block}`
+    })
+    .join('\n')
 
   return (
     <main className="container page-work" data-accent={accent}>
@@ -101,6 +107,8 @@ export default async function Work() {
       <section className="section">
         {/* CSS-only scalable tabs */}
         <div className="work-tabs-wrap" role="tablist" aria-label="Organizations">
+          <style>{tabCss}</style>
+
           {groups.map((g, idx) => (
             <input
               key={g.id}
@@ -130,9 +138,8 @@ export default async function Work() {
           <div className="work-panels">
             {groups.map((g, idx) => {
               const list = grouped.get(g.key) || []
-              const isDefault = idx === 0
               return (
-                <div key={g.id} className="work-panel" data-panel={g.id} data-default={isDefault ? '1' : '0'}>
+                <div key={g.id} className="work-panel" data-panel={g.id} data-default={idx === 0 ? '1' : '0'}>
                   <div className="grid12 work-grid" style={{ alignItems: 'stretch' }}>
                     {list.map((p) => {
                       const tags = p.tags || []
