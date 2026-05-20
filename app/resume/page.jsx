@@ -11,6 +11,8 @@ export default async function ResumePage() {
   const url = settings?.resumePdf?.asset?.url
   const filename = settings?.resumePdf?.asset?.originalFilename || 'resume.pdf'
 
+  const viewerUrl = url ? `${url}#view=FitH` : null
+
   return (
     <main className="container page-resume" data-accent={accent}>
       <section className="section tight">
@@ -36,10 +38,9 @@ export default async function ResumePage() {
               </div>
             ) : (
               <div className="resume-frame">
-                <iframe title="Resume PDF" src={url} />
+                <iframe title="Resume PDF" src={viewerUrl} />
               </div>
             )}
-            {url ? <p className="resume-note">If preview fails on your device, use “Open PDF”.</p> : null}
           </div>
         </div>
       </section>
