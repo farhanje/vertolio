@@ -3,6 +3,7 @@ import {SITE_SETTINGS_QUERY, POST_BY_SLUG_QUERY} from '../../../lib/sanity.queri
 import {placeholderSiteSettings} from '../../../lib/placeholders'
 import {RichText} from '../../../lib/portableText'
 import Toc from '../../../components/Toc'
+import BackSmart from '../../../components/BackSmart'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
@@ -50,7 +51,7 @@ export default async function BlogPost({ params }) {
               {(post.tags || []).slice(0, 6).map((t) => <span key={t} className="pill">{t}</span>)}
             </div>
             <div className="cta-row" style={{ marginTop: 14 }}>
-              <a className="btn" href="/blog">← Back</a>
+              <BackSmart fallback="/blog" />
             </div>
           </div>
         </div>
