@@ -3,9 +3,18 @@ import {SITE_SETTINGS_QUERY, HOME_FEATURED_PROJECTS_QUERY, HOME_FEATURED_POSTS_Q
 import {placeholderSiteSettings} from '../lib/placeholders'
 import CardMedia from '../components/CardMedia'
 import HeroTicker from '../components/HeroTicker'
+import MarqueeText from '../components/MarqueeText'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
+
+function TagPill({text}) {
+  return (
+    <span className="pill">
+      <MarqueeText text={text} />
+    </span>
+  )
+}
 
 export default async function Home() {
   let settings = null
@@ -60,38 +69,50 @@ export default async function Home() {
       <div className="hr" />
 
       <section className="section">
-        <div className="grid12">
+        <div className="grid12" style={{ alignItems: 'stretch' }}>
           <div style={{ gridColumn: '1 / span 12' }}><h2>Featured work</h2></div>
-          {featuredWork.map((p) => (
-            <a key={p.slug?.current} className="card card-link" style={{ gridColumn: 'span 6' }} href={`/work/${p.slug?.current}`}>
-              <CardMedia image={p.cardImage} alt={p.cardImage?.alt} logo={p.organization?.logo} />
-              <h3>{p.title}</h3>
-              <p>
-                {p.summary || ''}
-                <span className="more">→ click more</span>
-              </p>
-              <div className="meta">
-                {p.organization?.name && <span className="pill">{p.organization.name}</span>}
-                {(p.tags || []).slice(0, 3).map((t) => <span key={t} className="pill">{t}</span>)}
-              </div>
-            </a>
-          ))}
+          {featuredWork.map((p) => {
+            const tags = p.tags || []
+            const visible = tags.slice(0, 4)
+            const extra = Math.max(0, tags.length - visible.length)
+            return (
+              <a key={p.slug?.current} className="card card-link" style={{ gridColumn: 'span 6' }} href={`/work/${p.slug?.current}`}>
+                <CardMedia image={p.cardImage} alt={p.cardImage?.alt} logo={p.organization?.logo} />
+                <h3>{p.title}</h3>
+                <p>
+                  {p.summary || ''}
+                  <span className="more">→ click more</span>
+                </p>
+                <div className="meta tags">
+                  {p.organization?.name && <TagPill text={p.organization.name} />}
+                  {visible.map((t) => <TagPill key={t} text={t} />)}
+                  {extra ? <span className="pill morepill">+{extra}</span> : null}
+                </div>
+              </a>
+            )
+          })}
 
           <div style={{ gridColumn: '1 / span 12', marginTop: 6 }}><h2>Featured posts</h2></div>
-          {featuredPosts.map((p) => (
-            <a key={p.slug?.current} className="card card-link" style={{ gridColumn: 'span 6' }} href={`/blog/${p.slug?.current}`}>
-              <CardMedia image={p.cardImage} alt={p.cardImage?.alt} />
-              <h3>{p.title}</h3>
-              <p>
-                {p.excerpt || ''}
-                <span className="more">→ click more</span>
-              </p>
-              <div className="meta">
-                {p.publishedAt && <span className="pill">{new Date(p.publishedAt).toISOString().slice(0,10)}</span>}
-                {(p.tags || []).slice(0, 3).map((t) => <span key={t} className="pill">{t}</span>)}
-              </div>
-            </a>
-          ))}
+          {featuredPosts.map((p) => {
+            const tags = p.tags || []
+            const visible = tags.slice(0, 4)
+            const extra = Math.max(0, tags.length - visible.length)
+            return (
+              <a key={p.slug?.current} className="card card-link" style={{ gridColumn: 'span 6' }} href={`/blog/${p.slug?.current}`}>
+                <CardMedia image={p.cardImage} alt={p.cardImage?.alt} />
+                <h3>{p.title}</h3>
+                <p>
+                  {p.excerpt || ''}
+                  <span className="more">→ click more</span>
+                </p>
+                <div className="meta tags">
+                  {p.publishedAt && <TagPill text={new Date(p.publishedAt).toISOString().slice(0,10)} />}
+                  {visible.map((t) => <TagPill key={t} text={t} />)}
+                  {extra ? <span className="pill morepill">+{extra}</span> : null}
+                </div>
+              </a>
+            )
+          })}
         </div>
       </section>
     </main>
