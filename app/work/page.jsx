@@ -28,7 +28,7 @@ function slugify(input) {
     .replace(/-+/g, '-')
 }
 
-function trunc(input, max = 190) {
+function trunc(input, max = 300) {
   const s = String(input || '').trim().replace(/\s+/g, ' ')
   if (!s) return ''
   if (s.length <= max) return s
@@ -41,6 +41,14 @@ function TagPill({text}) {
       <MarqueeText text={text} />
     </span>
   )
+}
+
+function buildTagSet(tags = [], cap = 4) {
+  const visible = tags.slice(0, cap)
+  const extra = Math.max(0, tags.length - visible.length)
+  const v = (extra > 0 && visible.length % 2 === 1) ? visible.slice(0, Math.max(0, visible.length - 1)) : visible
+  const e = Math.max(0, tags.length - v.length)
+  return { visible: v, extra: e }
 }
 
 export default async function Work() {
@@ -105,7 +113,6 @@ export default async function Work() {
       <div className="hr" />
 
       <section className="section">
-        {/* CSS-only scalable tabs */}
         <div className="work-tabs-wrap" role="tablist" aria-label="Organizations">
           <style>{tabCss}</style>
 
@@ -136,16 +143,15 @@ export default async function Work() {
           </div>
 
           <div className="work-panels">
-            {groups.map((g, idx) => {
+            {groups.map((g) => {
               const list = grouped.get(g.key) || []
               return (
-                <div key={g.id} className="work-panel" data-panel={g.id} data-default={idx === 0 ? '1' : '0'}>
+                <div key={g.id} className="work-panel" data-panel={g.id}>
                   <div className="grid12 work-grid" style={{ alignItems: 'stretch' }}>
                     {list.map((p) => {
-                      const tags = p.tags || []
-                      const visible = tags.slice(0, 4)
-                      const extra = Math.max(0, tags.length - visible.length)
-                      const desc = trunc(p.summary || '', 190)
+                      const tags = [p.organization?.name, ...(p.tags || [])].filter(Boolean)
+                      const { visible, extra } = buildTagSet(tags, 4)
+                      const desc = trunc(p.summary || '', 320)
 
                       return (
                         <a
@@ -157,13 +163,9 @@ export default async function Work() {
                           <CardMedia image={p.cardImage} alt={p.cardImage?.alt} logo={p.organization?.logo} />
                           <div className="card-body">
                             <h3>{p.title}</h3>
-                            <p>
-                              {desc}
-                              <span className="more"> read more</span>
-                            </p>
+                            <p>{desc}<span className="more"> …</span></p>
                           </div>
                           <div className="meta tags card-meta">
-                            {p.organization?.name && <TagPill text={p.organization.name} />}
                             {visible.map((t) => <TagPill key={t} text={t} />)}
                             {extra ? <span className="pill morepill">+{extra}</span> : null}
                           </div>
