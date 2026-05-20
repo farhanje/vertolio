@@ -2,6 +2,10 @@ import {sanityFetch} from '../../lib/sanity.client'
 import {SITE_SETTINGS_QUERY, ORGANIZATIONS_QUERY, WORK_INDEX_QUERY} from '../../lib/sanity.queries'
 import {placeholderOrganizations, placeholderProjects, placeholderSiteSettings} from '../../lib/placeholders'
 import CardMedia from '../../components/CardMedia'
+import WorkTabs from '../../components/WorkTabs'
+import MarqueeText from '../../components/MarqueeText'
+import {truncateText} from '../../lib/text'
+import {urlFor} from '../../lib/sanity.image'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
@@ -14,6 +18,14 @@ function groupByOrg(items = []) {
     map.get(org).push(it)
   }
   return map
+}
+
+function TagPill({text}) {
+  return (
+    <span className="pill">
+      <MarqueeText text={text} />
+    </span>
+  )
 }
 
 export default async function Work() {
@@ -43,6 +55,15 @@ export default async function Work() {
     ...Array.from(grouped.keys()).filter((k) => !orgOrder.includes(k)),
   ]
 
+  const groups = orderedKeys
+    .map((name) => {
+      const o = (orgs || []).find((x) => x.name === name)
+      const logoBuilder = o?.logo ? urlFor(o.logo) : null
+      const logoUrl = logoBuilder ? logoBuilder.width(64).height(64).fit('max').quality(85).auto('format').url() : null
+      return { key: name, logoUrl }
+    })
+    .filter((g) => grouped.get(g.key)?.length)
+
   return (
     <main className="container page-work" data-accent={accent}>
       <section className="section tight">
@@ -60,38 +81,43 @@ export default async function Work() {
       <div className="hr" />
 
       <section className="section">
+        <WorkTabs groups={groups} />
+
         {orderedKeys.map((org) => {
           const list = grouped.get(org)
           if (!list || list.length === 0) return null
           return (
-            <div key={org} style={{ marginBottom: 40 }}>
-              <div className="org-row" style={{ marginBottom: 12 }}>
-                <h2 style={{ margin: 0 }}>{org}</h2>
-                <div className="org-rule"><div className="hr" /></div>
-              </div>
+            <div key={org} className="org-block" data-org={org} style={{ marginTop: 18 }}>
+              <div className="grid12 work-grid" style={{ alignItems: 'stretch' }}>
+                {list.map((p) => {
+                  const tags = p.tags || []
+                  const visible = tags.slice(0, 4)
+                  const extra = Math.max(0, tags.length - visible.length)
+                  const desc = truncateText(p.summary || '', 160)
 
-              <div className="grid12 work-grid">
-                {list.map((p) => (
-                  <a
-                    key={p.slug?.current}
-                    className="card card-link"
-                    style={{ gridColumn: 'span 6' }}
-                    href={`/work/${p.slug?.current}`}
-                  >
-                    <CardMedia image={p.cardImage} alt={p.cardImage?.alt} logo={p.organization?.logo} />
-                    <h3>{p.title}</h3>
-                    <p>
-                      {p.summary || ''}
-                      <span className="more">→ click more</span>
-                    </p>
-                    <div className="meta">
-                      <span className="pill">{p.organization?.name || 'Org'}</span>
-                      {(p.tags || []).slice(0, 3).map((t) => (
-                        <span key={t} className="pill">{t}</span>
-                      ))}
-                    </div>
-                  </a>
-                ))}
+                  return (
+                    <a
+                      key={p.slug?.current}
+                      className="card card-link"
+                      style={{ gridColumn: 'span 6' }}
+                      href={`/work/${p.slug?.current}`}
+                    >
+                      <CardMedia image={p.cardImage} alt={p.cardImage?.alt} logo={p.organization?.logo} />
+                      <div className="card-body">
+                        <h3>{p.title}</h3>
+                        <p>
+                          {desc}
+                          <span className="more"> … → click more</span>
+                        </p>
+                      </div>
+                      <div className="meta tags card-meta">
+                        {p.organization?.name && <TagPill text={p.organization.name} />}
+                        {visible.map((t) => <TagPill key={t} text={t} />)}
+                        {extra ? <span className="pill morepill">+{extra}</span> : null}
+                      </div>
+                    </a>
+                  )
+                })}
               </div>
             </div>
           )
