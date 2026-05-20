@@ -13,7 +13,7 @@ function safeDate(iso) {
   return d.toISOString().slice(0, 10)
 }
 
-function trunc(input, max = 180) {
+function trunc(input, max = 320) {
   const s = String(input || '').trim().replace(/\s+/g, ' ')
   if (!s) return ''
   if (s.length <= max) return s
@@ -58,7 +58,7 @@ export default async function BlogIndex() {
             const slug = p?.slug?.current
             if (!slug) return null
             const date = safeDate(p.publishedAt)
-            const desc = trunc(p.excerpt || '', 180)
+            const desc = trunc(p.excerpt || '', 320)
 
             return (
               <a
@@ -70,10 +70,7 @@ export default async function BlogIndex() {
                 <CardMedia image={p.cardImage} alt={p.cardImage?.alt} badge={date} />
                 <div className="card-body">
                   <h3>{p.title}</h3>
-                  <p>
-                    {desc}
-                    <span className="more"> read more</span>
-                  </p>
+                  <p>{desc}<span className="more"> …</span></p>
                 </div>
                 <div className="meta tags card-meta">
                   {(p.tags || []).slice(0, 4).map((t) => <span key={t} className="pill">{t}</span>)}
