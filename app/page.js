@@ -8,7 +8,7 @@ import MarqueeText from '../components/MarqueeText'
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
 
-function trunc(input, max = 160) {
+function trunc(input, max = 260) {
   const s = String(input || '').trim().replace(/\s+/g, ' ')
   if (!s) return ''
   if (s.length <= max) return s
@@ -21,6 +21,15 @@ function TagPill({text}) {
       <MarqueeText text={text} />
     </span>
   )
+}
+
+function buildTagSet(tags = [], cap = 4) {
+  const visible = tags.slice(0, cap)
+  const extra = Math.max(0, tags.length - visible.length)
+  // Avoid lonely +N in its own row: if visible is odd and extra exists, reduce one visible.
+  const v = (extra > 0 && visible.length % 2 === 1) ? visible.slice(0, Math.max(0, visible.length - 1)) : visible
+  const e = Math.max(0, tags.length - v.length)
+  return { visible: v, extra: e }
 }
 
 export default async function Home() {
@@ -79,23 +88,18 @@ export default async function Home() {
         <div className="grid12" style={{ alignItems: 'stretch' }}>
           <div style={{ gridColumn: '1 / span 12' }}><h2>Featured work</h2></div>
           {featuredWork.map((p) => {
-            const tags = p.tags || []
-            const visible = tags.slice(0, 4)
-            const extra = Math.max(0, tags.length - visible.length)
-            const desc = trunc(p.summary || '', 180)
+            const tags = [p.organization?.name, ...(p.tags || [])].filter(Boolean)
+            const { visible, extra } = buildTagSet(tags, 4)
+            const desc = trunc(p.summary || '', 300)
 
             return (
               <a key={p.slug?.current} className="card card-link" style={{ gridColumn: 'span 6' }} href={`/work/${p.slug?.current}`}>
                 <CardMedia image={p.cardImage} alt={p.cardImage?.alt} logo={p.organization?.logo} />
                 <div className="card-body">
                   <h3>{p.title}</h3>
-                  <p>
-                    {desc}
-                    <span className="more"> read more</span>
-                  </p>
+                  <p>{desc}<span className="more"> …</span></p>
                 </div>
                 <div className="meta tags card-meta">
-                  {p.organization?.name && <TagPill text={p.organization.name} />}
                   {visible.map((t) => <TagPill key={t} text={t} />)}
                   {extra ? <span className="pill morepill">+{extra}</span> : null}
                 </div>
@@ -103,22 +107,22 @@ export default async function Home() {
             )
           })}
 
-          <div style={{ gridColumn: '1 / span 12', marginTop: 6 }}><h2>Featured posts</h2></div>
+          <div style={{ gridColumn: '1 / span 12', marginTop: 34 }}>
+            <div className="hr" />
+          </div>
+
+          <div style={{ gridColumn: '1 / span 12', marginTop: 10 }}><h2>Featured posts</h2></div>
           {featuredPosts.map((p) => {
-            const tags = p.tags || []
-            const visible = tags.slice(0, 4)
-            const extra = Math.max(0, tags.length - visible.length)
-            const desc = trunc(p.excerpt || '', 180)
+            const tags = (p.tags || [])
+            const { visible, extra } = buildTagSet(tags, 4)
+            const desc = trunc(p.excerpt || '', 300)
 
             return (
               <a key={p.slug?.current} className="card card-link" style={{ gridColumn: 'span 6' }} href={`/blog/${p.slug?.current}`}>
                 <CardMedia image={p.cardImage} alt={p.cardImage?.alt} badge={p.publishedAt ? new Date(p.publishedAt).toISOString().slice(0,10) : ''} />
                 <div className="card-body">
                   <h3>{p.title}</h3>
-                  <p>
-                    {desc}
-                    <span className="more"> read more</span>
-                  </p>
+                  <p>{desc}<span className="more"> …</span></p>
                 </div>
                 <div className="meta tags card-meta">
                   {visible.map((t) => <TagPill key={t} text={t} />)}
