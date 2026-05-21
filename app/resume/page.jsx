@@ -18,7 +18,7 @@ export default async function ResumePage() {
       <section className="section tight">
         <div className="grid12">
           <div className="col-left" style={{ gridColumn: '1 / span 5' }}>
-            <div className="kicker"><span className="dot" /> Resume</div>
+            <div className="kicker"><span className="dot" /> Farhan Fauzan Jamaludin</div>
             <h1 className="h1-tight">Resume</h1>
             <p className="lead" style={{ marginTop: 10 }}>
               {url ? 'Latest PDF.' : 'Resume PDF is not available yet.'}
@@ -37,7 +37,7 @@ export default async function ResumePage() {
                 <h3 style={{ margin: 0 }}>No resume uploaded</h3>
               </div>
             ) : (
-              <div className="resume-frame">
+              <div className="resume-frame resume-frame-big">
                 <iframe title="Resume PDF" src={viewerUrl} />
               </div>
             )}
