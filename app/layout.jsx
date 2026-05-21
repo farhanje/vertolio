@@ -53,7 +53,19 @@ export default async function RootLayout({ children }) {
 
   return (
     <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
+      <head>
+        {/* Google Translate bootstrap */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `function googleTranslateElementInit(){try{new google.translate.TranslateElement({pageLanguage:'id',autoDisplay:false},'google_translate_element');}catch(e){}}`,
+          }}
+        />
+        <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" async />
+      </head>
       <body className="app">
+        {/* hidden container (we only use cookie-based translate, not the UI) */}
+        <div id="google_translate_element" className="g-translate-hidden" />
+
         <SiteNav brand={brand} brandLogoUrl={brandLogoUrl} brandLogoAlt={brandLogoAlt} />
         {children}
         <SiteFooter />
