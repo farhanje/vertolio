@@ -5,6 +5,27 @@ const ACCENT_OPTIONS = [
   { title: 'Blue', value: 'blue' },
 ]
 
+const LINK_FIELDSET = [
+  { name: 'label', title: 'Label', type: 'string' },
+  {
+    name: 'url',
+    title: 'URL',
+    type: 'string',
+    description: 'Supports https://, mailto:, tel:, and relative paths like /work.',
+    validation: (Rule) =>
+      Rule.required().custom((v) => {
+        if (!v) return 'Required'
+        const s = String(v).trim()
+        if (s.startsWith('mailto:')) return true
+        if (s.startsWith('tel:')) return true
+        if (s.startsWith('/')) return true
+        if (s.startsWith('https://')) return true
+        if (s.startsWith('http://')) return true
+        return 'Use https://, mailto:, tel:, or /path'
+      }),
+  },
+]
+
 export default {
   name: 'siteSettings',
   title: 'Site Settings',
@@ -48,6 +69,44 @@ export default {
       options: { hotspot: true },
       fields: [{ name: 'alt', title: 'Alt text', type: 'string' }],
       description: 'Used on mobile/tablet hero. Suggested: 1600×1067 (3:2) or 1600×900 (16:9).',
+    },
+
+    // About page (Sanity-driven)
+    {
+      name: 'about',
+      title: 'About page',
+      type: 'object',
+      fields: [
+        { name: 'kicker', title: 'Kicker', type: 'string', initialValue: 'Farhan Fauzan Jamaludin' },
+        { name: 'title', title: 'Title', type: 'string', initialValue: 'About' },
+        { name: 'lead', title: 'Lead text', type: 'text', rows: 3 },
+        {
+          name: 'buttons',
+          title: 'Buttons',
+          type: 'array',
+          of: [
+            {
+              type: 'object',
+              fields: [
+                ...LINK_FIELDSET,
+                {
+                  name: 'style',
+                  title: 'Style',
+                  type: 'string',
+                  options: {
+                    list: [
+                      { title: 'Primary', value: 'primary' },
+                      { title: 'Secondary', value: 'secondary' },
+                    ],
+                  },
+                  initialValue: 'secondary',
+                },
+              ],
+            },
+          ],
+        },
+        { name: 'body', title: 'Body', type: 'array', of: [{ type: 'block' }] },
+      ],
     },
 
     // SEO / Metadata
@@ -113,10 +172,7 @@ export default {
       of: [
         {
           type: 'object',
-          fields: [
-            { name: 'label', title: 'Label', type: 'string' },
-            { name: 'url', title: 'URL', type: 'url' },
-          ],
+          fields: LINK_FIELDSET,
         },
       ],
     },
@@ -130,15 +186,29 @@ export default {
           type: 'object',
           fields: [
             { name: 'label', title: 'Label (tooltip)', type: 'string' },
-            { name: 'url', title: 'URL', type: 'url' },
+            {
+              name: 'url',
+              title: 'URL',
+              type: 'string',
+              description: 'Supports https://, mailto:, tel:, and relative paths like /work.',
+              validation: (Rule) =>
+                Rule.required().custom((v) => {
+                  if (!v) return 'Required'
+                  const s = String(v).trim()
+                  if (s.startsWith('mailto:')) return true
+                  if (s.startsWith('tel:')) return true
+                  if (s.startsWith('/')) return true
+                  if (s.startsWith('https://')) return true
+                  if (s.startsWith('http://')) return true
+                  return 'Use https://, mailto:, tel:, or /path'
+                }),
+            },
             {
               name: 'icon',
               title: 'Icon (square)',
               type: 'image',
               options: { hotspot: true },
-              fields: [
-                { name: 'alt', title: 'Alt text', type: 'string' },
-              ],
+              fields: [{ name: 'alt', title: 'Alt text', type: 'string' }],
             },
           ],
         },
