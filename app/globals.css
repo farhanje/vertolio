@@ -168,7 +168,25 @@ h2{font-size:clamp(20px,2vw,28px);line-height:1.15;letter-spacing:-0.02em;margin
 .toc-link:hover{background:rgba(11,11,11,.03);text-decoration:none}
 .toc-link.lvl3{padding-left:22px;font-size:12px}
 
-.toc-fab{display:none;position:fixed;right:16px;bottom:86px;z-index:40;width:48px;height:48px;border-radius:0;border:1px solid var(--hair);background:rgba(255,255,255,.92);font-weight:900;font-size:18px;cursor:pointer}
+.toc-fab{display:none;position:fixed;right:16px;bottom:86px;z-index:60;width:48px;height:48px;border-radius:0;border:1px solid var(--hair);background:rgba(255,255,255,.92);font-weight:900;font-size:18px;cursor:pointer}
+
+/* MOBILE TOC drawer (restored) */
+.toc-overlay{position:fixed;inset:0;z-index:70;display:flex;justify-content:flex-end}
+.toc-backdrop{position:absolute;inset:0;border:0;background:rgba(11,11,11,.25)}
+.toc-drawer{position:relative;width:min(92vw,380px);height:100%;overflow:auto;border-left:1px solid var(--hair);padding:16px;background:var(--bg)}
+.toc-drawer-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.toc-close{width:34px;height:34px;border:1px solid var(--hair);background:transparent;cursor:pointer;font-weight:900}
+
+/* LIGHTBOX (restored) */
+.lb{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px}
+.lb-backdrop{position:absolute;inset:0;border:0;background:rgba(0,0,0,.74)}
+.lb-panel{position:relative;width:min(96vw,1200px);max-height:min(92vh,920px);background:transparent}
+.lb-close{position:absolute;right:0;top:-42px;width:34px;height:34px;border:1px solid rgba(255,255,255,.55);background:transparent;color:#fff;cursor:pointer;font-weight:900}
+.lb-body{overflow:auto;background:transparent}
+.lb-img{width:100%;height:auto;display:block;background:transparent}
+.lb-cap{margin-top:12px;font-size:12px;color:rgba(255,255,255,.85)}
+.zoom{display:block;width:100%;border:0;background:transparent;padding:0;cursor:zoom-in;position:relative}
+.zoom img{width:100%;height:100%;object-fit:contain;display:block}
 
 /* Footer */
 .footer{padding:28px 0 48px;color:var(--muted);border-top:1px solid var(--hair2)}
