@@ -17,6 +17,11 @@ a:focus-visible,button:focus-visible{outline:3px solid rgba(0,0,0,.22);outline-o
 body{top:0 !important}
 .goog-logo-link{display:none !important}
 .goog-te-gadget{height:0 !important;overflow:hidden !important}
+/* extra hardening */
+.goog-tooltip{display:none !important}
+#goog-gt-tt{display:none !important}
+.goog-text-highlight{background:transparent !important;box-shadow:none !important}
+.skiptranslate{display:none !important}
 
 .container{width:min(var(--max),calc(100% - (var(--pad)*2)));margin:0 auto}
 .grid12{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:var(--g)}
