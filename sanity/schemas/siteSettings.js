@@ -47,6 +47,12 @@ export default {
           options: { hotspot: true },
           fields: [{ name: 'alt', title: 'Alt text', type: 'string' }],
         },
+        {
+          name: 'commentsRepo',
+          title: 'Comments repo (utterances)',
+          type: 'string',
+          description: 'Format: owner/repo. Example: farhanje/vertolio. This repo must have utterances installed.',
+        },
       ],
     },
 
