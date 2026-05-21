@@ -52,7 +52,7 @@ export default function SiteNav({ brand = 'Farhan' }) {
       {open ? (
         <div className="menu-overlay" role="dialog" aria-modal="true">
           <button className="menu-backdrop" onClick={() => setOpen(false)} aria-label="Close" />
-          <div className="menu-drawer card">
+          <div className="menu-drawer">
             <div className="menu-head">
               <div className="toc-title">Menu</div>
               <button className="menu-close" onClick={() => setOpen(false)} aria-label="Close">✕</button>
