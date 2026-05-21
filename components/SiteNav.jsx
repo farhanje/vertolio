@@ -16,7 +16,7 @@ function isActive(path, href) {
   return path === href || path.startsWith(href + '/')
 }
 
-export default function SiteNav({ brand = 'Farhan' }) {
+export default function SiteNav({ brand = 'Farhan', brandLogoUrl = null, brandLogoAlt = '' }) {
   const pathname = usePathname() || '/'
   const [open, setOpen] = useState(false)
 
@@ -31,7 +31,14 @@ export default function SiteNav({ brand = 'Farhan' }) {
       {/* Desktop / large screens (top nav) */}
       <header className="nav nav-desktop">
         <div className="container nav-inner">
-          <div className="brand"><span className="mark" /> {brand}</div>
+          <div className="brand">
+            {brandLogoUrl ? (
+              <img className="brand-logo" src={brandLogoUrl} alt={brandLogoAlt || ''} />
+            ) : (
+              <span className="mark" />
+            )}
+            <span>{brand}</span>
+          </div>
           <nav className="nav-links">
             {LINKS.map((l) => (
               <a key={l.href} href={l.href} className={active[l.href] ? 'active' : ''}>{l.label}</a>
@@ -55,7 +62,14 @@ export default function SiteNav({ brand = 'Farhan' }) {
           <button className="menu-backdrop" onClick={() => setOpen(false)} aria-label="Close" />
           <div className="menu-drawer">
             <div className="menu-head">
-              <div className="toc-title">Menu</div>
+              <div className="brand brand-in-drawer">
+                {brandLogoUrl ? (
+                  <img className="brand-logo" src={brandLogoUrl} alt={brandLogoAlt || ''} />
+                ) : (
+                  <span className="mark" />
+                )}
+                <span>{brand}</span>
+              </div>
               <button className="menu-close" onClick={() => setOpen(false)} aria-label="Close">✕</button>
             </div>
             <nav className="menu-links">
