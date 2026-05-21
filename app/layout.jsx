@@ -5,6 +5,7 @@ import { GeistSans, GeistMono } from 'geist/font';
 import {sanityFetch} from '../lib/sanity.client';
 import {SITE_SETTINGS_QUERY} from '../lib/sanity.queries';
 import {placeholderSiteSettings} from '../lib/placeholders';
+import GoogleTranslateCleanup from '../components/GoogleTranslateCleanup';
 
 export async function generateMetadata() {
   let settings = null;
@@ -65,6 +66,7 @@ export default async function RootLayout({ children }) {
       <body className="app">
         {/* hidden container (we only use cookie-based translate, not the UI) */}
         <div id="google_translate_element" className="g-translate-hidden" />
+        <GoogleTranslateCleanup />
 
         <SiteNav brand={brand} brandLogoUrl={brandLogoUrl} brandLogoAlt={brandLogoAlt} />
         {children}
