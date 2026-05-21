@@ -14,6 +14,42 @@ export default {
     { name: 'tagline', title: 'Tagline', type: 'string' },
     { name: 'heroSubtitle', title: 'Hero subtitle', type: 'text', rows: 2 },
 
+    // Hero portrait (art-directed)
+    {
+      name: 'heroPortraitDesktop',
+      title: 'Hero portrait (Desktop) — recommended 4:5 or 3:4',
+      type: 'image',
+      options: { hotspot: true },
+      fields: [{ name: 'alt', title: 'Alt text', type: 'string' }],
+      description: 'Used on desktop hero. Suggested: 1200×1500 (4:5) or 1200×1600 (3:4).',
+    },
+    {
+      name: 'heroPortraitMobile',
+      title: 'Hero portrait (Mobile/Tablet) — recommended 3:2 or 16:9',
+      type: 'image',
+      options: { hotspot: true },
+      fields: [{ name: 'alt', title: 'Alt text', type: 'string' }],
+      description: 'Used on mobile/tablet hero. Suggested: 1600×1067 (3:2) or 1600×900 (16:9).',
+    },
+
+    // SEO / Metadata
+    {
+      name: 'seo',
+      title: 'SEO / Metadata',
+      type: 'object',
+      fields: [
+        { name: 'siteTitle', title: 'Site title', type: 'string', description: 'Shown in browser tab and search results.' },
+        { name: 'siteDescription', title: 'Site description', type: 'text', rows: 2 },
+        {
+          name: 'ogImage',
+          title: 'Open Graph image (share preview) — recommended 1200×630',
+          type: 'image',
+          options: { hotspot: true },
+          fields: [{ name: 'alt', title: 'Alt text', type: 'string' }],
+        },
+      ],
+    },
+
     {
       name: 'heroTickerWords',
       title: 'Hero ticker words (optional)',
