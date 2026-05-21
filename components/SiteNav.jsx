@@ -46,6 +46,7 @@ export default function SiteNav({ brand = 'Farhan' }) {
         <a href="/work" className={active['/work'] ? 'mnav active' : 'mnav'}>Work</a>
         <a href="/blog" className={active['/blog'] ? 'mnav active' : 'mnav'}>Blog</a>
         <a href="/resume" className={active['/resume'] ? 'mnav active' : 'mnav'}>Resume</a>
+        <a href="/about" className={active['/about'] ? 'mnav active mnav-about' : 'mnav mnav-about'}>About</a>
         <button className="mnav mnav-btn" onClick={() => setOpen(true)} aria-label="Open menu">☰</button>
       </div>
 
@@ -68,9 +69,6 @@ export default function SiteNav({ brand = 'Farhan' }) {
                   {l.label}
                 </a>
               ))}
-              <div className="menu-note">
-                Studio is private. Visit <code>/studio</code> (requires password).
-              </div>
             </nav>
           </div>
         </div>
