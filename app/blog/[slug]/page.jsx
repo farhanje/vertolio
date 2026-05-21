@@ -44,7 +44,7 @@ export default async function BlogPost({ params }) {
       <section className="section tight">
         <div className="grid12">
           <div style={{ gridColumn: '1 / span 8' }}>
-            <div className="kicker"><span className="dot" /> Blog</div>
+            <div className="kicker"><span className="dot" /> Farhan Fauzan Jamaludin</div>
             <h1 className="h1-tight">{post.title}</h1>
             {post.excerpt && <p className="lead">{post.excerpt}</p>}
           </div>
