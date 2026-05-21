@@ -1,0 +1,39 @@
+/* Minimal overrides to keep images clean + TOC single on mobile */
+
+/* 1) Clean media blocks in project/blog body */
+.figure,
+.figure-media,
+.car-frame {
+  border: 0 !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.figure { padding: 0 !important; }
+.figure figcaption { padding: 10px 0 0 0 !important; }
+
+/* Make sure the zoom button doesn't introduce a rounded gray background */
+.zoom {
+  border: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+}
+.zoom img {
+  display: block;
+  background: transparent !important;
+  border-radius: 0 !important;
+}
+
+/* 2) Cards: if any wrapper still draws a frame, kill it */
+.card-media,
+.card-media * {
+  border-radius: 0 !important;
+}
+
+/* 3) TOC: prevent duplicated sidebar on mobile/tablet */
+@media (max-width: 980px) {
+  .toc-desktop { display: none !important; }
+  .toc-fab { display: block !important; }
+}
