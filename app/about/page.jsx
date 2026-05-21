@@ -54,7 +54,7 @@ export default async function About() {
     <main className="container page-about" data-accent={accent}>
       <section className="section tight">
         <div className="grid12">
-          <div className="col-left" style={{ gridColumn: '1 / span 5' }}>
+          <div className="col-left sticky-title" style={{ gridColumn: '1 / span 5' }}>
             <div className="kicker"><span className="dot" /> {kicker}</div>
             <h1 className="h1-tight">{title}</h1>
           </div>
