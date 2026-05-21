@@ -1,4 +1,5 @@
 import './globals.css';
+import './overrides.css';
 import SiteNav from '../components/SiteNav';
 import SiteFooter from '../components/SiteFooter';
 import { GeistSans, GeistMono } from 'geist/font';
