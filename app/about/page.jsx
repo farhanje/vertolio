@@ -60,10 +60,31 @@ export default async function About() {
           </div>
 
           <div className="col-right" style={{ gridColumn: '6 / span 7', paddingTop: 10 }}>
-            {lead ? <p className="lead">{lead}</p> : null}
+            {/* Gallery first */}
+            {images?.length ? (
+              <div className="about-gallery" style={{ marginTop: 0 }}>
+                {images.slice(0, 12).map((it, i) => {
+                  const img = it?.image
+                  if (!img) return null
+                  const url = urlFor(img).width(1400).quality(85).auto('format').url()
+                  const alt = img?.alt || ''
+                  return (
+                    <figure key={i} className="about-fig">
+                      <img src={url} alt={alt} loading="lazy" />
+                      {it?.caption ? <figcaption>{it.caption}</figcaption> : null}
+                    </figure>
+                  )
+                })}
+              </div>
+            ) : null}
+
+            {/* Lead as quote */}
+            {lead ? (
+              <blockquote className="about-quote">{lead}</blockquote>
+            ) : null}
 
             {buttons?.length ? (
-              <div className="cta-row">
+              <div className="cta-row" style={{ marginTop: 14 }}>
                 {buttons.slice(0, 4).map((b, idx) => {
                   const href = resolveHref(b.url)
                   const cls = b.style === 'primary' || idx === 0 ? 'btn primary' : 'btn'
@@ -87,26 +108,6 @@ export default async function About() {
               <div style={{ marginTop: 18 }}>
                 <PortableText value={body} components={components} />
               </div>
-            ) : null}
-
-            {images?.length ? (
-              <>
-                <div className="hr" style={{ marginTop: 24 }} />
-                <div className="about-gallery" style={{ marginTop: 18 }}>
-                  {images.slice(0, 12).map((it, i) => {
-                    const img = it?.image
-                    if (!img) return null
-                    const url = urlFor(img).width(1400).quality(85).auto('format').url()
-                    const alt = img?.alt || ''
-                    return (
-                      <figure key={i} className="about-fig">
-                        <img src={url} alt={alt} loading="lazy" />
-                        {it?.caption ? <figcaption>{it.caption}</figcaption> : null}
-                      </figure>
-                    )
-                  })}
-                </div>
-              </>
             ) : null}
           </div>
         </div>
