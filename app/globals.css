@@ -213,6 +213,13 @@ h2{font-size:clamp(20px,2vw,28px);line-height:1.15;letter-spacing:-0.02em;margin
 .resume-frame iframe{width:100%;border:0}
 .resume-frame-big iframe{height:min(78vh,920px)}
 
+/* ======== PATCH: TOC header background should cover full width when scrolling ======== */
+.tocbox .toc-title{
+  background:var(--bg) !important;
+  margin:-16px -16px 10px;
+  padding:16px 16px 10px;
+}
+
 /* Responsive */
 @media (max-width:980px){
   .nav-desktop{display:none}
