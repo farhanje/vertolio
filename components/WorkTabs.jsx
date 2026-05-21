@@ -1,19 +1,25 @@
 'use client'
 
-import {useMemo, useState} from 'react'
+import {useEffect, useMemo, useState} from 'react'
 
-export default function WorkTabs({groups = [], initialKey = 'All'}) {
-  const keys = useMemo(() => {
-    const base = groups.map((g) => g.key)
-    return ['All', ...base]
-  }, [groups])
-
+export default function WorkTabs({ groups = [], wrapperId = 'workWrap', initialKey = 'All' }) {
+  const keys = useMemo(() => ['All', ...groups.map((g) => g.key)], [groups])
   const [active, setActive] = useState(initialKey || 'All')
 
-  const activeGroup = useMemo(() => {
-    if (active === 'All') return null
-    return groups.find((g) => g.key === active) || null
-  }, [active, groups])
+  useEffect(() => {
+    const el = document.getElementById(wrapperId)
+    if (!el) return
+    el.dataset.active = active
+  }, [active, wrapperId])
+
+  // ensure initial value exists
+  useEffect(() => {
+    const el = document.getElementById(wrapperId)
+    if (!el) return
+    if (!el.dataset.active) el.dataset.active = active
+  }, [wrapperId])
+
+  if (!groups?.length) return null
 
   return (
     <div className="work-tabs" aria-label="Organizations">
@@ -28,24 +34,16 @@ export default function WorkTabs({groups = [], initialKey = 'All'}) {
               className={k === active ? 'tab active' : 'tab'}
               onClick={() => setActive(k)}
             >
-              {logo ? <img className="tab-logo" src={logo} alt="" aria-hidden="true" /> : <span className="tab-mark" aria-hidden="true" />}
+              {logo ? (
+                <img className="tab-logo" src={logo} alt="" aria-hidden="true" />
+              ) : (
+                <span className="tab-mark" aria-hidden="true" />
+              )}
               <span className="tab-text">{k}</span>
             </button>
           )
         })}
       </div>
-
-      {/* Render target key for server list to read via data attr (no re-render needed) */}
-      <div className="tab-state" data-active={active} />
-
-      {/* NOTE: Cards are still rendered by server; CSS hides non-active groups in client via data-active */}
-      <style jsx global>{`
-        .org-block { display: none; }
-        .tab-state[data-active="All"] ~ .org-block { display: block; }
-        ${groups
-          .map((g) => `.tab-state[data-active="${g.key}"] ~ .org-block[data-org="${g.key}"] { display:block; }`)
-          .join('\n')}
-      `}</style>
     </div>
   )
 }
