@@ -26,18 +26,20 @@ export default function SiteNav({ brand = 'Farhan', brandLogoUrl = null, brandLo
     return m
   }, [pathname])
 
+  const alt = brandLogoAlt || brand || ''
+
   return (
     <>
       {/* Desktop / large screens (top nav) */}
       <header className="nav nav-desktop">
         <div className="container nav-inner">
-          <div className="brand">
+          <div className="brand" aria-label={brand}>
             {brandLogoUrl ? (
-              <img className="brand-logo" src={brandLogoUrl} alt={brandLogoAlt || ''} />
+              <img className="brand-logo" src={brandLogoUrl} alt={alt} />
             ) : (
-              <span className="mark" />
+              <span className="mark" aria-hidden="true" />
             )}
-            <span>{brand}</span>
+            <span className="sr-only">{brand}</span>
           </div>
           <nav className="nav-links">
             {LINKS.map((l) => (
@@ -62,13 +64,13 @@ export default function SiteNav({ brand = 'Farhan', brandLogoUrl = null, brandLo
           <button className="menu-backdrop" onClick={() => setOpen(false)} aria-label="Close" />
           <div className="menu-drawer">
             <div className="menu-head">
-              <div className="brand brand-in-drawer">
+              <div className="brand brand-in-drawer" aria-label={brand}>
                 {brandLogoUrl ? (
-                  <img className="brand-logo" src={brandLogoUrl} alt={brandLogoAlt || ''} />
+                  <img className="brand-logo" src={brandLogoUrl} alt={alt} />
                 ) : (
-                  <span className="mark" />
+                  <span className="mark" aria-hidden="true" />
                 )}
-                <span>{brand}</span>
+                <span className="sr-only">{brand}</span>
               </div>
               <button className="menu-close" onClick={() => setOpen(false)} aria-label="Close">✕</button>
             </div>
