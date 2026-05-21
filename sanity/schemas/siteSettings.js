@@ -14,6 +14,24 @@ export default {
     { name: 'tagline', title: 'Tagline', type: 'string' },
     { name: 'heroSubtitle', title: 'Hero subtitle', type: 'text', rows: 2 },
 
+    // Brand assets
+    {
+      name: 'brandLogo',
+      title: 'Brand logo (navbar)',
+      type: 'image',
+      options: { hotspot: true },
+      fields: [{ name: 'alt', title: 'Alt text', type: 'string' }],
+      description: 'Shown in desktop navbar and mobile drawer. Recommended: simple mark/logo, transparent PNG or SVG, ~256×256.',
+    },
+    {
+      name: 'favicon',
+      title: 'Favicon (browser tab)',
+      type: 'image',
+      options: { hotspot: true },
+      fields: [{ name: 'alt', title: 'Alt text', type: 'string' }],
+      description: 'Recommended: 64×64 or 128×128 PNG (square) or SVG. Used as site icon.',
+    },
+
     // Hero portrait (art-directed)
     {
       name: 'heroPortraitDesktop',
