@@ -24,14 +24,10 @@ h1{font-size:clamp(44px,6vw,92px);line-height:.95;letter-spacing:-0.05em;margin:
 .mnav-btn{border:1px solid var(--hair);background:rgba(255,255,255,.9);cursor:pointer}
 
 /* Mobile menu overlay */
-.menu-overlay{position:fixed;inset:0;z-index:60;display:flex;justify-content:flex-end}
+.menu-overlay{position:fixed;inset:0;z-index:80;display:flex;justify-content:flex-end}
 .menu-backdrop{position:absolute;inset:0;border:0;background:rgba(11,11,11,.25)}
-.menu-drawer{position:relative;width:min(92vw,380px);height:100%;overflow:auto;border-left:1px solid var(--hair);padding:16px;background:var(--bg)}
-
-/* FIX: ensure drawer is solid white on mobile/tablet too */
-@media (max-width:980px){
-  .menu-drawer{background:var(--bg) !important; border-left:1px solid var(--hair) !important;}
-}
+/* Ensure drawer has solid background */
+.menu-drawer{position:relative;width:min(92vw,380px);height:100%;overflow:auto;border-left:1px solid var(--hair);padding:16px;background:var(--bg);z-index:81}
 
 .menu-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
 .menu-close{width:34px;height:34px;border-radius:0;border:1px solid var(--hair);background:transparent;cursor:pointer;font-weight:900}
