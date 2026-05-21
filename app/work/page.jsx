@@ -101,7 +101,7 @@ export default async function Work() {
       <section className="section tight">
         <div className="grid12">
           <div style={{ gridColumn: '1 / span 8' }}>
-            <div className="kicker"><span className="dot" /> Work</div>
+            <div className="kicker"><span className="dot" /> Farhan Fauzan Jamaludin</div>
             <h1 className="h1-tight">Work</h1>
           </div>
           <div style={{ gridColumn: '9 / span 4', paddingTop: 10 }}>
