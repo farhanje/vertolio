@@ -44,6 +44,13 @@ h2{font-size:clamp(20px,2vw,28px);line-height:1.15;letter-spacing:-0.02em;margin
 .mnav.active{color:var(--fg);border-color:var(--hair)}
 .mnav-btn{border:1px solid var(--hair);background:rgba(255,255,255,.9);cursor:pointer}
 
+/* Hide About on small widths; show it and hide hamburger when wide enough */
+.mnav-about{display:none}
+@media (min-width:560px){
+  .mnav-about{display:inline-flex}
+  .mnav-btn{display:none}
+}
+
 /* Mobile menu overlay */
 .menu-overlay{position:fixed;inset:0;z-index:80;display:flex;justify-content:flex-end}
 .menu-backdrop{position:absolute;inset:0;border:0;background:rgba(11,11,11,.25)}
@@ -54,7 +61,6 @@ h2{font-size:clamp(20px,2vw,28px);line-height:1.15;letter-spacing:-0.02em;margin
 .menu-link{display:block;padding:10px 12px;border-radius:0;color:var(--muted);border:1px solid transparent}
 .menu-link.active{color:var(--fg);border-color:var(--hair)}
 .menu-link:hover{background:rgba(11,11,11,.03);text-decoration:none}
-.menu-note{margin-top:14px;font-size:12px;color:var(--muted)}
 
 /* Hero + ticker (keep latest) */
 .hero-wrap{position:relative}
@@ -69,14 +75,15 @@ h2{font-size:clamp(20px,2vw,28px);line-height:1.15;letter-spacing:-0.02em;margin
 .ticker-row.rev{animation-direction:reverse}
 @keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 
-/* Cards */
-.card{border:1px solid var(--hair);background:transparent;border-radius:0;padding:16px;height:100%;display:flex;flex-direction:column}
+/* Cards (experimental: remove outline) */
+.card{border:0;background:transparent;border-radius:0;padding:16px;height:100%;display:flex;flex-direction:column}
 .card:hover{background:rgba(11,11,11,.02)}
 .card-link{cursor:pointer;display:block}
 .card-body{flex:1;display:flex;flex-direction:column}
 .card-link h3{font-size:18px;letter-spacing:-0.02em;margin:0 0 8px}
 .card-link p{margin:0;color:var(--muted)}
 .meta{display:flex;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+/* ensure tags pinned bottom */
 .meta.card-meta{margin-top:auto;padding-top:14px}
 .pill{display:inline-flex;align-items:center;gap:8px;padding:4px 8px;border-radius:0;border:1px solid var(--hair2);background:transparent}
 .more{color:var(--muted)}
@@ -84,7 +91,8 @@ h2{font-size:clamp(20px,2vw,28px);line-height:1.15;letter-spacing:-0.02em;margin
 /* Card media */
 .card-media{position:relative;margin:-16px -16px 12px;overflow:hidden;background:rgba(0,0,0,.02);max-height:150px}
 .card-img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.95) contrast(1.02)}
-.card-logo{position:absolute;left:12px;top:12px;width:34px;height:34px;border-radius:0;background:rgba(255,255,255,.92);padding:6px;object-fit:contain;filter:grayscale(1) contrast(1.2)}
+/* keep card logos in full color */
+.card-logo{position:absolute;left:12px;top:12px;width:34px;height:34px;border-radius:0;background:rgba(255,255,255,.92);padding:6px;object-fit:contain}
 .card-badge{position:absolute;left:12px;bottom:12px;font-size:12px;color:rgba(255,255,255,.92);background:rgba(0,0,0,.55);padding:6px 8px}
 
 /* Tag marquee */
@@ -106,7 +114,7 @@ h2{font-size:clamp(20px,2vw,28px);line-height:1.15;letter-spacing:-0.02em;margin
 .prose strong{color:var(--fg)}
 .prose a{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px}
 
-/* Figures / images / carousel (restore previous behavior) */
+/* Figures / images / carousel */
 .figure{border:1px solid var(--hair2);background:transparent;border-radius:0;padding:12px;margin:18px 0}
 .figure-wide{max-width:none}
 .figure-media{border:1px solid var(--hair2);background:rgba(0,0,0,.02);overflow:hidden;max-height:520px}
@@ -130,7 +138,7 @@ h2{font-size:clamp(20px,2vw,28px);line-height:1.15;letter-spacing:-0.02em;margin
 .car-zoom{background:transparent;border:0;padding:0;cursor:zoom-in;position:relative}
 .zoom-hint{position:absolute;right:10px;bottom:10px;font-size:12px;color:rgba(255,255,255,.9);background:rgba(0,0,0,.55);padding:6px 8px}
 
-/* TOC (restore) */
+/* TOC */
 .tocbox{position:sticky;top:calc(var(--navH) + 18px);border:1px solid var(--hair);padding:16px;background:var(--bg);max-height:calc(100vh - (var(--navH) + 56px));overflow:auto}
 .toc-title{font-weight:850;letter-spacing:-0.02em;margin-bottom:10px;position:sticky;top:0;z-index:2;background:var(--bg);padding-bottom:10px}
 .toc{display:flex;flex-direction:column;gap:4px}
@@ -146,14 +154,15 @@ h2{font-size:clamp(20px,2vw,28px);line-height:1.15;letter-spacing:-0.02em;margin
 .toc-drawer-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
 .toc-close{width:34px;height:34px;border:1px solid var(--hair);background:transparent;cursor:pointer;font-weight:900}
 
-/* Work tabs: ensure panels hidden by default (radio+label tabs) */
+/* Work tabs */
 .work-tabs-wrap{position:relative}
 .work-tab-radio{position:absolute;opacity:0;pointer-events:none}
 .work-tabs{display:flex;justify-content:center;margin:10px 0 18px}
 .tabs-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 .tab{display:inline-flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--hair);background:transparent;color:var(--muted);cursor:pointer}
 .tab:hover{background:rgba(11,11,11,.03)}
-.tab-logo{width:18px;height:18px;object-fit:contain;filter:grayscale(1) contrast(1.25)}
+/* tab logos should be full color by default; active is still just border/text */
+.tab-logo{width:18px;height:18px;object-fit:contain}
 .tab-mark{width:10px;height:10px;background:var(--fg)}
 .tab-text{font-weight:750;white-space:nowrap}
 .work-panels{margin-top:8px}
@@ -164,7 +173,7 @@ h2{font-size:clamp(20px,2vw,28px);line-height:1.15;letter-spacing:-0.02em;margin
 .footer-inner{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
 .footer-icons{display:flex;gap:10px;align-items:center}
 .footer-icon{width:34px;height:34px;border:1px solid var(--hair);display:inline-flex;align-items:center;justify-content:center}
-.footer-icon img{width:18px;height:18px;object-fit:contain;display:block;filter:grayscale(1) contrast(1.2)}
+.footer-icon img{width:18px;height:18px;object-fit:contain;display:block}
 .footer-fallback{font-weight:900;color:var(--muted)}
 
 /* Lightbox */
@@ -183,6 +192,11 @@ h2{font-size:clamp(20px,2vw,28px);line-height:1.15;letter-spacing:-0.02em;margin
 [data-accent="yellow"]{--acc:#ffcc00}
 [data-accent="blue"]{--acc:#0b57ff}
 [data-accent="none"],[data-accent="default"],:root{--acc:var(--fg)}
+
+/* Resume */
+.resume-frame{border:0}
+.resume-frame iframe{width:100%;border:0}
+.resume-frame-big iframe{height:min(78vh,920px)}
 
 /* Responsive */
 @media (max-width:980px){
