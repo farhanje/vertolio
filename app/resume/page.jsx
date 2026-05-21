@@ -17,7 +17,7 @@ export default async function ResumePage() {
     <main className="container page-resume" data-accent={accent}>
       <section className="section tight">
         <div className="grid12">
-          <div className="col-left" style={{ gridColumn: '1 / span 5' }}>
+          <div className="col-left sticky-title" style={{ gridColumn: '1 / span 5' }}>
             <div className="kicker"><span className="dot" /> Farhan Fauzan Jamaludin</div>
             <h1 className="h1-tight">Resume</h1>
             <p className="lead" style={{ marginTop: 10 }}>
