@@ -2,6 +2,7 @@
 
 import {useMemo, useState} from 'react'
 import {usePathname} from 'next/navigation'
+import TranslateToggle from './TranslateToggle'
 
 const LINKS = [
   { href: '/', label: 'Home' },
@@ -41,10 +42,12 @@ export default function SiteNav({ brand = 'Farhan', brandLogoUrl = null, brandLo
             )}
             <span className="sr-only">{brand}</span>
           </div>
+
           <nav className="nav-links">
             {LINKS.map((l) => (
               <a key={l.href} href={l.href} className={active[l.href] ? 'active' : ''}>{l.label}</a>
             ))}
+            <TranslateToggle className="btn nav-translate" />
           </nav>
         </div>
       </header>
@@ -74,6 +77,11 @@ export default function SiteNav({ brand = 'Farhan', brandLogoUrl = null, brandLo
               </div>
               <button className="menu-close" onClick={() => setOpen(false)} aria-label="Close">✕</button>
             </div>
+
+            <div style={{ marginBottom: 10 }}>
+              <TranslateToggle className="btn" />
+            </div>
+
             <nav className="menu-links">
               {LINKS.map((l) => (
                 <a
