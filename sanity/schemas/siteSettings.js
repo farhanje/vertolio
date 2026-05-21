@@ -106,6 +106,27 @@ export default {
           ],
         },
         { name: 'body', title: 'Body', type: 'array', of: [{ type: 'block' }] },
+        {
+          name: 'images',
+          title: 'Images (gallery)',
+          type: 'array',
+          of: [
+            {
+              type: 'object',
+              fields: [
+                {
+                  name: 'image',
+                  title: 'Image',
+                  type: 'image',
+                  options: { hotspot: true },
+                  fields: [{ name: 'alt', title: 'Alt text', type: 'string' }],
+                },
+                { name: 'caption', title: 'Caption', type: 'string' },
+              ],
+            },
+          ],
+          description: 'Optional image grid shown on /about. Use 2–6 images. Recommended: 1200px wide or more.',
+        },
       ],
     },
 
