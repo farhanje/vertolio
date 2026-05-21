@@ -5,6 +5,7 @@ import { GeistSans, GeistMono } from 'geist/font';
 import {sanityFetch} from '../lib/sanity.client';
 import {SITE_SETTINGS_QUERY} from '../lib/sanity.queries';
 import {placeholderSiteSettings} from '../lib/placeholders';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 export async function generateMetadata() {
   let settings = null;
@@ -43,6 +44,7 @@ export default function RootLayout({ children }) {
         <SiteNav brand="Farhan" />
         {children}
         <SiteFooter />
+        <SpeedInsights />
       </body>
     </html>
   );
