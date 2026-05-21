@@ -19,9 +19,12 @@ export async function generateMetadata() {
   const ogUrl = settings?.seo?.ogImage?.asset?.url || null;
   const ogAlt = settings?.seo?.ogImage?.alt || title;
 
+  const faviconUrl = settings?.favicon?.asset?.url || null;
+
   return {
     title,
     description,
+    icons: faviconUrl ? { icon: faviconUrl, shortcut: faviconUrl, apple: faviconUrl } : undefined,
     openGraph: {
       title,
       description,
@@ -36,11 +39,22 @@ export async function generateMetadata() {
   };
 }
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  let settings = null;
+  try {
+    settings = await sanityFetch(SITE_SETTINGS_QUERY);
+  } catch (_) {
+    settings = placeholderSiteSettings;
+  }
+
+  const brandLogoUrl = settings?.brandLogo?.asset?.url || null;
+  const brandLogoAlt = settings?.brandLogo?.alt || settings?.name || '';
+  const brand = settings?.name ? settings.name : 'Farhan Fauzan Jamaludin';
+
   return (
     <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
       <body className="app">
-        <SiteNav brand="Farhan Fauzan Jamaludin" />
+        <SiteNav brand={brand} brandLogoUrl={brandLogoUrl} brandLogoAlt={brandLogoAlt} />
         {children}
         <SiteFooter />
       </body>
