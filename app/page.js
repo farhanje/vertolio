@@ -4,6 +4,7 @@ import {placeholderSiteSettings} from '../lib/placeholders'
 import CardMedia from '../components/CardMedia'
 import HeroTicker from '../components/HeroTicker'
 import MarqueeText from '../components/MarqueeText'
+import {urlFor} from '../lib/sanity.image'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
@@ -26,10 +27,17 @@ function TagPill({text}) {
 function buildTagSet(tags = [], cap = 4) {
   const visible = tags.slice(0, cap)
   const extra = Math.max(0, tags.length - visible.length)
-  // Avoid lonely +N in its own row: if visible is odd and extra exists, reduce one visible.
   const v = (extra > 0 && visible.length % 2 === 1) ? visible.slice(0, Math.max(0, visible.length - 1)) : visible
   const e = Math.max(0, tags.length - v.length)
   return { visible: v, extra: e }
+}
+
+function heroImageUrl(img, w, h) {
+  if (!img) return null
+  const b = urlFor(img)
+  if (!b) return img?.asset?.url || null
+  // If h given, keep it art-directed; otherwise just width.
+  return h ? b.width(w).height(h).fit('crop').quality(85).auto('format').url() : b.width(w).quality(85).auto('format').url()
 }
 
 export default async function Home() {
@@ -47,6 +55,14 @@ export default async function Home() {
     { label: 'Blog →', url: '/blog' },
     { label: 'Resume →', url: '/resume' },
   ]
+
+  const heroDesk = s?.heroPortraitDesktop
+  const heroMob = s?.heroPortraitMobile
+
+  const heroDeskUrl = heroImageUrl(heroDesk, 1200, 1500) // 4:5 default crop
+  const heroMobUrl = heroImageUrl(heroMob, 1600, 1067) // 3:2 default crop
+
+  const heroAlt = heroDesk?.alt || heroMob?.alt || 'Portrait'
 
   let featuredWork = (s?.featuredWork || []).slice(0, 4)
   let featuredPosts = (s?.featuredPosts || []).slice(0, 4)
@@ -76,8 +92,19 @@ export default async function Home() {
               ))}
             </div>
           </div>
-          <div>
-            <img className="avatar" src="/avatar-placeholder.svg" alt="Portrait placeholder" />
+
+          <div className="hero-photo">
+            {/* Desktop portrait */}
+            {heroDeskUrl ? (
+              <img className="hero-img hero-img-desktop" src={heroDeskUrl} alt={heroAlt} />
+            ) : (
+              <img className="avatar hero-img hero-img-desktop" src="/avatar-placeholder.svg" alt="Portrait placeholder" />
+            )}
+
+            {/* Mobile / tablet wide */}
+            {heroMobUrl ? (
+              <img className="hero-img hero-img-mobile" src={heroMobUrl} alt={heroAlt} />
+            ) : null}
           </div>
         </div>
       </section>
