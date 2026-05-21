@@ -4,6 +4,7 @@ import {placeholderSiteSettings} from '../../../lib/placeholders'
 import {RichText} from '../../../lib/portableText'
 import Toc from '../../../components/Toc'
 import BackSmart from '../../../components/BackSmart'
+import Comments from '../../../components/Comments'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
@@ -36,6 +37,8 @@ export default async function BlogPost({ params }) {
     return d.toISOString().slice(0, 10)
   }
 
+  const commentRepo = settings?.seo?.commentsRepo || 'farhanje/vertolio'
+
   return (
     <main className="container" data-accent={accent}>
       <section className="section tight">
@@ -63,6 +66,9 @@ export default async function BlogPost({ params }) {
         <div className="content-grid">
           <div id="content" className="content-nudge">
             <RichText value={post.body} />
+
+            <div className="hr" style={{ marginTop: 32 }} />
+            <Comments repo={commentRepo} />
           </div>
           <Toc contentId="content" />
         </div>
