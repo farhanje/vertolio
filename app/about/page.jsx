@@ -16,7 +16,7 @@ export default async function About() {
       <section className="section tight">
         <div className="grid12">
           <div className="col-left" style={{ gridColumn: '1 / span 5' }}>
-            <div className="kicker"><span className="dot" /> About</div>
+            <div className="kicker"><span className="dot" /> Farhan Fauzan Jamaludin</div>
             <h1 className="h1-tight">About</h1>
           </div>
           <div className="col-right" style={{ gridColumn: '6 / span 7', paddingTop: 10 }}>
