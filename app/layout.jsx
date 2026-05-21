@@ -40,7 +40,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
       <body className="app">
-        <SiteNav brand="Farhan" />
+        <SiteNav brand="Farhan Fauzan Jamaludin" />
         {children}
         <SiteFooter />
       </body>
