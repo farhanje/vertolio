@@ -47,7 +47,7 @@ export default function SiteNav({ brand = 'Farhan', brandLogoUrl = null, brandLo
             {LINKS.map((l) => (
               <a key={l.href} href={l.href} className={active[l.href] ? 'active' : ''}>{l.label}</a>
             ))}
-            <TranslateToggle className="btn nav-translate" />
+            <TranslateToggle />
           </nav>
         </div>
       </header>
@@ -79,7 +79,7 @@ export default function SiteNav({ brand = 'Farhan', brandLogoUrl = null, brandLo
             </div>
 
             <div style={{ marginBottom: 10 }}>
-              <TranslateToggle className="btn" />
+              <TranslateToggle />
             </div>
 
             <nav className="menu-links">
