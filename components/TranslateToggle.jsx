@@ -8,9 +8,7 @@ function setCookie(name, value, opts = {}) {
   d.setTime(d.getTime() + days * 24 * 60 * 60 * 1000)
   const base = `${name}=${value};expires=${d.toUTCString()};path=/;SameSite=Lax`
   document.cookie = base
-  if (opts.domain) {
-    document.cookie = `${base};domain=${opts.domain}`
-  }
+  if (opts.domain) document.cookie = `${base};domain=${opts.domain}`
 }
 
 function getCookie(name) {
@@ -53,21 +51,20 @@ export default function TranslateToggle({className = ''}) {
     localStorage.setItem('lang', target)
 
     const cookieVal = target === 'en' ? '/id/en' : '/id/id'
-    // set for current host + for dot-domain (helps www/apex)
     setCookie('googtrans', cookieVal, {domain})
 
-    // Cache-bust reload so the translate script re-reads cookie.
     const url = new URL(window.location.href)
     url.searchParams.set('lang', target)
     window.location.href = url.toString()
   }
 
   return (
-    <div className={className ? `lang-switch ${className}` : 'lang-switch'} role="group" aria-label="Language">
-      <button type="button" className={lang === 'id' ? 'lang-btn active' : 'lang-btn'} onClick={() => apply('id')} aria-pressed={lang === 'id'}>
+    <div className={className ? `lang-inline ${className}` : 'lang-inline'} role="group" aria-label="Language">
+      <button type="button" className={lang === 'id' ? 'lang-link active' : 'lang-link'} onClick={() => apply('id')} aria-pressed={lang === 'id'}>
         ID
       </button>
-      <button type="button" className={lang === 'en' ? 'lang-btn active' : 'lang-btn'} onClick={() => apply('en')} aria-pressed={lang === 'en'}>
+      <span className="lang-sep" aria-hidden="true">|</span>
+      <button type="button" className={lang === 'en' ? 'lang-link active' : 'lang-link'} onClick={() => apply('en')} aria-pressed={lang === 'en'}>
         EN
       </button>
     </div>
