@@ -7,6 +7,7 @@ import {sanityFetch} from '../lib/sanity.client';
 import {SITE_SETTINGS_QUERY} from '../lib/sanity.queries';
 import {placeholderSiteSettings} from '../lib/placeholders';
 import GoogleTranslateCleanup from '../components/GoogleTranslateCleanup';
+import { Analytics } from '@vercel/analytics/next';
 
 export async function generateMetadata() {
   let settings = null;
@@ -72,6 +73,9 @@ export default async function RootLayout({ children }) {
         <SiteNav brand={brand} brandLogoUrl={brandLogoUrl} brandLogoAlt={brandLogoAlt} />
         {children}
         <SiteFooter />
+
+        {/* Vercel Analytics */}
+        <Analytics />
       </body>
     </html>
   );
