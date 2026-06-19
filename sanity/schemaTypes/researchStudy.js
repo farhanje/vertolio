@@ -65,14 +65,7 @@ const screenFields = [
   {name: 'image', title: 'PNG image', type: 'image', options: {hotspot: false}, validation: (Rule) => Rule.required()},
   {name: 'alt', title: 'Alt text', type: 'string'},
   {name: 'isDestination', title: 'Destination page / success screen', type: 'boolean', initialValue: false},
-  {
-    name: 'completionDelaySeconds',
-    title: 'Auto-complete delay (seconds)',
-    type: 'number',
-    initialValue: 1.5,
-    hidden: ({parent}) => !parent?.isDestination,
-    validation: (Rule) => Rule.min(0.2).max(10),
-  },
+  {name: 'completionDelaySeconds', title: 'Auto-complete delay (seconds)', type: 'number', initialValue: 1.5, hidden: ({parent}) => !parent?.isDestination, validation: (Rule) => Rule.min(0.2).max(10)},
   {
     name: 'hotspots',
     title: 'Hotspots',
@@ -98,9 +91,9 @@ const postTaskSurveyField = (hidden) => ({
   of: [{type: 'object', name: 'studyQuestion', title: 'Question', fields: questionFields(), preview: {select: {title: 'label', subtitle: 'type'}}}],
 })
 
-const taskFields = (hidden) => [
+const taskFields = (hidden, includeTitle = true) => [
   hiddenIdField('taskId', 'Task ID', 'Auto-managed internally. The system falls back to this item key.', hidden),
-  {name: 'title', title: 'Task title', type: 'string', hidden},
+  ...(includeTitle ? [{name: 'title', title: 'Task title', type: 'string', hidden}] : []),
   {name: 'scenario', title: 'Scenario', type: 'text', rows: 4, hidden},
   screensField(hidden),
   postTaskSurveyField(hidden),
@@ -153,12 +146,12 @@ export default {
               title: 'Flow step',
               fields: [
                 {name: 'stepType', title: 'Step type', type: 'string', initialValue: 'task', options: {layout: 'radio', list: FLOW_STEP_TYPES}},
-                {name: 'title', title: 'Step title', type: 'string'},
+                {name: 'stepTitle', title: 'Step title', type: 'string'},
                 ...questionFields(hideUnlessQuestion),
-                ...taskFields(hideUnlessTask),
+                ...taskFields(hideUnlessTask, false),
               ],
               preview: {
-                select: {stepType: 'stepType', title: 'title', question: 'label'},
+                select: {stepType: 'stepType', title: 'stepTitle', question: 'label'},
                 prepare({stepType, title, question}) {
                   const label = stepType === 'question' ? 'Question' : 'Prototype task'
                   return {title: title || question || label, subtitle: label}
@@ -166,13 +159,7 @@ export default {
               },
             }],
           },
-          {
-            name: 'tasks',
-            title: 'Legacy tasks',
-            type: 'array',
-            description: 'Fallback for older studies. New studies should use Study flow above.',
-            of: [{type: 'object', name: 'studyTask', title: 'Task', fields: taskFields(), preview: {select: {title: 'title'}}}],
-          },
+          {name: 'tasks', title: 'Legacy tasks', type: 'array', description: 'Fallback for older studies. New studies should use Study flow above.', of: [{type: 'object', name: 'studyTask', title: 'Task', fields: taskFields(), preview: {select: {title: 'title'}}}]},
         ],
         preview: {select: {title: 'label', subtitle: 'key'}},
       }],
