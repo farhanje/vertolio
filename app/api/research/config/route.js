@@ -52,7 +52,7 @@ const query = `*[_type == "researchStudy" && slug.current == $studySlug][0]{
     flowSteps[]{
       _key,
       stepType,
-      title,
+      stepTitle,
       "questionId": coalesce(questionId, _key),
       label,
       type,
