@@ -6,6 +6,7 @@ const query = `*[_type == "researchStudy" && slug.current == $studySlug][0]{
   title,
   "slug": slug.current,
   status,
+  researchType,
   introTitle,
   introBody,
   consentText,
@@ -25,6 +26,8 @@ const query = `*[_type == "researchStudy" && slug.current == $studySlug][0]{
         "screenId": coalesce(screenId, _key),
         title,
         alt,
+        isDestination,
+        completionDelaySeconds,
         "imageUrl": image.asset->url,
         hotspots[]{
           _key,
