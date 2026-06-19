@@ -29,6 +29,11 @@ export default function ResearchStudyPage() {
             tz: Intl.DateTimeFormat().resolvedOptions().timeZone,
             lang: navigator.language,
             ref: document.referrer || null,
+            viewport: {
+              width: window.innerWidth,
+              height: window.innerHeight,
+              devicePixelRatio: window.devicePixelRatio || 1,
+            },
           },
         }),
       })
