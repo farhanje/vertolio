@@ -8,6 +8,14 @@ const QUESTION_TYPES = [
   {title: 'Number', value: 'number'},
 ]
 
+const RESEARCH_TYPES = [
+  {title: 'A/B test', value: 'ab_test'},
+  {title: 'Usability testing', value: 'usability_test'},
+  {title: 'Survey', value: 'survey'},
+  {title: 'Prototype test', value: 'prototype_test'},
+  {title: 'Concept test', value: 'concept_test'},
+]
+
 const HOTSPOT_ACTIONS = [
   {title: 'Next screen', value: 'next'},
   {title: 'Go to screen', value: 'goToScreen'},
@@ -55,6 +63,18 @@ export default {
           {title: 'Paused', value: 'paused'},
           {title: 'Archived', value: 'archived'},
         ],
+      },
+      validation: (Rule) => Rule.required(),
+    },
+    {
+      name: 'researchType',
+      title: 'Research type',
+      type: 'string',
+      initialValue: 'usability_test',
+      description: 'Choose the study mode before publishing. This keeps the research setup explicit and helps the runner/export logic later.',
+      options: {
+        layout: 'radio',
+        list: RESEARCH_TYPES,
       },
       validation: (Rule) => Rule.required(),
     },
@@ -167,6 +187,22 @@ export default {
                               type: 'string',
                             },
                             {
+                              name: 'isDestination',
+                              title: 'Destination page / success screen',
+                              type: 'boolean',
+                              initialValue: false,
+                              description: 'Turn this on when arriving at this screen should automatically complete the task.',
+                            },
+                            {
+                              name: 'completionDelaySeconds',
+                              title: 'Auto-complete delay (seconds)',
+                              type: 'number',
+                              initialValue: 1.5,
+                              hidden: ({parent}) => !parent?.isDestination,
+                              description: 'After the participant reaches this screen, the task will be marked complete after this delay.',
+                              validation: (Rule) => Rule.min(0.2).max(10),
+                            },
+                            {
                               name: 'hotspots',
                               title: 'Hotspots',
                               type: 'array',
@@ -220,7 +256,7 @@ export default {
                                       title: 'Target screen ID',
                                       type: 'string',
                                       hidden: true,
-                                      description: 'Used only when action = Go to screen. For now this remains internal/manual.',
+                                      description: 'Used only when action = Go to screen. The visual hotspot editor sets this from a screen dropdown.',
                                     },
                                     {
                                       name: 'isCorrect',
@@ -240,9 +276,9 @@ export default {
                             },
                           ],
                           preview: {
-                            select: {title: 'title', media: 'image'},
-                            prepare({title, media}) {
-                              return {title: title || 'Screen', media}
+                            select: {title: 'title', media: 'image', isDestination: 'isDestination'},
+                            prepare({title, media, isDestination}) {
+                              return {title: title || 'Screen', subtitle: isDestination ? 'Destination / success screen' : undefined, media}
                             },
                           },
                         },
