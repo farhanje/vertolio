@@ -1,4 +1,5 @@
 import {NextResponse} from 'next/server'
+import {timingSafeEqual} from 'crypto'
 import {supabaseServer} from '@/lib/supabase.server'
 
 const DATASETS = {
@@ -54,14 +55,19 @@ const DATASETS = {
   },
 }
 
-function isAuthorized(req) {
+function safeCompare(a = '', b = '') {
+  const left = Buffer.from(String(a))
+  const right = Buffer.from(String(b))
+  if (left.length !== right.length) return false
+  return timingSafeEqual(left, right)
+}
+
+function isAuthorized(provided) {
   const expected = process.env.RESEARCH_ADMIN_KEY
-  const url = new URL(req.url)
-  const provided = url.searchParams.get('key') || req.headers.get('x-research-admin-key')
 
-  if (expected) return provided === expected
+  if (expected) return safeCompare(provided, expected)
 
-  // Prevent exposing participant data on production by accident.
+  // Never expose participant data in production by accident.
   return process.env.NODE_ENV !== 'production'
 }
 
@@ -89,12 +95,25 @@ function toCsv(rows, preferredColumns = []) {
 }
 
 function jsonResponse(payload, status = 200) {
-  return NextResponse.json(payload, {status})
+  return NextResponse.json(payload, {
+    status,
+    headers: {
+      'cache-control': 'no-store, max-age=0',
+      'x-robots-tag': 'noindex, nofollow, noarchive, nosnippet',
+    },
+  })
 }
 
-export async function GET(req) {
+export async function GET() {
+  return jsonResponse({error: 'Method not allowed. Use POST.'}, 405)
+}
+
+export async function POST(req) {
   try {
-    if (!isAuthorized(req)) {
+    const body = await req.json().catch(() => ({}))
+    const providedKey = String(body?.key || body?.exportKey || req.headers.get('x-research-admin-key') || '')
+
+    if (!isAuthorized(providedKey)) {
       const hasKey = Boolean(process.env.RESEARCH_ADMIN_KEY)
       return jsonResponse({
         error: 'Unauthorized',
@@ -104,9 +123,8 @@ export async function GET(req) {
       }, 401)
     }
 
-    const url = new URL(req.url)
-    const studySlug = String(url.searchParams.get('studySlug') || '').trim()
-    const datasetKey = String(url.searchParams.get('dataset') || 'sessions').trim()
+    const studySlug = String(body?.studySlug || '').trim()
+    const datasetKey = String(body?.dataset || 'sessions').trim()
     const dataset = DATASETS[datasetKey]
 
     if (!studySlug) return jsonResponse({error: 'Missing studySlug'}, 400)
@@ -137,7 +155,10 @@ export async function GET(req) {
       headers: {
         'content-type': 'text/csv; charset=utf-8',
         'content-disposition': `attachment; filename="${filename}"`,
-        'cache-control': 'no-store',
+        'cache-control': 'no-store, max-age=0',
+        'x-content-type-options': 'nosniff',
+        'referrer-policy': 'no-referrer',
+        'x-robots-tag': 'noindex, nofollow, noarchive, nosnippet',
       },
     })
   } catch (e) {
