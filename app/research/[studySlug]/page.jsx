@@ -4,6 +4,7 @@ import {useEffect, useState} from 'react'
 import {useParams} from 'next/navigation'
 import ResearchRunner from '@/components/research/ResearchRunner'
 import {useDeviceId} from '@/components/research/useDeviceId'
+import './runner-overrides.css'
 
 export default function ResearchStudyPage() {
   const params = useParams()
