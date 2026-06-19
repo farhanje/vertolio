@@ -54,8 +54,27 @@ function toSurveyRows(answers, questions) {
   })
 }
 
+function researchTypeLabel(type) {
+  const labels = {
+    ab_test: 'A/B test',
+    usability_test: 'Usability testing',
+    survey: 'Survey',
+    prototype_test: 'Prototype test',
+    concept_test: 'Concept test',
+  }
+
+  return labels[type] || 'Research study'
+}
+
+function destinationDelayMs(screen) {
+  const seconds = Number(screen?.completionDelaySeconds)
+  const safeSeconds = Number.isFinite(seconds) ? seconds : 1.5
+  return Math.min(10000, Math.max(200, safeSeconds * 1000))
+}
+
 export default function ResearchRunner({studySlug, session}) {
   const imageRef = useRef(null)
+  const destinationCompletionRef = useRef(null)
   const [configState, setConfigState] = useState({status: 'loading'})
   const [phase, setPhase] = useState('intro')
   const [taskIndex, setTaskIndex] = useState(0)
@@ -114,6 +133,7 @@ export default function ResearchRunner({studySlug, session}) {
         taskOrder: nextTaskIndex + 1,
       })
 
+      destinationCompletionRef.current = null
       setTaskIndex(nextTaskIndex)
       setScreenIndex(0)
       setTaskRunId(json.taskRunId)
@@ -185,6 +205,21 @@ export default function ResearchRunner({studySlug, session}) {
       setBusy(false)
     }
   }
+
+  useEffect(() => {
+    if (phase !== 'task' || !taskRunId || !screen?.isDestination) return undefined
+
+    const completionKey = `${taskRunId}:${screen.screenId}`
+    if (destinationCompletionRef.current === completionKey) return undefined
+
+    const timer = window.setTimeout(() => {
+      if (destinationCompletionRef.current === completionKey) return
+      destinationCompletionRef.current = completionKey
+      finishTask({success: true})
+    }, destinationDelayMs(screen))
+
+    return () => window.clearTimeout(timer)
+  }, [phase, taskRunId, screen?.screenId, screen?.isDestination, screen?.completionDelaySeconds])
 
   async function handleScreenClick(event) {
     if (!screen || busy) return
@@ -337,7 +372,9 @@ export default function ResearchRunner({studySlug, session}) {
         <h1 style={{marginTop: 12}}>{study.introTitle || study.title}</h1>
         {study.introBody ? <p className="lead" style={{marginTop: 8, whiteSpace: 'pre-line'}}>{study.introBody}</p> : null}
         {study.consentText ? <p style={{marginTop: 18, maxWidth: 760, whiteSpace: 'pre-line'}}>{study.consentText}</p> : null}
-        <p style={{marginTop: 18, maxWidth: 760}}>You are assigned to <strong>Variant {session.variant}</strong>.</p>
+        <p style={{marginTop: 18, maxWidth: 760}}>
+          Research type: <strong>{researchTypeLabel(study.researchType)}</strong> • Assigned to <strong>Variant {session.variant}</strong>.
+        </p>
         {error ? <p style={{marginTop: 16}}>{error}</p> : null}
         <button className="btn" type="button" disabled={busy} onClick={() => startTask(0)} style={{marginTop: 28}}>
           {busy ? 'Starting…' : 'Start study'}
