@@ -2,6 +2,7 @@
 
 import {useEffect, useState} from 'react'
 import {useParams} from 'next/navigation'
+import ResearchRunner from '@/components/research/ResearchRunner'
 import {useDeviceId} from '@/components/research/useDeviceId'
 
 export default function ResearchStudyPage() {
@@ -9,16 +10,16 @@ export default function ResearchStudyPage() {
   const studySlug = params?.studySlug
   const deviceId = useDeviceId()
 
-  const [state, setState] = useState({ status: 'init' })
+  const [state, setState] = useState({status: 'init'})
 
   useEffect(() => {
     if (!studySlug || !deviceId) return
 
     const run = async () => {
-      setState({ status: 'loading' })
+      setState({status: 'loading'})
       const res = await fetch('/api/research/start', {
         method: 'POST',
-        headers: { 'content-type': 'application/json' },
+        headers: {'content-type': 'application/json'},
         body: JSON.stringify({
           studySlug,
           deviceId,
@@ -32,10 +33,10 @@ export default function ResearchStudyPage() {
       })
       const json = await res.json()
       if (!res.ok) {
-        setState({ status: 'error', error: json?.error || 'Error' })
+        setState({status: 'error', error: json?.detail || json?.error || 'Error'})
         return
       }
-      setState({ status: 'ready', data: json })
+      setState({status: 'ready', data: json})
     }
 
     run()
@@ -46,8 +47,8 @@ export default function ResearchStudyPage() {
       <main className="container">
         <section className="section tight">
           <div className="kicker"><span className="dot" /> Research</div>
-          <h1 style={{ marginTop: 12 }}>Loading…</h1>
-          <p className="lead" style={{ marginTop: 8 }}>Preparing your session.</p>
+          <h1 style={{marginTop: 12}}>Loading…</h1>
+          <p className="lead" style={{marginTop: 8}}>Preparing your session.</p>
         </section>
       </main>
     )
@@ -58,22 +59,22 @@ export default function ResearchStudyPage() {
       <main className="container">
         <section className="section tight">
           <div className="kicker"><span className="dot" /> Research</div>
-          <h1 style={{ marginTop: 12 }}>Can’t start</h1>
-          <p className="lead" style={{ marginTop: 8 }}>{state.error}</p>
+          <h1 style={{marginTop: 12}}>Can’t start</h1>
+          <p className="lead" style={{marginTop: 8}}>{state.error}</p>
         </section>
       </main>
     )
   }
 
-  const { data } = state
+  const {data} = state
 
   if (data?.status === 'completed') {
     return (
       <main className="container">
         <section className="section tight">
           <div className="kicker"><span className="dot" /> Research</div>
-          <h1 style={{ marginTop: 12 }}>Already completed</h1>
-          <p className="lead" style={{ marginTop: 8 }}>This study has already been completed on this device.</p>
+          <h1 style={{marginTop: 12}}>Already completed</h1>
+          <p className="lead" style={{marginTop: 8}}>This study has already been completed on this device.</p>
         </section>
       </main>
     )
@@ -81,16 +82,7 @@ export default function ResearchStudyPage() {
 
   return (
     <main className="container">
-      <section className="section tight">
-        <div className="kicker"><span className="dot" /> Research</div>
-        <h1 style={{ marginTop: 12 }}>Session ready</h1>
-        <p className="lead" style={{ marginTop: 8 }}>
-          Variant <strong>{data?.variant}</strong> • Session <strong>{data?.sessionId}</strong>
-        </p>
-        <p className="lead" style={{ marginTop: 10 }}>
-          Next: we will render the PNG prototype runner + tasks + surveys from Sanity config.
-        </p>
-      </section>
+      <ResearchRunner studySlug={studySlug} session={data} />
     </main>
   )
 }
