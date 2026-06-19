@@ -40,6 +40,8 @@ const questionProjection = `{
 
 const query = `*[_type == "researchStudy" && slug.current == $studySlug][0]{
   _id,
+  _rev,
+  _updatedAt,
   title,
   "slug": slug.current,
   status,
