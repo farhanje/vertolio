@@ -51,25 +51,32 @@ h2{font-size:clamp(20px,2vw,28px);line-height:1.15;letter-spacing:-0.02em;margin
 
 /* Research runner overrides: keep the active prototype stage truly full-screen when task panel is collapsed. */
 .research-runner-shell.is-panel-closed .research-runner-frame{
-  display:flex !important;
+  display:block !important;
   width:100vw !important;
   height:100dvh !important;
   min-width:0 !important;
+  overflow:hidden !important;
 }
 
 .research-runner-shell.is-panel-closed .research-prototype-stage{
-  flex:1 1 auto !important;
+  position:fixed !important;
+  inset:0 !important;
+  z-index:1000 !important;
   width:100vw !important;
+  height:100dvh !important;
   min-width:0 !important;
   max-width:none !important;
-  height:100dvh !important;
-  display:flex !important;
-  align-items:center !important;
-  justify-content:center !important;
+  display:grid !important;
+  place-items:center !important;
+  padding:clamp(18px,3.2vw,56px) !important;
+  margin:0 !important;
+  transform:none !important;
+  overflow:hidden !important;
 }
 
 .research-runner-shell.is-panel-closed .research-prototype-image{
-  flex:0 1 auto !important;
+  position:relative !important;
+  inset:auto !important;
   display:block !important;
   width:auto !important;
   height:auto !important;
@@ -78,6 +85,8 @@ h2{font-size:clamp(20px,2vw,28px);line-height:1.15;letter-spacing:-0.02em;margin
   margin:auto !important;
   object-fit:contain !important;
   object-position:center center !important;
+  justify-self:center !important;
+  align-self:center !important;
 }
 
 .research-instruction-panel,
@@ -96,6 +105,10 @@ h2{font-size:clamp(20px,2vw,28px);line-height:1.15;letter-spacing:-0.02em;margin
 }
 
 @media (max-width:899px){
+  .research-runner-shell.is-panel-closed .research-prototype-stage{
+    padding:14px !important;
+  }
+
   .research-runner-shell.is-panel-closed .research-prototype-image{
     max-width:calc(100vw - 28px) !important;
     max-height:calc(100dvh - 28px) !important;
