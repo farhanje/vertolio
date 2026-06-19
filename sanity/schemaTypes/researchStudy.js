@@ -8,6 +8,12 @@ const QUESTION_TYPES = [
   {title: 'Number', value: 'number'},
 ]
 
+const QUESTION_MEDIA_TYPES = [
+  {title: 'No media', value: 'none'},
+  {title: 'Image upload', value: 'image'},
+  {title: 'Video / embed URL', value: 'embed'},
+]
+
 const RESEARCH_TYPES = [
   {title: 'A/B test', value: 'ab_test'},
   {title: 'Usability testing', value: 'usability_test'},
@@ -37,6 +43,11 @@ const hiddenIdField = (name, title, description, hidden) => ({
   description,
 })
 
+const resolveHidden = (hidden, args) => {
+  if (typeof hidden === 'function') return hidden(args)
+  return Boolean(hidden)
+}
+
 const questionFields = (hidden) => [
   hiddenIdField('questionId', 'Question ID', 'Auto-managed internally. The system falls back to this item key.', hidden),
   {name: 'label', title: 'Question label', type: 'text', rows: 2, hidden},
@@ -45,6 +56,34 @@ const questionFields = (hidden) => [
   {name: 'minLabel', title: 'Likert low label', type: 'string', hidden},
   {name: 'maxLabel', title: 'Likert high label', type: 'string', hidden},
   {name: 'options', title: 'Options', type: 'array', of: [{type: 'string'}], hidden},
+  {
+    name: 'mediaType',
+    title: 'Question media',
+    type: 'string',
+    initialValue: 'none',
+    options: {layout: 'radio', list: QUESTION_MEDIA_TYPES},
+    hidden,
+  },
+  {
+    name: 'mediaImage',
+    title: 'Question image',
+    type: 'image',
+    options: {hotspot: false},
+    hidden: (args) => resolveHidden(hidden, args) || args.parent?.mediaType !== 'image',
+  },
+  {
+    name: 'mediaUrl',
+    title: 'Video / embed URL',
+    type: 'url',
+    description: 'Paste a YouTube, Vimeo, Loom, Figma prototype, or any embeddable https URL.',
+    hidden: (args) => resolveHidden(hidden, args) || args.parent?.mediaType !== 'embed',
+  },
+  {
+    name: 'mediaCaption',
+    title: 'Media caption',
+    type: 'string',
+    hidden: (args) => resolveHidden(hidden, args) || !args.parent?.mediaType || args.parent?.mediaType === 'none',
+  },
 ]
 
 const hotspotFields = [
