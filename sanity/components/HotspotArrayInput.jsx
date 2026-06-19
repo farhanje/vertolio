@@ -58,19 +58,41 @@ function makeHotspot(index, rect) {
   }
 }
 
+function getScreenOptionLabel({screen, index, screenAssets, currentScreenKey}) {
+  const assetRef = assetRefFromImage(screen?.image)
+  const fileName = assetRef ? screenAssets?.[assetRef]?.originalFilename : null
+  const baseTitle = screen?.title || fileName || screen?.alt || `Screen ${index + 1}`
+  const fileSuffix = screen?.title && fileName ? ` · ${fileName}` : ''
+  const currentSuffix = screen?._key && screen._key === currentScreenKey ? ' (current)' : ''
+  return `${index + 1}. ${baseTitle}${fileSuffix}${currentSuffix}`
+}
+
 export default function HotspotArrayInput(props) {
   const {value = [], onChange, path} = props
   const client = useClient({apiVersion: API_VERSION})
   const imagePath = useMemo(() => [...(path || []).slice(0, -1), 'image'], [path])
+  const screenPath = useMemo(() => [...(path || []).slice(0, -1)], [path])
+  const screensPath = useMemo(() => [...(path || []).slice(0, -2)], [path])
   const image = useFormValue(imagePath)
+  const currentScreen = useFormValue(screenPath)
+  const screensValue = useFormValue(screensPath)
+  const screens = Array.isArray(screensValue) ? screensValue : []
   const assetRef = assetRefFromImage(image)
+  const currentScreenKey = currentScreen?._key || null
 
   const imageWrapRef = useRef(null)
   const dragRef = useRef(null)
   const [asset, setAsset] = useState(null)
+  const [screenAssets, setScreenAssets] = useState({})
   const [selectedKey, setSelectedKey] = useState(value?.[0]?._key || null)
   const [draftRect, setDraftRect] = useState(null)
   const [isDrawing, setIsDrawing] = useState(false)
+
+  const screenAssetRefs = useMemo(
+    () => Array.from(new Set(screens.map((screen) => assetRefFromImage(screen?.image)).filter(Boolean))),
+    [screens]
+  )
+  const screenAssetRefsKey = screenAssetRefs.join('|')
 
   useEffect(() => {
     let ignore = false
@@ -82,7 +104,7 @@ export default function HotspotArrayInput(props) {
       }
 
       const nextAsset = await client.fetch(
-        `*[_id == $assetRef][0]{url, metadata{dimensions{width,height,aspectRatio}}}`,
+        `*[_id == $assetRef][0]{url, originalFilename, metadata{dimensions{width,height,aspectRatio}}}`,
         {assetRef}
       )
 
@@ -99,11 +121,54 @@ export default function HotspotArrayInput(props) {
   }, [assetRef, client])
 
   useEffect(() => {
+    let ignore = false
+
+    async function fetchScreenAssets() {
+      if (!screenAssetRefs.length) {
+        setScreenAssets({})
+        return
+      }
+
+      const assets = await client.fetch(
+        `*[_id in $assetRefs]{_id, url, originalFilename, metadata{dimensions{width,height,aspectRatio}}}`,
+        {assetRefs: screenAssetRefs}
+      )
+
+      const assetMap = Object.fromEntries((assets || []).map((item) => [item._id, item]))
+      if (!ignore) setScreenAssets(assetMap)
+    }
+
+    fetchScreenAssets().catch(() => {
+      if (!ignore) setScreenAssets({})
+    })
+
+    return () => {
+      ignore = true
+    }
+  }, [client, screenAssetRefsKey])
+
+  useEffect(() => {
     if (!selectedKey && value?.length) setSelectedKey(value[0]._key)
     if (selectedKey && value?.length && !value.some((item) => item._key === selectedKey)) {
       setSelectedKey(value[0]._key)
     }
   }, [selectedKey, value])
+
+  const screenOptions = useMemo(
+    () =>
+      screens
+        .map((screen, index) => {
+          const targetValue = screen?.screenId || screen?._key
+          if (!targetValue) return null
+
+          return {
+            value: targetValue,
+            label: getScreenOptionLabel({screen, index, screenAssets, currentScreenKey}),
+          }
+        })
+        .filter(Boolean),
+    [screens, screenAssets, currentScreenKey]
+  )
 
   function commit(nextValue) {
     onChange(PatchEvent.from(nextValue?.length ? set(nextValue) : unset()))
@@ -242,6 +307,9 @@ export default function HotspotArrayInput(props) {
   }, [draftRect, value])
 
   const selectedHotspot = value.find((item) => item._key === selectedKey) || value[0] || null
+  const targetIsKnown = selectedHotspot?.targetScreenId
+    ? screenOptions.some((option) => option.value === selectedHotspot.targetScreenId)
+    : true
 
   return (
     <div style={{display: 'grid', gap: 16}}>
@@ -375,7 +443,13 @@ export default function HotspotArrayInput(props) {
                 Action
                 <select
                   value={selectedHotspot.action || 'next'}
-                  onChange={(event) => updateHotspot(selectedHotspot._key, {action: event.target.value})}
+                  onChange={(event) => {
+                    const nextAction = event.target.value
+                    updateHotspot(selectedHotspot._key, {
+                      action: nextAction,
+                      ...(nextAction !== 'goToScreen' ? {targetScreenId: ''} : {}),
+                    })
+                  }}
                   style={inputStyle}
                 >
                   {ACTIONS.map((action) => (
@@ -385,14 +459,25 @@ export default function HotspotArrayInput(props) {
               </label>
               {selectedHotspot.action === 'goToScreen' ? (
                 <label style={labelStyle}>
-                  Target screen ID
-                  <input
-                    type="text"
+                  Target screen
+                  <select
                     value={selectedHotspot.targetScreenId || ''}
                     onChange={(event) => updateHotspot(selectedHotspot._key, {targetScreenId: event.target.value})}
-                    placeholder="Paste target screen ID if needed"
                     style={inputStyle}
-                  />
+                  >
+                    <option value="">Select a screen…</option>
+                    {!targetIsKnown ? (
+                      <option value={selectedHotspot.targetScreenId}>
+                        Unknown saved target ({selectedHotspot.targetScreenId})
+                      </option>
+                    ) : null}
+                    {screenOptions.map((option) => (
+                      <option key={option.value} value={option.value}>{option.label}</option>
+                    ))}
+                  </select>
+                  <span style={{fontSize: 12, color: '#666'}}>
+                    Pick by screen title or uploaded filename. The internal screen key is saved automatically.
+                  </span>
                 </label>
               ) : null}
               <label style={{display: 'inline-flex', gap: 8, alignItems: 'center', fontSize: 13}}>
