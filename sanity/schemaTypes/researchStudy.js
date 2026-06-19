@@ -1,3 +1,5 @@
+import HotspotArrayInput from '../components/HotspotArrayInput'
+
 const QUESTION_TYPES = [
   {title: 'Likert 1–7', value: 'likert'},
   {title: 'Single choice', value: 'single'},
@@ -12,6 +14,15 @@ const HOTSPOT_ACTIONS = [
   {title: 'Back', value: 'back'},
   {title: 'Complete task', value: 'completeTask'},
 ]
+
+const hiddenIdField = (name, title, description) => ({
+  name,
+  title,
+  type: 'string',
+  hidden: true,
+  readOnly: true,
+  description,
+})
 
 export default {
   name: 'researchStudy',
@@ -112,13 +123,7 @@ export default {
                   name: 'studyTask',
                   title: 'Task',
                   fields: [
-                    {
-                      name: 'taskId',
-                      title: 'Task ID',
-                      type: 'string',
-                      description: 'Stable ID, e.g. task_1_take_ktp.',
-                      validation: (Rule) => Rule.required(),
-                    },
+                    hiddenIdField('taskId', 'Task ID', 'Auto-managed internally. The system falls back to this item key.'),
                     {
                       name: 'title',
                       title: 'Task title',
@@ -142,17 +147,12 @@ export default {
                           name: 'studyScreen',
                           title: 'Screen',
                           fields: [
-                            {
-                              name: 'screenId',
-                              title: 'Screen ID',
-                              type: 'string',
-                              description: 'Stable ID used by hotspots, e.g. a_home.',
-                              validation: (Rule) => Rule.required(),
-                            },
+                            hiddenIdField('screenId', 'Screen ID', 'Auto-managed internally. The system falls back to this item key.'),
                             {
                               name: 'title',
                               title: 'Screen title',
                               type: 'string',
+                              description: 'Optional. Only used to make the Studio list easier to read.',
                             },
                             {
                               name: 'image',
@@ -170,43 +170,43 @@ export default {
                               name: 'hotspots',
                               title: 'Hotspots',
                               type: 'array',
-                              description: 'Use normalized decimal values from 0 to 1. x/y = top-left. w/h = width/height.',
+                              description: 'Draw, drag, and resize hotspot rectangles directly on the uploaded PNG. No pixel math needed.',
+                              components: {input: HotspotArrayInput},
                               of: [
                                 {
                                   type: 'object',
                                   name: 'studyHotspot',
                                   title: 'Hotspot',
                                   fields: [
-                                    {
-                                      name: 'hotspotId',
-                                      title: 'Hotspot ID',
-                                      type: 'string',
-                                      validation: (Rule) => Rule.required(),
-                                    },
+                                    hiddenIdField('hotspotId', 'Hotspot ID', 'Auto-managed internally. The system falls back to this item key.'),
                                     {name: 'label', title: 'Label', type: 'string'},
                                     {
                                       name: 'x',
                                       title: 'X',
                                       type: 'number',
-                                      validation: (Rule) => Rule.min(0).max(1).required(),
+                                      hidden: true,
+                                      validation: (Rule) => Rule.min(0).max(1),
                                     },
                                     {
                                       name: 'y',
                                       title: 'Y',
                                       type: 'number',
-                                      validation: (Rule) => Rule.min(0).max(1).required(),
+                                      hidden: true,
+                                      validation: (Rule) => Rule.min(0).max(1),
                                     },
                                     {
                                       name: 'w',
                                       title: 'Width',
                                       type: 'number',
-                                      validation: (Rule) => Rule.min(0).max(1).required(),
+                                      hidden: true,
+                                      validation: (Rule) => Rule.min(0).max(1),
                                     },
                                     {
                                       name: 'h',
                                       title: 'Height',
                                       type: 'number',
-                                      validation: (Rule) => Rule.min(0).max(1).required(),
+                                      hidden: true,
+                                      validation: (Rule) => Rule.min(0).max(1),
                                     },
                                     {
                                       name: 'action',
@@ -214,13 +214,13 @@ export default {
                                       type: 'string',
                                       initialValue: 'next',
                                       options: {list: HOTSPOT_ACTIONS},
-                                      validation: (Rule) => Rule.required(),
                                     },
                                     {
                                       name: 'targetScreenId',
                                       title: 'Target screen ID',
                                       type: 'string',
-                                      description: 'Required only when action = Go to screen.',
+                                      hidden: true,
+                                      description: 'Used only when action = Go to screen. For now this remains internal/manual.',
                                     },
                                     {
                                       name: 'isCorrect',
@@ -232,7 +232,7 @@ export default {
                                   preview: {
                                     select: {title: 'label', subtitle: 'hotspotId'},
                                     prepare({title, subtitle}) {
-                                      return {title: title || subtitle || 'Hotspot', subtitle}
+                                      return {title: title || 'Hotspot', subtitle}
                                     },
                                   },
                                 },
@@ -240,9 +240,9 @@ export default {
                             },
                           ],
                           preview: {
-                            select: {title: 'title', subtitle: 'screenId', media: 'image'},
-                            prepare({title, subtitle, media}) {
-                              return {title: title || subtitle || 'Screen', subtitle, media}
+                            select: {title: 'title', media: 'image'},
+                            prepare({title, media}) {
+                              return {title: title || 'Screen', media}
                             },
                           },
                         },
@@ -258,12 +258,7 @@ export default {
                           name: 'studyQuestion',
                           title: 'Question',
                           fields: [
-                            {
-                              name: 'questionId',
-                              title: 'Question ID',
-                              type: 'string',
-                              validation: (Rule) => Rule.required(),
-                            },
+                            hiddenIdField('questionId', 'Question ID', 'Auto-managed internally. The system falls back to this item key.'),
                             {
                               name: 'label',
                               title: 'Question label',
@@ -310,7 +305,10 @@ export default {
                     },
                   ],
                   preview: {
-                    select: {title: 'title', subtitle: 'taskId'},
+                    select: {title: 'title'},
+                    prepare({title}) {
+                      return {title: title || 'Task'}
+                    },
                   },
                 },
               ],
