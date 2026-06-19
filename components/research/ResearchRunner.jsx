@@ -177,7 +177,6 @@ export default function ResearchRunner({studySlug, session}) {
         ...payload,
       })
     } catch (err) {
-      // Keep the participant flow moving even if one event fails.
       console.error(err)
     }
   }
@@ -344,8 +343,12 @@ export default function ResearchRunner({studySlug, session}) {
   }
 
   function renderPrototypeStage({dimmed = false} = {}) {
+    const orientation = imageMeta?.width && imageMeta?.height && imageMeta.width >= imageMeta.height
+      ? 'is-landscape-image'
+      : 'is-portrait-image'
+
     return (
-      <main className={`research-prototype-stage ${dimmed ? 'is-dimmed' : ''}`}>
+      <main className={`research-prototype-stage ${orientation} ${dimmed ? 'is-dimmed' : ''}`}>
         {screen?.imageUrl ? (
           <img
             ref={imageRef}
@@ -592,15 +595,19 @@ export default function ResearchRunner({studySlug, session}) {
         .research-runner-frame {
           height: 100%;
           display: grid;
-          grid-template-columns: minmax(340px, 42vw) minmax(0, 1fr);
+          grid-template-columns: minmax(300px, min(34vw, 460px)) minmax(0, 1fr);
         }
 
         .research-runner-shell.is-panel-closed .research-runner-frame {
-          grid-template-columns: minmax(0, 1fr);
+          display: block;
+          width: 100vw;
+          height: 100dvh;
+          overflow: hidden;
         }
 
         .research-instruction-panel {
           height: 100dvh;
+          min-width: 0;
           box-sizing: border-box;
           background: #fff;
           color: #111;
@@ -612,17 +619,28 @@ export default function ResearchRunner({studySlug, session}) {
         }
 
         .research-panel-scroll {
+          min-width: 0;
           overflow: auto;
-          padding: clamp(24px, 4vw, 56px);
+          overflow-x: hidden;
+          padding: clamp(22px, 3vw, 44px) clamp(20px, 2.8vw, 36px);
         }
 
         .research-panel-actions {
-          padding: 20px clamp(24px, 4vw, 56px) clamp(24px, 4vw, 48px);
+          min-width: 0;
+          padding: 18px clamp(20px, 2.8vw, 36px) clamp(20px, 2.8vw, 34px);
           border-top: 1px solid #eee;
           display: flex;
           gap: 12px;
           flex-wrap: wrap;
           background: #fff;
+          overflow-x: hidden;
+        }
+
+        .research-panel-scroll > *,
+        .research-panel-actions > * {
+          max-width: 100%;
+          overflow-wrap: anywhere;
+          box-sizing: border-box;
         }
 
         .research-task-meta,
@@ -632,27 +650,37 @@ export default function ResearchRunner({studySlug, session}) {
         .research-task-error,
         .research-task-hint {
           margin-top: 0;
+          max-width: 360px;
+          overflow-wrap: anywhere;
         }
 
         .research-task-meta {
           color: #777;
-          font-size: 0.9rem;
+          font-size: 0.76rem;
+          letter-spacing: 0.02em;
         }
 
         .research-task-step {
           margin-top: 14px;
           color: #555;
-          font-size: 0.95rem;
+          font-size: 0.88rem;
         }
 
         .research-instruction-panel h1 {
           margin-top: 10px;
-          max-width: 780px;
+          max-width: 360px;
+          font-size: clamp(1.2rem, 1.45vw, 1.65rem);
+          line-height: 1.08;
+          letter-spacing: -0.02em;
+          overflow-wrap: anywhere;
+          word-break: break-word;
         }
 
         .research-instruction-panel .lead {
-          margin-top: 22px;
-          max-width: 720px;
+          margin-top: 18px;
+          max-width: 360px;
+          font-size: clamp(0.95rem, 1.05vw, 1.05rem);
+          line-height: 1.45;
         }
 
         .research-screen-title,
@@ -660,11 +688,11 @@ export default function ResearchRunner({studySlug, session}) {
         .research-task-error,
         .research-task-hint {
           margin-top: 18px;
+          font-size: 0.88rem;
         }
 
         .research-task-hint {
           color: #666;
-          font-size: 0.95rem;
         }
 
         .research-task-error {
@@ -676,14 +704,27 @@ export default function ResearchRunner({studySlug, session}) {
           height: 100dvh;
           width: 100%;
           box-sizing: border-box;
-          display: flex;
-          align-items: center;
-          justify-content: center;
+          display: grid;
+          place-items: center;
           padding: clamp(18px, 3.2vw, 56px);
           background:
             radial-gradient(circle at 50% 50%, rgba(255,255,255,0.08), rgba(255,255,255,0) 42%),
             #101010;
           overflow: hidden;
+        }
+
+        .research-runner-shell.is-panel-closed .research-prototype-stage {
+          position: fixed;
+          inset: 0;
+          width: 100vw;
+          height: 100dvh;
+          max-width: none;
+          margin: 0;
+          padding: clamp(24px, 4vw, 64px);
+          display: grid;
+          place-items: center;
+          transform: none;
+          z-index: 1000;
         }
 
         .research-prototype-stage.is-dimmed .research-prototype-image {
@@ -704,12 +745,31 @@ export default function ResearchRunner({studySlug, session}) {
           max-width: 100%;
           max-height: calc(100dvh - clamp(36px, 6.4vw, 112px));
           object-fit: contain;
+          object-position: center center;
           border: 1px solid rgba(255,255,255,0.16);
           background: #fff;
           box-shadow: 0 24px 80px rgba(0,0,0,0.36);
           cursor: pointer;
           user-select: none;
           transition: opacity 160ms ease, filter 160ms ease;
+        }
+
+        .research-runner-shell.is-panel-closed .research-prototype-image {
+          justify-self: center;
+          align-self: center;
+          max-width: calc(100vw - clamp(48px, 8vw, 128px));
+          max-height: calc(100dvh - clamp(48px, 8vw, 128px));
+          margin: 0 auto;
+        }
+
+        .research-runner-shell.is-panel-closed .research-prototype-stage.is-landscape-image .research-prototype-image {
+          width: calc(100vw - clamp(48px, 8vw, 128px));
+          height: auto;
+        }
+
+        .research-runner-shell.is-panel-closed .research-prototype-stage.is-portrait-image .research-prototype-image {
+          width: auto;
+          height: calc(100dvh - clamp(48px, 8vw, 128px));
         }
 
         .research-runner-shell.is-briefing .research-prototype-image {
@@ -736,14 +796,27 @@ export default function ResearchRunner({studySlug, session}) {
             grid-template-columns: minmax(0, 1fr);
           }
 
-          .research-prototype-stage {
+          .research-prototype-stage,
+          .research-runner-shell.is-panel-closed .research-prototype-stage {
             grid-column: 1;
             grid-row: 1;
             padding: 14px;
           }
 
-          .research-prototype-image {
+          .research-prototype-image,
+          .research-runner-shell.is-panel-closed .research-prototype-image {
+            max-width: calc(100vw - 28px);
             max-height: calc(100dvh - 28px);
+          }
+
+          .research-runner-shell.is-panel-closed .research-prototype-stage.is-landscape-image .research-prototype-image {
+            width: calc(100vw - 28px);
+            height: auto;
+          }
+
+          .research-runner-shell.is-panel-closed .research-prototype-stage.is-portrait-image .research-prototype-image {
+            width: auto;
+            height: calc(100dvh - 28px);
           }
 
           .research-instruction-panel {
@@ -766,6 +839,17 @@ export default function ResearchRunner({studySlug, session}) {
 
           .research-panel-actions {
             padding: 16px 22px 22px;
+          }
+
+          .research-instruction-panel h1,
+          .research-instruction-panel .lead,
+          .research-task-meta,
+          .research-task-step,
+          .research-screen-title,
+          .research-task-hint,
+          .research-task-status,
+          .research-task-error {
+            max-width: 100%;
           }
 
           .research-show-task {
