@@ -1,6 +1,11 @@
 import {NextResponse} from 'next/server'
 import {supabaseServer} from '@/lib/supabase.server'
 
+function safeNumber(value, fallback = 0) {
+  const n = Number(value)
+  return Number.isFinite(n) ? Math.max(0, Math.round(n)) : fallback
+}
+
 export async function POST(req) {
   try {
     const body = await req.json()
@@ -9,20 +14,43 @@ export async function POST(req) {
     if (!taskRunId) return NextResponse.json({error: 'Missing taskRunId'}, {status: 400})
 
     const sb = supabaseServer()
-    const {error} = await sb
+    const endedAt = new Date().toISOString()
+    const durationMs = Number.isFinite(Number(body.durationMs)) ? safeNumber(body.durationMs, null) : null
+    const taskPayload = {
+      endedAt,
+      durationMs,
+      success: Boolean(body.success),
+      attempts: safeNumber(body.attempts, 0),
+      misclickCount: safeNumber(body.misclickCount, 0),
+    }
+
+    const {data: taskRun, error} = await sb
       .from('task_runs')
-      .update({
-        endedAt: new Date().toISOString(),
-        durationMs: Number.isFinite(Number(body.durationMs)) ? Math.max(0, Math.round(Number(body.durationMs))) : null,
-        success: Boolean(body.success),
-        attempts: Number.isFinite(Number(body.attempts)) ? Math.max(0, Math.round(Number(body.attempts))) : 0,
-        misclickCount: Number.isFinite(Number(body.misclickCount)) ? Math.max(0, Math.round(Number(body.misclickCount))) : 0,
-      })
+      .update(taskPayload)
       .eq('id', taskRunId)
+      .select('id, flowStepRunId, endedAt, durationMs, success')
+      .single()
 
     if (error) throw error
 
-    return NextResponse.json({status: 'ok'})
+    if (taskRun?.flowStepRunId) {
+      const {error: flowStepError} = await sb
+        .from('flow_step_runs')
+        .update({
+          status: 'completed',
+          endedAt: taskRun.endedAt || endedAt,
+          durationMs: taskRun.durationMs ?? durationMs,
+          meta: {
+            taskRunId: taskRun.id,
+            taskSuccess: Boolean(taskRun.success),
+          },
+        })
+        .eq('id', taskRun.flowStepRunId)
+
+      if (flowStepError) throw flowStepError
+    }
+
+    return NextResponse.json({status: 'ok', flowStepRunId: taskRun?.flowStepRunId || null})
   } catch (e) {
     return NextResponse.json({error: 'Server error', detail: String(e?.message || e)}, {status: 500})
   }
