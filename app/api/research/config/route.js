@@ -31,7 +31,11 @@ const questionProjection = `{
   required,
   minLabel,
   maxLabel,
-  options
+  options,
+  mediaType,
+  mediaUrl,
+  mediaCaption,
+  "mediaImageUrl": mediaImage.asset->url
 }`
 
 const query = `*[_type == "researchStudy" && slug.current == $studySlug][0]{
@@ -60,6 +64,10 @@ const query = `*[_type == "researchStudy" && slug.current == $studySlug][0]{
       minLabel,
       maxLabel,
       options,
+      mediaType,
+      mediaUrl,
+      mediaCaption,
+      "mediaImageUrl": mediaImage.asset->url,
       "taskId": coalesce(taskId, _key),
       scenario,
       screens[]${screenProjection},
