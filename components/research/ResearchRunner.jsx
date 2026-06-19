@@ -76,6 +76,15 @@ function destinationDelayMs(screen) {
   return Math.min(10000, Math.max(200, safeSeconds * 1000))
 }
 
+function mediaFields(source = {}) {
+  return {
+    mediaType: source.mediaType || 'none',
+    mediaImageUrl: source.mediaImageUrl || null,
+    mediaUrl: source.mediaUrl || null,
+    mediaCaption: source.mediaCaption || null,
+  }
+}
+
 function normalizeTaskStep(step, index) {
   const taskId = step.taskId || step._key || `task_${index + 1}`
   return {
@@ -105,6 +114,7 @@ function normalizeQuestionStep(step, index) {
       minLabel: step.minLabel,
       maxLabel: step.maxLabel,
       options: step.options || [],
+      ...mediaFields(step),
     },
   }
 }
@@ -112,6 +122,40 @@ function normalizeQuestionStep(step, index) {
 function normalizeFlowStep(step, index) {
   if (step.stepType === 'question') return normalizeQuestionStep(step, index)
   return normalizeTaskStep(step, index)
+}
+
+function getEmbedUrl(rawUrl) {
+  if (!rawUrl || typeof rawUrl !== 'string') return null
+
+  try {
+    const url = new URL(rawUrl)
+    if (!['http:', 'https:'].includes(url.protocol)) return null
+
+    const host = url.hostname.replace(/^www\./, '')
+    if (host === 'youtube.com' || host === 'm.youtube.com') {
+      const id = url.searchParams.get('v')
+      if (id) return `https://www.youtube.com/embed/${id}`
+    }
+
+    if (host === 'youtu.be') {
+      const id = url.pathname.split('/').filter(Boolean)[0]
+      if (id) return `https://www.youtube.com/embed/${id}`
+    }
+
+    if (host === 'vimeo.com') {
+      const id = url.pathname.split('/').filter(Boolean)[0]
+      if (id) return `https://player.vimeo.com/video/${id}`
+    }
+
+    if (host === 'loom.com' && url.pathname.includes('/share/')) {
+      const id = url.pathname.split('/').filter(Boolean).pop()
+      if (id) return `https://www.loom.com/embed/${id}`
+    }
+
+    return rawUrl
+  } catch {
+    return null
+  }
 }
 
 export default function ResearchRunner({studySlug, session}) {
@@ -402,23 +446,63 @@ export default function ResearchRunner({studySlug, session}) {
     }
   }
 
+  function renderQuestionMedia(question) {
+    const type = question?.mediaType || 'none'
+
+    if (type === 'image' && question.mediaImageUrl) {
+      return (
+        <figure className="research-question-media">
+          <img src={question.mediaImageUrl} alt={question.mediaCaption || question.label || 'Question image'} />
+          {question.mediaCaption ? <figcaption>{question.mediaCaption}</figcaption> : null}
+        </figure>
+      )
+    }
+
+    if (type === 'embed' && question.mediaUrl) {
+      const embedUrl = getEmbedUrl(question.mediaUrl)
+      if (!embedUrl) return null
+
+      return (
+        <figure className="research-question-media">
+          <div className="research-question-embed-wrap">
+            <iframe
+              src={embedUrl}
+              title={question.mediaCaption || question.label || 'Question media'}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+              loading="lazy"
+            />
+          </div>
+          {question.mediaCaption ? <figcaption>{question.mediaCaption}</figcaption> : null}
+        </figure>
+      )
+    }
+
+    return null
+  }
+
   function renderQuestionControl(question) {
     const key = questionKey(question)
 
     if (question.type === 'likert') {
+      const minLabel = question.minLabel || 'Strongly disagree'
+      const maxLabel = question.maxLabel || 'Strongly agree'
+
       return (
         <div className="research-question-control">
-          <div className="research-likert-labels">
-            <span>{question.minLabel || 'Strongly disagree'}</span>
-            <span>{question.maxLabel || 'Strongly agree'}</span>
-          </div>
-          <div className="research-likert-options">
-            {[1, 2, 3, 4, 5, 6, 7].map((value) => (
-              <label key={value}>
-                <input type="radio" name={key} checked={surveyAnswers[key] === value} onChange={() => setAnswer(question, value)} />
-                {value}
-              </label>
-            ))}
+          <div className="research-likert-scale" role="radiogroup" aria-label={question.label}>
+            <div className="research-likert-options">
+              {[1, 2, 3, 4, 5, 6, 7].map((value) => (
+                <label key={value} className="research-likert-option">
+                  <span>{value}</span>
+                  <input type="radio" name={key} checked={surveyAnswers[key] === value} onChange={() => setAnswer(question, value)} />
+                </label>
+              ))}
+            </div>
+            <div className="research-likert-anchors" aria-hidden="true">
+              <span>{minLabel}</span>
+              <span>{maxLabel}</span>
+            </div>
           </div>
         </div>
       )
@@ -467,6 +551,7 @@ export default function ResearchRunner({studySlug, session}) {
           {questions.map((question) => (
             <div className="research-question-card" key={questionKey(question)}>
               <p className="research-question-label">{question.label}{question.required ? ' *' : ''}</p>
+              {renderQuestionMedia(question)}
               {renderQuestionControl(question)}
             </div>
           ))}
@@ -625,14 +710,29 @@ export default function ResearchRunner({studySlug, session}) {
 function questionCss() {
   return (
     <style>{`
-      .research-question-stack { display: grid; gap: 28px; margin-top: 32px; max-width: 820px; }
-      .research-question-card { display: grid; gap: 12px; }
-      .research-question-label { margin: 0; font-weight: 650; }
-      .research-likert-labels { display: flex; justify-content: space-between; gap: 12px; max-width: 620px; font-size: 0.9rem; color: #555; }
-      .research-likert-options, .research-choice-list { display: flex; gap: 10px; flex-wrap: wrap; }
-      .research-choice-list { display: grid; gap: 8px; }
-      .research-likert-options label, .research-choice-list label { display: inline-flex; align-items: center; gap: 8px; }
+      .research-question-stack { display: grid; gap: 30px; margin-top: 32px; max-width: 860px; }
+      .research-question-card { display: grid; gap: 16px; }
+      .research-question-label { margin: 0; font-weight: 700; line-height: 1.35; max-width: 760px; }
+      .research-question-media { margin: 4px 0 2px; max-width: 760px; }
+      .research-question-media img { display: block; width: 100%; max-height: min(52vh, 520px); object-fit: contain; border: 1px solid #e4e4e4; background: #f7f7f7; }
+      .research-question-media figcaption { margin-top: 8px; color: #666; font-size: 0.9rem; }
+      .research-question-embed-wrap { position: relative; width: 100%; aspect-ratio: 16 / 9; border: 1px solid #e4e4e4; background: #111; overflow: hidden; }
+      .research-question-embed-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+      .research-question-control { max-width: 760px; }
+      .research-likert-scale { display: grid; gap: 10px; max-width: 640px; }
+      .research-likert-options { display: grid; grid-template-columns: repeat(7, minmax(34px, 1fr)); align-items: end; column-gap: 8px; }
+      .research-likert-option { display: grid; justify-items: center; gap: 8px; font-weight: 650; }
+      .research-likert-option span { font-size: 0.95rem; }
+      .research-likert-option input { margin: 0; }
+      .research-likert-anchors { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; max-width: 640px; color: #555; font-size: 0.9rem; line-height: 1.35; }
+      .research-likert-anchors span:last-child { text-align: right; }
+      .research-choice-list { display: grid; gap: 10px; max-width: 720px; }
+      .research-choice-list label { display: inline-flex; align-items: center; gap: 8px; }
       .research-form-field { width: 100%; max-width: 720px; padding: 12px; border: 1px solid #ddd; font: inherit; box-sizing: border-box; }
+      @media (max-width: 640px) {
+        .research-likert-options { grid-template-columns: repeat(7, minmax(28px, 1fr)); column-gap: 4px; }
+        .research-likert-anchors { font-size: 0.82rem; }
+      }
     `}</style>
   )
 }
