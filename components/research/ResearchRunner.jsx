@@ -87,6 +87,7 @@ export default function ResearchRunner({studySlug, session}) {
   const [error, setError] = useState(null)
   const [busy, setBusy] = useState(false)
   const [imageMeta, setImageMeta] = useState(null)
+  const [taskPanelOpen, setTaskPanelOpen] = useState(true)
 
   useEffect(() => {
     if (!studySlug) return
@@ -121,12 +122,28 @@ export default function ResearchRunner({studySlug, session}) {
     setImageMeta(null)
   }, [screen?.screenId, screen?.imageUrl])
 
-  async function startTask(nextTaskIndex) {
+  function prepareTask(nextTaskIndex) {
     const nextTask = tasks[nextTaskIndex]
     if (!nextTask) {
-      await completeStudy()
+      completeStudy()
       return
     }
+
+    destinationCompletionRef.current = null
+    setTaskIndex(nextTaskIndex)
+    setScreenIndex(0)
+    setTaskRunId(null)
+    setTaskStartedAt(null)
+    setAttempts(0)
+    setMisclickCount(0)
+    setSurveyAnswers({})
+    setTaskPanelOpen(true)
+    setError(null)
+    setPhase('taskBrief')
+  }
+
+  async function beginTask() {
+    if (!task) return
 
     setBusy(true)
     setError(null)
@@ -134,18 +151,16 @@ export default function ResearchRunner({studySlug, session}) {
     try {
       const json = await postJson('/api/research/task/start', {
         sessionId: session.sessionId,
-        taskId: nextTask.taskId,
-        taskOrder: nextTaskIndex + 1,
+        taskId: task.taskId,
+        taskOrder: taskIndex + 1,
       })
 
       destinationCompletionRef.current = null
-      setTaskIndex(nextTaskIndex)
-      setScreenIndex(0)
       setTaskRunId(json.taskRunId)
       setTaskStartedAt(Date.now())
       setAttempts(0)
       setMisclickCount(0)
-      setSurveyAnswers({})
+      setTaskPanelOpen(false)
       setPhase('task')
     } catch (err) {
       setError(err.message)
@@ -194,7 +209,7 @@ export default function ResearchRunner({studySlug, session}) {
   async function goNextTask() {
     const nextIndex = taskIndex + 1
     if (nextIndex >= tasks.length) await completeStudy()
-    else await startTask(nextIndex)
+    else prepareTask(nextIndex)
   }
 
   async function completeStudy() {
@@ -227,13 +242,17 @@ export default function ResearchRunner({studySlug, session}) {
   }, [phase, taskRunId, screen?.screenId, screen?.isDestination, screen?.completionDelaySeconds])
 
   async function handleScreenClick(event) {
-    if (!screen || busy) return
+    if (phase !== 'task' || !taskRunId || !screen || busy) return
 
     const bounds = imageRef.current?.getBoundingClientRect()
     if (!bounds) return
 
-    const x = clamp01((event.clientX - bounds.left) / bounds.width)
-    const y = clamp01((event.clientY - bounds.top) / bounds.height)
+    const rawX = (event.clientX - bounds.left) / bounds.width
+    const rawY = (event.clientY - bounds.top) / bounds.height
+    if (rawX < 0 || rawX > 1 || rawY < 0 || rawY > 1) return
+
+    const x = clamp01(rawX)
+    const y = clamp01(rawY)
     const hit = findHit(screen.hotspots || [], x, y)
     const isMisclick = !hit || hit.isCorrect === false
     const nextAttempts = attempts + 1
@@ -324,6 +343,67 @@ export default function ResearchRunner({studySlug, session}) {
     })
   }
 
+  function renderPrototypeStage({dimmed = false} = {}) {
+    return (
+      <main className={`research-prototype-stage ${dimmed ? 'is-dimmed' : ''}`}>
+        {screen?.imageUrl ? (
+          <img
+            ref={imageRef}
+            src={screen.imageUrl}
+            alt={screen.alt || screen.title || screen.screenId}
+            draggable="false"
+            onLoad={(event) => {
+              const img = event.currentTarget
+              setImageMeta({width: img.naturalWidth, height: img.naturalHeight})
+            }}
+            onClick={handleScreenClick}
+            role={phase === 'task' ? 'button' : undefined}
+            tabIndex={phase === 'task' ? 0 : -1}
+            aria-label={screen.alt || screen.title || screen.screenId}
+            className="research-prototype-image"
+          />
+        ) : (
+          <div className="research-prototype-empty">
+            <p>This screen is missing its PNG image.</p>
+          </div>
+        )}
+      </main>
+    )
+  }
+
+  function renderTaskPanel() {
+    const isStarted = phase === 'task'
+    const primaryAction = isStarted ? null : beginTask
+
+    return (
+      <aside className="research-instruction-panel" aria-label="Task instruction">
+        <div className="research-panel-scroll">
+          <p className="research-task-meta">{researchTypeLabel(study.researchType)} • Variant {session.variant}</p>
+          <p className="research-task-step">Task {taskIndex + 1} of {tasks.length} • Screen {screenIndex + 1} of {task.screens?.length || 1}</p>
+          <h1>{task.title}</h1>
+          {task.scenario ? <p className="lead" style={{whiteSpace: 'pre-line'}}>{task.scenario}</p> : null}
+          {screen?.title ? <p className="research-screen-title">Current screen: <strong>{screen.title}</strong></p> : null}
+          {isStarted ? <p className="research-task-hint">The task is already running. You can hide this panel and continue the prototype.</p> : <p className="research-task-hint">The timer starts after you press Start task.</p>}
+          {busy ? <p className="research-task-status">Saving…</p> : null}
+          {error ? <p className="research-task-error">{error}</p> : null}
+        </div>
+
+        <div className="research-panel-actions">
+          {primaryAction ? (
+            <button className="btn" type="button" disabled={busy} onClick={primaryAction}>
+              {busy ? 'Starting…' : 'Start task'}
+            </button>
+          ) : null}
+          {isStarted ? (
+            <button className="btn secondary" type="button" onClick={() => setTaskPanelOpen(false)}>
+              Hide task
+            </button>
+          ) : null}
+        </div>
+      </aside>
+    )
+  }
+
   if (configState.status === 'loading') {
     return (
       <section className="section tight">
@@ -381,8 +461,8 @@ export default function ResearchRunner({studySlug, session}) {
           Research type: <strong>{researchTypeLabel(study.researchType)}</strong> • Assigned to <strong>Variant {session.variant}</strong>.
         </p>
         {error ? <p style={{marginTop: 16}}>{error}</p> : null}
-        <button className="btn" type="button" disabled={busy} onClick={() => startTask(0)} style={{marginTop: 28}}>
-          {busy ? 'Starting…' : 'Start study'}
+        <button className="btn" type="button" disabled={busy} onClick={() => prepareTask(0)} style={{marginTop: 28}}>
+          Continue to task
         </button>
       </section>
     )
@@ -482,111 +562,139 @@ export default function ResearchRunner({studySlug, session}) {
     )
   }
 
-  const imageRatio = imageMeta?.width && imageMeta?.height ? imageMeta.width / imageMeta.height : null
-  const isLandscapeImage = imageRatio ? imageRatio >= 1.15 : false
-  const layoutClassName = `research-task-layout ${isLandscapeImage ? 'is-landscape' : 'is-portrait'}`
-  const prototypeMaxHeight = isLandscapeImage ? 'min(68vh, 720px)' : 'min(78vh, 820px)'
+  const isTaskRunning = phase === 'task'
+  const runnerClassName = `research-runner-shell ${taskPanelOpen ? 'is-panel-open' : 'is-panel-closed'} ${isTaskRunning ? 'is-running' : 'is-briefing'}`
 
   return (
-    <section className="section research-task-section">
-      <div className="kicker"><span className="dot" /> Research</div>
-
-      <header className="research-task-header">
-        <p className="research-task-meta">Task {taskIndex + 1} of {tasks.length} • Screen {screenIndex + 1} of {task.screens?.length || 1}</p>
-        <h1>{task.title}</h1>
-      </header>
-
-      <div className={layoutClassName}>
-        {screen?.imageUrl ? (
-          <div className="research-prototype-stage" style={{'--prototype-max-height': prototypeMaxHeight}}>
-            <img
-              ref={imageRef}
-              src={screen.imageUrl}
-              alt={screen.alt || screen.title || screen.screenId}
-              draggable="false"
-              onLoad={(event) => {
-                const img = event.currentTarget
-                setImageMeta({width: img.naturalWidth, height: img.naturalHeight})
-              }}
-              onClick={handleScreenClick}
-              role="button"
-              tabIndex={0}
-              aria-label={screen.alt || screen.title || screen.screenId}
-              className="research-prototype-image"
-            />
-          </div>
-        ) : (
-          <div className="research-prototype-stage is-empty">
-            <p>This screen is missing its PNG image.</p>
-          </div>
-        )}
-
-        <aside className="research-task-panel">
-          {task.scenario ? <p className="lead" style={{whiteSpace: 'pre-line'}}>{task.scenario}</p> : null}
-          {screen?.title ? <p className="research-screen-title">Current screen: <strong>{screen.title}</strong></p> : null}
-          {busy ? <p className="research-task-status">Saving…</p> : null}
-          {error ? <p className="research-task-error">{error}</p> : null}
-        </aside>
+    <section className={runnerClassName}>
+      <div className="research-runner-frame">
+        {taskPanelOpen ? renderTaskPanel() : null}
+        {renderPrototypeStage({dimmed: !isTaskRunning})}
       </div>
 
+      {!taskPanelOpen ? (
+        <button className="research-show-task" type="button" onClick={() => setTaskPanelOpen(true)}>
+          Show task
+        </button>
+      ) : null}
+
       <style>{`
-        .research-task-section {
-          min-height: calc(100vh - 96px);
+        .research-runner-shell {
+          position: fixed;
+          inset: 0;
+          z-index: 1000;
+          width: 100vw;
+          height: 100dvh;
+          overflow: hidden;
+          background: #0f0f0f;
         }
 
-        .research-task-header {
-          margin-top: 12px;
-          max-width: 1180px;
-          margin-left: auto;
-          margin-right: auto;
-        }
-
-        .research-task-header h1 {
-          margin-top: 8px;
-          max-width: 920px;
-        }
-
-        .research-task-layout {
+        .research-runner-frame {
+          height: 100%;
           display: grid;
-          gap: clamp(18px, 3vw, 40px);
-          margin-top: clamp(18px, 3vw, 28px);
-          align-items: start;
+          grid-template-columns: minmax(340px, 42vw) minmax(0, 1fr);
         }
 
-        .research-task-layout.is-portrait {
-          grid-template-columns: minmax(220px, min-content) minmax(260px, 420px);
-          justify-content: center;
-        }
-
-        .research-task-layout.is-landscape {
+        .research-runner-shell.is-panel-closed .research-runner-frame {
           grid-template-columns: minmax(0, 1fr);
-          max-width: 1180px;
-          margin-left: auto;
-          margin-right: auto;
+        }
+
+        .research-instruction-panel {
+          height: 100dvh;
+          box-sizing: border-box;
+          background: #fff;
+          color: #111;
+          border-right: 1px solid #e6e6e6;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          overflow: hidden;
+        }
+
+        .research-panel-scroll {
+          overflow: auto;
+          padding: clamp(24px, 4vw, 56px);
+        }
+
+        .research-panel-actions {
+          padding: 20px clamp(24px, 4vw, 56px) clamp(24px, 4vw, 48px);
+          border-top: 1px solid #eee;
+          display: flex;
+          gap: 12px;
+          flex-wrap: wrap;
+          background: #fff;
+        }
+
+        .research-task-meta,
+        .research-task-step,
+        .research-screen-title,
+        .research-task-status,
+        .research-task-error,
+        .research-task-hint {
+          margin-top: 0;
+        }
+
+        .research-task-meta {
+          color: #777;
+          font-size: 0.9rem;
+        }
+
+        .research-task-step {
+          margin-top: 14px;
+          color: #555;
+          font-size: 0.95rem;
+        }
+
+        .research-instruction-panel h1 {
+          margin-top: 10px;
+          max-width: 780px;
+        }
+
+        .research-instruction-panel .lead {
+          margin-top: 22px;
+          max-width: 720px;
+        }
+
+        .research-screen-title,
+        .research-task-status,
+        .research-task-error,
+        .research-task-hint {
+          margin-top: 18px;
+        }
+
+        .research-task-hint {
+          color: #666;
+          font-size: 0.95rem;
+        }
+
+        .research-task-error {
+          color: #b00020;
         }
 
         .research-prototype-stage {
+          position: relative;
+          height: 100dvh;
           width: 100%;
           box-sizing: border-box;
           display: flex;
           align-items: center;
           justify-content: center;
-          padding: clamp(12px, 2.2vw, 32px);
-          border: 1px solid #eee;
-          background: #f7f7f7;
+          padding: clamp(18px, 3.2vw, 56px);
+          background:
+            radial-gradient(circle at 50% 50%, rgba(255,255,255,0.08), rgba(255,255,255,0) 42%),
+            #101010;
+          overflow: hidden;
         }
 
-        .research-task-layout.is-portrait .research-prototype-stage {
-          min-height: min(82vh, 860px);
+        .research-prototype-stage.is-dimmed .research-prototype-image {
+          opacity: 0.42;
+          filter: saturate(0.8);
         }
 
-        .research-task-layout.is-landscape .research-prototype-stage {
-          min-height: min(72vh, 760px);
-        }
-
-        .research-prototype-stage.is-empty {
-          min-height: 360px;
-          color: #777;
+        .research-prototype-empty {
+          color: #aaa;
+          border: 1px dashed rgba(255,255,255,0.25);
+          padding: 32px;
         }
 
         .research-prototype-image {
@@ -594,92 +702,79 @@ export default function ResearchRunner({studySlug, session}) {
           width: auto;
           height: auto;
           max-width: 100%;
-          max-height: var(--prototype-max-height);
-          border: 1px solid #e5e5e5;
+          max-height: calc(100dvh - clamp(36px, 6.4vw, 112px));
+          object-fit: contain;
+          border: 1px solid rgba(255,255,255,0.16);
           background: #fff;
+          box-shadow: 0 24px 80px rgba(0,0,0,0.36);
           cursor: pointer;
           user-select: none;
+          transition: opacity 160ms ease, filter 160ms ease;
         }
 
-        .research-task-panel {
-          border-top: 1px solid #111;
-          padding-top: 18px;
+        .research-runner-shell.is-briefing .research-prototype-image {
+          cursor: default;
         }
 
-        .research-task-layout.is-portrait .research-task-panel {
-          position: sticky;
-          top: 96px;
-        }
-
-        .research-task-layout.is-landscape .research-task-panel {
-          max-width: 760px;
-        }
-
-        .research-task-panel .lead {
-          margin-top: 0;
-          max-width: 760px;
-        }
-
-        .research-task-meta,
-        .research-screen-title,
-        .research-task-status,
-        .research-task-error {
-          margin-top: 0;
-        }
-
-        .research-task-meta {
-          color: #777;
-          font-size: 0.92rem;
-        }
-
-        .research-screen-title,
-        .research-task-status,
-        .research-task-error {
-          margin-top: 18px;
+        .research-show-task {
+          position: fixed;
+          left: 24px;
+          top: 24px;
+          z-index: 1002;
+          border: 1px solid rgba(255,255,255,0.28);
+          background: rgba(17,17,17,0.78);
+          color: #fff;
+          backdrop-filter: blur(10px);
+          padding: 10px 14px;
+          font: inherit;
+          cursor: pointer;
         }
 
         @media (max-width: 899px) {
-          .research-task-section {
-            min-height: auto;
-          }
-
-          .research-task-header {
-            margin-left: 0;
-            margin-right: 0;
-          }
-
-          .research-task-layout,
-          .research-task-layout.is-portrait,
-          .research-task-layout.is-landscape {
+          .research-runner-frame,
+          .research-runner-shell.is-panel-closed .research-runner-frame {
             grid-template-columns: minmax(0, 1fr);
           }
 
-          .research-task-layout.is-portrait .research-task-panel {
-            order: 1;
-            position: static;
-          }
-
-          .research-task-layout.is-portrait .research-prototype-stage {
-            order: 2;
-          }
-
-          .research-task-layout.is-landscape .research-prototype-stage {
-            order: 1;
-          }
-
-          .research-task-layout.is-landscape .research-task-panel {
-            order: 2;
-          }
-
-          .research-prototype-stage,
-          .research-task-layout.is-portrait .research-prototype-stage,
-          .research-task-layout.is-landscape .research-prototype-stage {
-            min-height: auto;
-            padding: 16px;
+          .research-prototype-stage {
+            grid-column: 1;
+            grid-row: 1;
+            padding: 14px;
           }
 
           .research-prototype-image {
-            max-height: min(70vh, 680px);
+            max-height: calc(100dvh - 28px);
+          }
+
+          .research-instruction-panel {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1001;
+            height: auto;
+            max-height: min(72dvh, 620px);
+            border-right: 0;
+            border-top: 1px solid #e6e6e6;
+            border-radius: 18px 18px 0 0;
+            box-shadow: 0 -20px 70px rgba(0,0,0,0.32);
+          }
+
+          .research-panel-scroll {
+            padding: 24px 22px 18px;
+          }
+
+          .research-panel-actions {
+            padding: 16px 22px 22px;
+          }
+
+          .research-show-task {
+            top: auto;
+            left: 50%;
+            bottom: 18px;
+            transform: translateX(-50%);
+            border-radius: 999px;
+            padding: 11px 16px;
           }
         }
       `}</style>
