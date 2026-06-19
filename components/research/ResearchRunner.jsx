@@ -491,6 +491,11 @@ export default function ResearchRunner({studySlug, session}) {
     <section className="section research-task-section">
       <div className="kicker"><span className="dot" /> Research</div>
 
+      <header className="research-task-header">
+        <p className="research-task-meta">Task {taskIndex + 1} of {tasks.length} • Screen {screenIndex + 1} of {task.screens?.length || 1}</p>
+        <h1>{task.title}</h1>
+      </header>
+
       <div className={layoutClassName}>
         {screen?.imageUrl ? (
           <div className="research-prototype-stage" style={{'--prototype-max-height': prototypeMaxHeight}}>
@@ -517,8 +522,6 @@ export default function ResearchRunner({studySlug, session}) {
         )}
 
         <aside className="research-task-panel">
-          <p className="research-task-meta">Task {taskIndex + 1} of {tasks.length} • Screen {screenIndex + 1} of {task.screens?.length || 1}</p>
-          <h1>{task.title}</h1>
           {task.scenario ? <p className="lead" style={{whiteSpace: 'pre-line'}}>{task.scenario}</p> : null}
           {screen?.title ? <p className="research-screen-title">Current screen: <strong>{screen.title}</strong></p> : null}
           {busy ? <p className="research-task-status">Saving…</p> : null}
@@ -531,10 +534,22 @@ export default function ResearchRunner({studySlug, session}) {
           min-height: calc(100vh - 96px);
         }
 
+        .research-task-header {
+          margin-top: 12px;
+          max-width: 1180px;
+          margin-left: auto;
+          margin-right: auto;
+        }
+
+        .research-task-header h1 {
+          margin-top: 8px;
+          max-width: 920px;
+        }
+
         .research-task-layout {
           display: grid;
           gap: clamp(18px, 3vw, 40px);
-          margin-top: clamp(18px, 3vw, 32px);
+          margin-top: clamp(18px, 3vw, 28px);
           align-items: start;
         }
 
@@ -600,13 +615,8 @@ export default function ResearchRunner({studySlug, session}) {
           max-width: 760px;
         }
 
-        .research-task-panel h1 {
-          margin-top: 10px;
-          max-width: 760px;
-        }
-
         .research-task-panel .lead {
-          margin-top: 12px;
+          margin-top: 0;
           max-width: 760px;
         }
 
@@ -631,6 +641,11 @@ export default function ResearchRunner({studySlug, session}) {
         @media (max-width: 899px) {
           .research-task-section {
             min-height: auto;
+          }
+
+          .research-task-header {
+            margin-left: 0;
+            margin-right: 0;
           }
 
           .research-task-layout,
