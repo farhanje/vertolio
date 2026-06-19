@@ -76,6 +76,45 @@
   font-size: 0.88rem !important;
 }
 
+.research-runner-shell.is-panel-closed .research-runner-frame {
+  display: block !important;
+  width: 100vw !important;
+  height: 100dvh !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+
+.research-runner-shell.is-panel-closed .research-prototype-stage {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 1000 !important;
+  width: 100vw !important;
+  height: 100dvh !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  display: grid !important;
+  place-items: center !important;
+  padding: clamp(18px, 3.2vw, 56px) !important;
+  margin: 0 !important;
+  transform: none !important;
+  overflow: hidden !important;
+}
+
+.research-runner-shell.is-panel-closed .research-prototype-image {
+  position: relative !important;
+  inset: auto !important;
+  display: block !important;
+  width: auto !important;
+  height: auto !important;
+  max-width: calc(100vw - clamp(36px, 6.4vw, 112px)) !important;
+  max-height: calc(100dvh - clamp(36px, 6.4vw, 112px)) !important;
+  margin: auto !important;
+  object-fit: contain !important;
+  object-position: center center !important;
+  justify-self: center !important;
+  align-self: center !important;
+}
+
 @media (max-width: 899px) {
   .research-runner-shell .research-runner-frame,
   .research-runner-shell.is-panel-closed .research-runner-frame {
@@ -101,5 +140,14 @@
   .research-runner-shell .research-task-status,
   .research-runner-shell .research-task-error {
     max-width: 100% !important;
+  }
+
+  .research-runner-shell.is-panel-closed .research-prototype-stage {
+    padding: 14px !important;
+  }
+
+  .research-runner-shell.is-panel-closed .research-prototype-image {
+    max-width: calc(100vw - 28px) !important;
+    max-height: calc(100dvh - 28px) !important;
   }
 }
