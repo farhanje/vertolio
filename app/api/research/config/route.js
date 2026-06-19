@@ -1,6 +1,39 @@
 import {NextResponse} from 'next/server'
 import {sanityFetch} from '@/lib/sanity.client'
 
+const screenProjection = `{
+  _key,
+  "screenId": coalesce(screenId, _key),
+  title,
+  alt,
+  isDestination,
+  completionDelaySeconds,
+  "imageUrl": image.asset->url,
+  hotspots[]{
+    _key,
+    "hotspotId": coalesce(hotspotId, _key),
+    label,
+    x,
+    y,
+    w,
+    h,
+    action,
+    targetScreenId,
+    isCorrect
+  }
+}`
+
+const questionProjection = `{
+  _key,
+  "questionId": coalesce(questionId, _key),
+  label,
+  type,
+  required,
+  minLabel,
+  maxLabel,
+  options
+}`
+
 const query = `*[_type == "researchStudy" && slug.current == $studySlug][0]{
   _id,
   title,
@@ -16,42 +49,29 @@ const query = `*[_type == "researchStudy" && slug.current == $studySlug][0]{
     _key,
     key,
     label,
+    flowSteps[]{
+      _key,
+      stepType,
+      title,
+      "questionId": coalesce(questionId, _key),
+      label,
+      type,
+      required,
+      minLabel,
+      maxLabel,
+      options,
+      "taskId": coalesce(taskId, _key),
+      scenario,
+      screens[]${screenProjection},
+      postTaskSurvey[]${questionProjection}
+    },
     tasks[]{
       _key,
       "taskId": coalesce(taskId, _key),
       title,
       scenario,
-      screens[]{
-        _key,
-        "screenId": coalesce(screenId, _key),
-        title,
-        alt,
-        isDestination,
-        completionDelaySeconds,
-        "imageUrl": image.asset->url,
-        hotspots[]{
-          _key,
-          "hotspotId": coalesce(hotspotId, _key),
-          label,
-          x,
-          y,
-          w,
-          h,
-          action,
-          targetScreenId,
-          isCorrect
-        }
-      },
-      postTaskSurvey[]{
-        _key,
-        "questionId": coalesce(questionId, _key),
-        label,
-        type,
-        required,
-        minLabel,
-        maxLabel,
-        options
-      }
+      screens[]${screenProjection},
+      postTaskSurvey[]${questionProjection}
     }
   }
 }`
