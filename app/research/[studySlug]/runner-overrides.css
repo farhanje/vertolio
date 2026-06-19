@@ -2,6 +2,8 @@
   grid-template-columns: minmax(300px, min(34vw, 460px)) minmax(0, 1fr) !important;
 }
 
+/* Hide assignment hints from participants. The variant is still logged server-side. */
+main.container > section.section.tight > p:nth-of-type(3),
 .research-runner-shell .research-task-meta {
   display: none !important;
 }
