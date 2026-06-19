@@ -1,0 +1,76 @@
+.research-runner-shell .research-instruction-panel {
+  min-width: 0 !important;
+  max-width: min(42vw, 520px) !important;
+  overflow-x: hidden !important;
+}
+
+.research-runner-shell .research-panel-scroll,
+.research-runner-shell .research-panel-actions {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+  box-sizing: border-box !important;
+}
+
+.research-runner-shell .research-panel-scroll > *,
+.research-runner-shell .research-panel-actions > * {
+  max-width: 100% !important;
+  overflow-wrap: anywhere !important;
+  word-break: normal !important;
+}
+
+.research-runner-shell .research-instruction-panel h1 {
+  margin-top: 10px !important;
+  max-width: 460px !important;
+  font-size: clamp(1.55rem, 2.2vw, 2.35rem) !important;
+  line-height: 0.98 !important;
+  letter-spacing: -0.035em !important;
+}
+
+.research-runner-shell .research-instruction-panel .lead {
+  max-width: 460px !important;
+  font-size: clamp(1rem, 1.25vw, 1.16rem) !important;
+  line-height: 1.42 !important;
+}
+
+.research-runner-shell .research-task-meta,
+.research-runner-shell .research-task-step,
+.research-runner-shell .research-screen-title,
+.research-runner-shell .research-task-hint,
+.research-runner-shell .research-task-status,
+.research-runner-shell .research-task-error {
+  max-width: 460px !important;
+}
+
+.research-runner-shell .research-task-meta {
+  font-size: 0.78rem !important;
+  letter-spacing: 0.02em !important;
+}
+
+.research-runner-shell .research-task-step,
+.research-runner-shell .research-task-hint {
+  font-size: 0.9rem !important;
+}
+
+@media (max-width: 899px) {
+  .research-runner-shell .research-instruction-panel {
+    max-width: none !important;
+    width: 100% !important;
+  }
+
+  .research-runner-shell .research-instruction-panel h1 {
+    max-width: 100% !important;
+    font-size: clamp(1.35rem, 7vw, 2rem) !important;
+    line-height: 1 !important;
+  }
+
+  .research-runner-shell .research-instruction-panel .lead,
+  .research-runner-shell .research-task-meta,
+  .research-runner-shell .research-task-step,
+  .research-runner-shell .research-screen-title,
+  .research-runner-shell .research-task-hint,
+  .research-runner-shell .research-task-status,
+  .research-runner-shell .research-task-error {
+    max-width: 100% !important;
+  }
+}
