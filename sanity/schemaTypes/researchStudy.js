@@ -1,4 +1,5 @@
 import HotspotArrayInput from '../components/HotspotArrayInput'
+import VariantArrayInput from '../components/VariantArrayInput'
 
 const QUESTION_TYPES = [
   {title: 'Likert 1–7', value: 'likert'},
@@ -166,6 +167,7 @@ export default {
       name: 'variants',
       title: 'Variants',
       type: 'array',
+      components: {input: VariantArrayInput},
       validation: (Rule) => Rule.min(1).required(),
       of: [{
         type: 'object',
