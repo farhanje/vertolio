@@ -86,6 +86,7 @@ export default function ResearchRunner({studySlug, session}) {
   const [surveyAnswers, setSurveyAnswers] = useState({})
   const [error, setError] = useState(null)
   const [busy, setBusy] = useState(false)
+  const [imageMeta, setImageMeta] = useState(null)
 
   useEffect(() => {
     if (!studySlug) return
@@ -115,6 +116,10 @@ export default function ResearchRunner({studySlug, session}) {
   const task = tasks[taskIndex]
   const screen = task?.screens?.[screenIndex]
   const questions = task?.postTaskSurvey || []
+
+  useEffect(() => {
+    setImageMeta(null)
+  }, [screen?.screenId, screen?.imageUrl])
 
   async function startTask(nextTaskIndex) {
     const nextTask = tasks[nextTaskIndex]
@@ -477,41 +482,192 @@ export default function ResearchRunner({studySlug, session}) {
     )
   }
 
-  return (
-    <section className="section tight">
-      <div className="kicker"><span className="dot" /> Research</div>
-      <h1 style={{marginTop: 12}}>{task.title}</h1>
-      {task.scenario ? <p className="lead" style={{marginTop: 8, whiteSpace: 'pre-line'}}>{task.scenario}</p> : null}
-      <p style={{marginTop: 14}}>Task {taskIndex + 1} of {tasks.length} • Screen {screenIndex + 1} of {task.screens?.length || 1}</p>
+  const imageRatio = imageMeta?.width && imageMeta?.height ? imageMeta.width / imageMeta.height : null
+  const isLandscapeImage = imageRatio ? imageRatio >= 1.15 : false
+  const layoutClassName = `research-task-layout ${isLandscapeImage ? 'is-landscape' : 'is-portrait'}`
+  const prototypeMaxHeight = isLandscapeImage ? 'min(68vh, 720px)' : 'min(78vh, 820px)'
 
-      {screen?.imageUrl ? (
-        <div style={{marginTop: 28, display: 'grid', justifyItems: 'center'}}>
-          <div
-            ref={imageRef}
-            onClick={handleScreenClick}
-            role="button"
-            tabIndex={0}
-            aria-label={screen.alt || screen.title || screen.screenId}
-            style={{
-              width: 'min(100%, 420px)',
-              cursor: busy ? 'wait' : 'pointer',
-              border: '1px solid #e5e5e5',
-              background: '#fff',
-            }}
-          >
+  return (
+    <section className="section research-task-section">
+      <div className="kicker"><span className="dot" /> Research</div>
+
+      <div className={layoutClassName}>
+        {screen?.imageUrl ? (
+          <div className="research-prototype-stage" style={{'--prototype-max-height': prototypeMaxHeight}}>
             <img
+              ref={imageRef}
               src={screen.imageUrl}
               alt={screen.alt || screen.title || screen.screenId}
               draggable="false"
-              style={{display: 'block', width: '100%', height: 'auto', userSelect: 'none'}}
+              onLoad={(event) => {
+                const img = event.currentTarget
+                setImageMeta({width: img.naturalWidth, height: img.naturalHeight})
+              }}
+              onClick={handleScreenClick}
+              role="button"
+              tabIndex={0}
+              aria-label={screen.alt || screen.title || screen.screenId}
+              className="research-prototype-image"
             />
           </div>
-        </div>
-      ) : (
-        <p style={{marginTop: 28}}>This screen is missing its PNG image.</p>
-      )}
+        ) : (
+          <div className="research-prototype-stage is-empty">
+            <p>This screen is missing its PNG image.</p>
+          </div>
+        )}
 
-      {error ? <p style={{marginTop: 18}}>{error}</p> : null}
+        <aside className="research-task-panel">
+          <p className="research-task-meta">Task {taskIndex + 1} of {tasks.length} • Screen {screenIndex + 1} of {task.screens?.length || 1}</p>
+          <h1>{task.title}</h1>
+          {task.scenario ? <p className="lead" style={{whiteSpace: 'pre-line'}}>{task.scenario}</p> : null}
+          {screen?.title ? <p className="research-screen-title">Current screen: <strong>{screen.title}</strong></p> : null}
+          {busy ? <p className="research-task-status">Saving…</p> : null}
+          {error ? <p className="research-task-error">{error}</p> : null}
+        </aside>
+      </div>
+
+      <style>{`
+        .research-task-section {
+          min-height: calc(100vh - 96px);
+        }
+
+        .research-task-layout {
+          display: grid;
+          gap: clamp(18px, 3vw, 40px);
+          margin-top: clamp(18px, 3vw, 32px);
+          align-items: start;
+        }
+
+        .research-task-layout.is-portrait {
+          grid-template-columns: minmax(220px, min-content) minmax(260px, 420px);
+          justify-content: center;
+        }
+
+        .research-task-layout.is-landscape {
+          grid-template-columns: minmax(0, 1fr);
+          max-width: 1180px;
+          margin-left: auto;
+          margin-right: auto;
+        }
+
+        .research-prototype-stage {
+          width: 100%;
+          box-sizing: border-box;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: clamp(12px, 2.2vw, 32px);
+          border: 1px solid #eee;
+          background: #f7f7f7;
+        }
+
+        .research-task-layout.is-portrait .research-prototype-stage {
+          min-height: min(82vh, 860px);
+        }
+
+        .research-task-layout.is-landscape .research-prototype-stage {
+          min-height: min(72vh, 760px);
+        }
+
+        .research-prototype-stage.is-empty {
+          min-height: 360px;
+          color: #777;
+        }
+
+        .research-prototype-image {
+          display: block;
+          width: auto;
+          height: auto;
+          max-width: 100%;
+          max-height: var(--prototype-max-height);
+          border: 1px solid #e5e5e5;
+          background: #fff;
+          cursor: pointer;
+          user-select: none;
+        }
+
+        .research-task-panel {
+          border-top: 1px solid #111;
+          padding-top: 18px;
+        }
+
+        .research-task-layout.is-portrait .research-task-panel {
+          position: sticky;
+          top: 96px;
+        }
+
+        .research-task-layout.is-landscape .research-task-panel {
+          max-width: 760px;
+        }
+
+        .research-task-panel h1 {
+          margin-top: 10px;
+          max-width: 760px;
+        }
+
+        .research-task-panel .lead {
+          margin-top: 12px;
+          max-width: 760px;
+        }
+
+        .research-task-meta,
+        .research-screen-title,
+        .research-task-status,
+        .research-task-error {
+          margin-top: 0;
+        }
+
+        .research-task-meta {
+          color: #777;
+          font-size: 0.92rem;
+        }
+
+        .research-screen-title,
+        .research-task-status,
+        .research-task-error {
+          margin-top: 18px;
+        }
+
+        @media (max-width: 899px) {
+          .research-task-section {
+            min-height: auto;
+          }
+
+          .research-task-layout,
+          .research-task-layout.is-portrait,
+          .research-task-layout.is-landscape {
+            grid-template-columns: minmax(0, 1fr);
+          }
+
+          .research-task-layout.is-portrait .research-task-panel {
+            order: 1;
+            position: static;
+          }
+
+          .research-task-layout.is-portrait .research-prototype-stage {
+            order: 2;
+          }
+
+          .research-task-layout.is-landscape .research-prototype-stage {
+            order: 1;
+          }
+
+          .research-task-layout.is-landscape .research-task-panel {
+            order: 2;
+          }
+
+          .research-prototype-stage,
+          .research-task-layout.is-portrait .research-prototype-stage,
+          .research-task-layout.is-landscape .research-prototype-stage {
+            min-height: auto;
+            padding: 16px;
+          }
+
+          .research-prototype-image {
+            max-height: min(70vh, 680px);
+          }
+        }
+      `}</style>
     </section>
   )
 }
