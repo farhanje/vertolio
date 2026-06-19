@@ -1,34 +1,82 @@
 import { NextResponse } from 'next/server'
 
 export const config = {
-  matcher: ['/studio/:path*'],
+  matcher: [
+    '/studio/:path*',
+    '/research-admin/:path*',
+    '/api/research/export',
+    '/.env/:path*',
+    '/.git/:path*',
+    '/supabase/:path*',
+  ],
 }
 
-export function middleware(req) {
-  const user = process.env.STUDIO_USER
-  const pass = process.env.STUDIO_PASS
-
-  // If creds are not set, don't lock you out during setup.
-  if (!user || !pass) return NextResponse.next()
-
-  const auth = req.headers.get('authorization')
-
-  if (auth) {
-    const [type, encoded] = auth.split(' ')
-    if (type === 'Basic' && encoded) {
-      // Edge runtime supports atob
-      const decoded = atob(encoded)
-      const [u, p] = decoded.split(':')
-      if (u === user && p === pass) {
-        return NextResponse.next()
-      }
-    }
-  }
-
+function unauthorized(realm = 'Protected') {
   return new NextResponse('Authentication required', {
     status: 401,
     headers: {
-      'WWW-Authenticate': 'Basic realm="Studio"',
+      'WWW-Authenticate': `Basic realm="${realm}"`,
+      'Cache-Control': 'no-store, max-age=0',
+      'X-Robots-Tag': 'noindex, nofollow, noarchive, nosnippet',
     },
   })
+}
+
+function notFound() {
+  return new NextResponse('Not found', {
+    status: 404,
+    headers: {
+      'Cache-Control': 'no-store, max-age=0',
+      'X-Robots-Tag': 'noindex, nofollow, noarchive, nosnippet',
+    },
+  })
+}
+
+function hasBasicAuth(req, user, pass) {
+  if (!user || !pass) return true
+
+  const auth = req.headers.get('authorization')
+  if (!auth) return false
+
+  const [type, encoded] = auth.split(' ')
+  if (type !== 'Basic' || !encoded) return false
+
+  try {
+    const decoded = atob(encoded)
+    const separator = decoded.indexOf(':')
+    if (separator === -1) return false
+
+    const providedUser = decoded.slice(0, separator)
+    const providedPass = decoded.slice(separator + 1)
+    return providedUser === user && providedPass === pass
+  } catch (_) {
+    return false
+  }
+}
+
+export function middleware(req) {
+  const {pathname} = req.nextUrl
+
+  if (
+    pathname.startsWith('/.env') ||
+    pathname.startsWith('/.git') ||
+    pathname.startsWith('/supabase')
+  ) {
+    return notFound()
+  }
+
+  if (pathname.startsWith('/studio')) {
+    const user = process.env.STUDIO_USER
+    const pass = process.env.STUDIO_PASS
+    if (!hasBasicAuth(req, user, pass)) return unauthorized('Studio')
+    return NextResponse.next()
+  }
+
+  if (pathname.startsWith('/research-admin') || pathname === '/api/research/export') {
+    const user = process.env.RESEARCH_ADMIN_USER || process.env.STUDIO_USER
+    const pass = process.env.RESEARCH_ADMIN_PASS || process.env.STUDIO_PASS
+    if (!hasBasicAuth(req, user, pass)) return unauthorized('Research Admin')
+  }
+
+  return NextResponse.next()
 }
