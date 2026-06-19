@@ -2,6 +2,10 @@
   grid-template-columns: minmax(300px, min(34vw, 460px)) minmax(0, 1fr) !important;
 }
 
+.research-runner-shell .research-task-meta {
+  display: none !important;
+}
+
 .research-runner-shell .research-instruction-panel {
   min-width: 0 !important;
   width: auto !important;
@@ -55,7 +59,6 @@
   white-space: pre-line !important;
 }
 
-.research-runner-shell .research-task-meta,
 .research-runner-shell .research-task-step,
 .research-runner-shell .research-screen-title,
 .research-runner-shell .research-task-hint,
@@ -63,11 +66,6 @@
 .research-runner-shell .research-task-error {
   max-width: 360px !important;
   overflow-wrap: anywhere !important;
-}
-
-.research-runner-shell .research-task-meta {
-  font-size: 0.76rem !important;
-  letter-spacing: 0.02em !important;
 }
 
 .research-runner-shell .research-task-step,
@@ -133,7 +131,6 @@
   }
 
   .research-runner-shell .research-instruction-panel .lead,
-  .research-runner-shell .research-task-meta,
   .research-runner-shell .research-task-step,
   .research-runner-shell .research-screen-title,
   .research-runner-shell .research-task-hint,
