@@ -12,19 +12,23 @@ const query = `*[_type == "researchStudy" && slug.current == $studySlug][0]{
   completionTitle,
   completionBody,
   variants[]{
+    _key,
     key,
     label,
     tasks[]{
-      taskId,
+      _key,
+      "taskId": coalesce(taskId, _key),
       title,
       scenario,
       screens[]{
-        screenId,
+        _key,
+        "screenId": coalesce(screenId, _key),
         title,
         alt,
         "imageUrl": image.asset->url,
         hotspots[]{
-          hotspotId,
+          _key,
+          "hotspotId": coalesce(hotspotId, _key),
           label,
           x,
           y,
@@ -36,7 +40,8 @@ const query = `*[_type == "researchStudy" && slug.current == $studySlug][0]{
         }
       },
       postTaskSurvey[]{
-        questionId,
+        _key,
+        "questionId": coalesce(questionId, _key),
         label,
         type,
         required,
