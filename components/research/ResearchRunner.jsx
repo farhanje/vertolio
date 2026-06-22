@@ -32,12 +32,13 @@ function questionKey(question) {
 }
 
 function toSurveyRows(answers, questions) {
-  return questions.map((question) => {
+  return questions.map((question, index) => {
     const key = questionKey(question)
     const value = answers[key]
     const base = {
       questionId: key,
       questionType: question.type,
+      questionOrder: index + 1,
       answerText: null,
       answerNumber: null,
       answerJson: null,
@@ -57,17 +58,6 @@ function toSurveyRows(answers, questions) {
 
     return {...base, answerText: typeof value === 'string' ? value : ''}
   })
-}
-
-function researchTypeLabel(type) {
-  const labels = {
-    ab_test: 'A/B test',
-    usability_test: 'Usability testing',
-    survey: 'Survey',
-    prototype_test: 'Prototype test',
-    concept_test: 'Concept test',
-  }
-  return labels[type] || 'Research study'
 }
 
 function destinationDelayMs(screen) {
@@ -289,7 +279,7 @@ export default function ResearchRunner({studySlug, session}) {
     }
   }
 
-  async function finishTask({success, finalAttempts = attempts, finalMisclickCount = misclickCount}) {
+  async function finishTask({success, finalAttempts = attempts, finalMisclickCount = misclickCount, status = 'completed', skipPostTaskSurvey = false}) {
     if (!taskRunId) return
 
     setBusy(true)
@@ -299,12 +289,14 @@ export default function ResearchRunner({studySlug, session}) {
       await postJson('/api/research/task/complete', {
         taskRunId,
         success,
+        status,
+        skipped: status === 'skipped',
         attempts: finalAttempts,
         misclickCount: finalMisclickCount,
         durationMs: taskStartedAt ? Date.now() - taskStartedAt : null,
       })
 
-      if (postTaskQuestions.length) {
+      if (!skipPostTaskSurvey && postTaskQuestions.length) {
         setSurveyAnswers({})
         setPhase('postTaskSurvey')
       } else {
@@ -315,6 +307,19 @@ export default function ResearchRunner({studySlug, session}) {
     } finally {
       setBusy(false)
     }
+  }
+
+  async function skipTask() {
+    if (!taskRunId || busy) return
+
+    const confirmed = window.confirm('Skip this task and continue to the next part? This will be recorded as skipped.')
+    if (!confirmed) return
+
+    await finishTask({
+      success: false,
+      status: 'skipped',
+      skipPostTaskSurvey: true,
+    })
   }
 
   async function completeStudy() {
@@ -600,12 +605,12 @@ export default function ResearchRunner({studySlug, session}) {
     return (
       <aside className="research-instruction-panel" aria-label="Task instruction">
         <div className="research-panel-scroll">
-          <p className="research-task-meta">{researchTypeLabel(study.researchType)} • Variant {session.variant}</p>
+          <p className="research-task-meta">Research task</p>
           <p className="research-task-step">Task {taskNumber || 1} of {Math.max(totalTasks, 1)} • Screen {screenIndex + 1} of {task.screens?.length || 1}</p>
           <h1>{task.title}</h1>
           {task.scenario ? <p className="lead" style={{whiteSpace: 'pre-line'}}>{task.scenario}</p> : null}
           {screen?.title ? <p className="research-screen-title">Current screen: <strong>{screen.title}</strong></p> : null}
-          {isStarted ? <p className="research-task-hint">The task is already running. You can hide this panel and continue the prototype.</p> : <p className="research-task-hint">The timer starts after you press Start task.</p>}
+          {isStarted ? <p className="research-task-hint">The task is already running. If you are stuck, you may skip this task and continue.</p> : <p className="research-task-hint">The timer starts after you press Start task.</p>}
           {busy ? <p className="research-task-status">Saving…</p> : null}
           {error ? <p className="research-task-error">{error}</p> : null}
         </div>
@@ -614,6 +619,7 @@ export default function ResearchRunner({studySlug, session}) {
             <button className="btn" type="button" disabled={busy || !screen?.imageUrl} onClick={beginTask}>{busy ? 'Starting…' : 'Start task'}</button>
           ) : null}
           {isStarted ? <button className="btn secondary" type="button" onClick={() => setTaskPanelOpen(false)}>Hide task</button> : null}
+          {isStarted ? <button className="research-skip-task" type="button" disabled={busy} onClick={skipTask}>I’m stuck — skip task</button> : null}
         </div>
       </aside>
     )
@@ -634,7 +640,7 @@ export default function ResearchRunner({studySlug, session}) {
       <section className="section tight">
         <div className="kicker"><span className="dot" /> Research</div>
         <h1 style={{marginTop: 12}}>Session ready</h1>
-        <p className="lead" style={{marginTop: 8}}>Variant <strong>{session.variant}</strong> • Session <strong>{session.sessionId}</strong></p>
+        <p className="lead" style={{marginTop: 8}}>Session <strong>{session.sessionId}</strong></p>
         <p className="lead" style={{marginTop: 10}}>{configState.error}</p>
       </section>
     )
@@ -667,7 +673,6 @@ export default function ResearchRunner({studySlug, session}) {
         <h1 style={{marginTop: 12}}>{study.introTitle || study.title}</h1>
         {study.introBody ? <p className="lead" style={{marginTop: 8, whiteSpace: 'pre-line'}}>{study.introBody}</p> : null}
         {study.consentText ? <p style={{marginTop: 18, maxWidth: 760, whiteSpace: 'pre-line'}}>{study.consentText}</p> : null}
-        <p style={{marginTop: 18, maxWidth: 760}}>Research type: <strong>{researchTypeLabel(study.researchType)}</strong> • Assigned to <strong>Variant {session.variant}</strong>.</p>
         {error ? <p style={{marginTop: 16}}>{error}</p> : null}
         <button className="btn" type="button" disabled={busy} onClick={() => prepareStep(0)} style={{marginTop: 28}}>Continue</button>
       </section>
@@ -755,6 +760,9 @@ function runnerCss() {
       .research-screen-title, .research-task-status, .research-task-error, .research-task-hint { margin-top: 18px; font-size: 0.88rem; }
       .research-task-hint { color: #666; }
       .research-task-error { color: #b00020; }
+      .research-skip-task { border: 0; background: transparent; color: #777; text-decoration: underline; font: inherit; cursor: pointer; padding: 10px 0; }
+      .research-skip-task:hover { color: #111; }
+      .research-skip-task:disabled { opacity: 0.45; cursor: not-allowed; }
       .research-prototype-stage { position: relative; height: 100dvh; width: 100%; box-sizing: border-box; display: grid; place-items: center; padding: clamp(18px, 3.2vw, 56px); background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.08), rgba(255,255,255,0) 42%), #101010; overflow: hidden; }
       .research-runner-shell.is-panel-closed .research-prototype-stage { position: fixed; inset: 0; width: 100vw; height: 100dvh; max-width: none; margin: 0; padding: clamp(24px, 4vw, 64px); display: grid; place-items: center; transform: none; z-index: 1000; }
       .research-prototype-stage.is-dimmed .research-prototype-image { opacity: 0.42; filter: saturate(0.8); }
