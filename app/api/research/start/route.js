@@ -7,8 +7,8 @@ const sanityVariantQuery = `*[_type == "researchStudy" && slug.current == $study
   status,
   variants[]{
     key,
-    "flowStepCount": count(flowSteps),
-    "legacyTaskCount": count(tasks)
+    "flowStepCount": count(coalesce(flowSteps, [])),
+    "legacyTaskCount": count(coalesce(tasks, []))
   }
 }`
 
@@ -32,6 +32,16 @@ function pickBalancedVariant(variantKeys, rows = []) {
   return candidates[Math.floor(Math.random() * candidates.length)] || variantKeys[0]
 }
 
+function jsonError(message, status = 500, detail = null) {
+  return NextResponse.json(
+    {
+      error: message,
+      ...(detail ? { detail } : {}),
+    },
+    { status }
+  )
+}
+
 export async function POST(req) {
   try {
     const body = await req.json()
@@ -39,12 +49,12 @@ export async function POST(req) {
     const deviceId = String(body.deviceId || '').trim()
     const meta = body.meta || {}
 
-    if (!studySlug) return NextResponse.json({ error: 'Missing studySlug' }, { status: 400 })
-    if (!deviceId) return NextResponse.json({ error: 'Missing deviceId' }, { status: 400 })
+    if (!studySlug) return jsonError('Missing studySlug', 400)
+    if (!deviceId) return jsonError('Missing deviceId', 400)
 
     const sanityStudy = await sanityFetch(sanityVariantQuery, { studySlug })
-    if (!sanityStudy) return NextResponse.json({ error: 'Study config not found in Sanity' }, { status: 404 })
-    if (sanityStudy.status !== 'active') return NextResponse.json({ error: 'Study config is not active' }, { status: 403 })
+    if (!sanityStudy) return jsonError('Study config not found in Sanity', 404)
+    if (sanityStudy.status !== 'active') return jsonError('Study config is not active', 403)
 
     const availableVariantKeys = (sanityStudy.variants || [])
       .filter((variant) => Number(variant.flowStepCount || 0) > 0 || Number(variant.legacyTaskCount || 0) > 0)
@@ -52,85 +62,130 @@ export async function POST(req) {
       .filter(Boolean)
 
     if (!availableVariantKeys.length) {
-      return NextResponse.json({ error: 'Study has no participant flow yet. Add at least one item in Variant → Study flow.' }, { status: 400 })
+      return jsonError('Study has no participant flow yet. Add at least one item in Variant → Study flow.', 400)
     }
 
     const sb = supabaseServer()
 
-    // Ensure study exists in DB (we keep config in Sanity; DB is for logging)
-    let { data: study } = await sb.from('studies').select('*').eq('slug', studySlug).maybeSingle()
+    // Ensure study exists in DB. Config lives in Sanity; DB is for runtime logging.
+    const existingStudy = await sb.from('studies').select('*').eq('slug', studySlug).maybeSingle()
+    if (existingStudy.error) {
+      return jsonError('Cannot read study registry', 500, existingStudy.error.message)
+    }
+
+    let study = existingStudy.data
     if (!study) {
-      const ins = await sb.from('studies').insert({ slug: studySlug, title: sanityStudy.title || studySlug, status: 'active' }).select('*').single()
-      study = ins.data
+      const insertedStudy = await sb
+        .from('studies')
+        .insert({ slug: studySlug, title: sanityStudy.title || studySlug, status: 'active' })
+        .select('*')
+        .single()
+
+      if (insertedStudy.error || !insertedStudy.data) {
+        return jsonError('Cannot create study registry row', 500, insertedStudy.error?.message || 'Supabase returned no study row')
+      }
+
+      study = insertedStudy.data
     }
 
-    if (!study || study.status !== 'active') {
-      return NextResponse.json({ error: 'Study is not active' }, { status: 403 })
+    if (study.status !== 'active') {
+      return jsonError('Study is not active', 403)
     }
 
-    // SINGLE LINK MODE:
-    // We internally create/find a token record per (studyId + deviceId).
-    let { data: tokenRow } = await sb
+    if (!study.id) {
+      return jsonError('Study registry row is missing id', 500)
+    }
+
+    // Current balance counts are based on actual completed/started sessions.
+    const currentCounts = await sb.from('sessions').select('variant').eq('studyId', study.id)
+    if (currentCounts.error) {
+      return jsonError('Cannot read variant counts', 500, currentCounts.error.message)
+    }
+
+    const fallbackAssignedVariant = pickBalancedVariant(availableVariantKeys, currentCounts.data || [])
+    if (!fallbackAssignedVariant) {
+      return jsonError('Cannot assign variant', 500)
+    }
+
+    // SINGLE LINK MODE: one token record per study + device.
+    const existingToken = await sb
       .from('study_tokens')
       .select('*')
       .eq('studyId', study.id)
       .eq('deviceId', deviceId)
       .order('createdAt', { ascending: false })
+      .limit(1)
       .maybeSingle()
 
-    // If a completed token exists, block re-run (best-effort).
+    if (existingToken.error) {
+      return jsonError('Cannot read study token', 500, existingToken.error.message)
+    }
+
+    let tokenRow = existingToken.data
+
+    // If a completed token exists, block re-run.
     if (tokenRow && tokenRow.status === 'completed') {
-      // Try to find session for UI convenience
-      const { data: sess } = await sb
-        .from('sessions')
-        .select('*')
-        .eq('tokenId', tokenRow.id)
-        .maybeSingle()
+      const existingSession = await sb.from('sessions').select('*').eq('tokenId', tokenRow.id).maybeSingle()
+      if (existingSession.error) {
+        return jsonError('Cannot read completed session', 500, existingSession.error.message)
+      }
 
       return NextResponse.json({
         status: 'completed',
         variant: tokenRow.variantAssigned,
-        sessionId: sess?.id || null,
+        sessionId: existingSession.data?.id || null,
       })
     }
 
-    // If token doesn't exist yet, create one.
+    // If token doesn't exist yet, create it with a valid variant immediately.
     if (!tokenRow) {
-      const token = randToken(28)
-      const created = await sb
+      const createdToken = await sb
         .from('study_tokens')
         .insert({
           studyId: study.id,
-          token,
+          token: randToken(28),
           status: 'unused',
           deviceId,
+          variantAssigned: fallbackAssignedVariant,
           userAgent: meta.ua || null,
         })
         .select('*')
         .single()
-      tokenRow = created.data
+
+      if (createdToken.error || !createdToken.data) {
+        return jsonError('Cannot create study token', 500, createdToken.error?.message || 'Supabase returned no token row')
+      }
+
+      tokenRow = createdToken.data
     }
 
-    // Assign or repair variant assignment against the actual non-empty Sanity variants.
+    if (!tokenRow?.id) {
+      return jsonError('Study token row is missing id', 500)
+    }
+
+    // Repair older tokens that were assigned to an empty/missing variant.
     if (!tokenRow.variantAssigned || !availableVariantKeys.includes(tokenRow.variantAssigned)) {
-      const { data: counts } = await sb
-        .from('sessions')
-        .select('variant')
-        .eq('studyId', study.id)
-
-      const assigned = pickBalancedVariant(availableVariantKeys, counts)
-
-      const upd = await sb
+      const updatedToken = await sb
         .from('study_tokens')
-        .update({ variantAssigned: assigned })
+        .update({ variantAssigned: fallbackAssignedVariant })
         .eq('id', tokenRow.id)
         .select('*')
         .single()
-      tokenRow = upd.data
+
+      if (updatedToken.error || !updatedToken.data) {
+        return jsonError('Cannot update study token variant', 500, updatedToken.error?.message || 'Supabase returned no updated token row')
+      }
+
+      tokenRow = updatedToken.data
     }
 
-    // Create or get session (1 session per tokenId)
-    let { data: session } = await sb.from('sessions').select('*').eq('tokenId', tokenRow.id).maybeSingle()
+    // Create or get session: 1 session per tokenId.
+    const existingSession = await sb.from('sessions').select('*').eq('tokenId', tokenRow.id).maybeSingle()
+    if (existingSession.error) {
+      return jsonError('Cannot read session', 500, existingSession.error.message)
+    }
+
+    let session = existingSession.data
 
     if (!session) {
       const createdSession = await sb
@@ -144,12 +199,21 @@ export async function POST(req) {
         })
         .select('*')
         .single()
+
+      if (createdSession.error || !createdSession.data) {
+        return jsonError('Cannot create session', 500, createdSession.error?.message || 'Supabase returned no session row')
+      }
+
       session = createdSession.data
 
-      await sb
+      const startedToken = await sb
         .from('study_tokens')
         .update({ status: 'started', startedAt: new Date().toISOString(), userAgent: meta.ua || null })
         .eq('id', tokenRow.id)
+
+      if (startedToken.error) {
+        return jsonError('Session was created, but token could not be marked started', 500, startedToken.error.message)
+      }
     } else if (session.variant !== tokenRow.variantAssigned) {
       const updatedSession = await sb
         .from('sessions')
@@ -157,7 +221,16 @@ export async function POST(req) {
         .eq('id', session.id)
         .select('*')
         .single()
-      session = updatedSession.data || session
+
+      if (updatedSession.error || !updatedSession.data) {
+        return jsonError('Cannot repair session variant', 500, updatedSession.error?.message || 'Supabase returned no updated session row')
+      }
+
+      session = updatedSession.data
+    }
+
+    if (!session?.id) {
+      return jsonError('Session row is missing id', 500)
     }
 
     return NextResponse.json({
@@ -166,6 +239,6 @@ export async function POST(req) {
       sessionId: session.id,
     })
   } catch (e) {
-    return NextResponse.json({ error: 'Server error', detail: String(e?.message || e) }, { status: 500 })
+    return jsonError('Server error', 500, String(e?.message || e))
   }
 }
