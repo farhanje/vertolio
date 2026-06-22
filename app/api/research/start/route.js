@@ -1,11 +1,35 @@
 import { NextResponse } from 'next/server'
+import { sanityFetch } from '@/lib/sanity.client'
 import { supabaseServer } from '@/lib/supabase.server'
+
+const sanityVariantQuery = `*[_type == "researchStudy" && slug.current == $studySlug][0]{
+  title,
+  status,
+  variants[]{
+    key,
+    "flowStepCount": count(flowSteps),
+    "legacyTaskCount": count(tasks)
+  }
+}`
 
 function randToken(len = 28) {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789'
   let out = ''
   for (let i = 0; i < len; i++) out += chars[Math.floor(Math.random() * chars.length)]
   return out
+}
+
+function pickBalancedVariant(variantKeys, rows = []) {
+  if (!variantKeys.length) return null
+
+  const counts = Object.fromEntries(variantKeys.map((key) => [key, 0]))
+  for (const row of rows || []) {
+    if (row?.variant && counts[row.variant] !== undefined) counts[row.variant] += 1
+  }
+
+  const min = Math.min(...Object.values(counts))
+  const candidates = variantKeys.filter((key) => counts[key] === min)
+  return candidates[Math.floor(Math.random() * candidates.length)] || variantKeys[0]
 }
 
 export async function POST(req) {
@@ -18,12 +42,25 @@ export async function POST(req) {
     if (!studySlug) return NextResponse.json({ error: 'Missing studySlug' }, { status: 400 })
     if (!deviceId) return NextResponse.json({ error: 'Missing deviceId' }, { status: 400 })
 
+    const sanityStudy = await sanityFetch(sanityVariantQuery, { studySlug })
+    if (!sanityStudy) return NextResponse.json({ error: 'Study config not found in Sanity' }, { status: 404 })
+    if (sanityStudy.status !== 'active') return NextResponse.json({ error: 'Study config is not active' }, { status: 403 })
+
+    const availableVariantKeys = (sanityStudy.variants || [])
+      .filter((variant) => Number(variant.flowStepCount || 0) > 0 || Number(variant.legacyTaskCount || 0) > 0)
+      .map((variant) => String(variant.key || '').trim())
+      .filter(Boolean)
+
+    if (!availableVariantKeys.length) {
+      return NextResponse.json({ error: 'Study has no participant flow yet. Add at least one item in Variant → Study flow.' }, { status: 400 })
+    }
+
     const sb = supabaseServer()
 
     // Ensure study exists in DB (we keep config in Sanity; DB is for logging)
     let { data: study } = await sb.from('studies').select('*').eq('slug', studySlug).maybeSingle()
     if (!study) {
-      const ins = await sb.from('studies').insert({ slug: studySlug, title: studySlug, status: 'active' }).select('*').single()
+      const ins = await sb.from('studies').insert({ slug: studySlug, title: sanityStudy.title || studySlug, status: 'active' }).select('*').single()
       study = ins.data
     }
 
@@ -74,16 +111,14 @@ export async function POST(req) {
       tokenRow = created.data
     }
 
-    // Assign variant if not assigned.
-    if (!tokenRow.variantAssigned) {
+    // Assign or repair variant assignment against the actual non-empty Sanity variants.
+    if (!tokenRow.variantAssigned || !availableVariantKeys.includes(tokenRow.variantAssigned)) {
       const { data: counts } = await sb
         .from('sessions')
         .select('variant')
         .eq('studyId', study.id)
 
-      const a = (counts || []).filter((r) => r.variant === 'A').length
-      const b = (counts || []).filter((r) => r.variant === 'B').length
-      const assigned = a === b ? (Math.random() < 0.5 ? 'A' : 'B') : (a < b ? 'A' : 'B')
+      const assigned = pickBalancedVariant(availableVariantKeys, counts)
 
       const upd = await sb
         .from('study_tokens')
@@ -105,6 +140,7 @@ export async function POST(req) {
           tokenId: tokenRow.id,
           variant: tokenRow.variantAssigned,
           completionStatus: 'in_progress',
+          deviceViewport: meta.viewport || null,
         })
         .select('*')
         .single()
@@ -114,6 +150,14 @@ export async function POST(req) {
         .from('study_tokens')
         .update({ status: 'started', startedAt: new Date().toISOString(), userAgent: meta.ua || null })
         .eq('id', tokenRow.id)
+    } else if (session.variant !== tokenRow.variantAssigned) {
+      const updatedSession = await sb
+        .from('sessions')
+        .update({ variant: tokenRow.variantAssigned, deviceViewport: meta.viewport || session.deviceViewport || null })
+        .eq('id', session.id)
+        .select('*')
+        .single()
+      session = updatedSession.data || session
     }
 
     return NextResponse.json({
