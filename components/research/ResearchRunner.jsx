@@ -17,6 +17,10 @@ function clamp01(value) {
   return Math.min(1, Math.max(0, value))
 }
 
+function cleanText(value) {
+  return typeof value === 'string' ? value.trim() : ''
+}
+
 function findHit(hotspots = [], x, y) {
   return hotspots.find((hotspot) => {
     const hx = Number(hotspot.x)
@@ -82,8 +86,8 @@ function normalizeTaskStep(step, index) {
     stepId: taskId,
     task: {
       taskId,
-      title: step.stepTitle || step.title || `Task ${index + 1}`,
-      scenario: step.scenario || '',
+      title: cleanText(step.stepTitle) || cleanText(step.title),
+      scenario: cleanText(step.scenario),
       screens: step.screens || [],
       postTaskSurvey: step.postTaskSurvey || [],
     },
@@ -95,10 +99,10 @@ function normalizeQuestionStep(step, index) {
   return {
     kind: 'question',
     stepId: id,
-    title: step.stepTitle || 'Question',
+    title: cleanText(step.stepTitle),
     question: {
       questionId: id,
-      label: step.label || step.stepTitle || 'Question',
+      label: cleanText(step.label),
       type: step.type || 'likert',
       required: Boolean(step.required),
       minLabel: step.minLabel,
@@ -148,9 +152,27 @@ function getEmbedUrl(rawUrl) {
   }
 }
 
+function safeProgress(value) {
+  if (!value || typeof value !== 'object') return null
+  const phase = ['intro', 'taskBrief', 'task', 'postTaskSurvey', 'flowQuestion'].includes(value.phase) ? value.phase : 'intro'
+  return {
+    phase,
+    stepIndex: Number.isFinite(Number(value.stepIndex)) ? Math.max(0, Math.round(Number(value.stepIndex))) : 0,
+    screenIndex: Number.isFinite(Number(value.screenIndex)) ? Math.max(0, Math.round(Number(value.screenIndex))) : 0,
+    taskRunId: typeof value.taskRunId === 'string' ? value.taskRunId : null,
+    taskStartedAt: Number.isFinite(Number(value.taskStartedAt)) ? Number(value.taskStartedAt) : null,
+    attempts: Number.isFinite(Number(value.attempts)) ? Math.max(0, Math.round(Number(value.attempts))) : 0,
+    misclickCount: Number.isFinite(Number(value.misclickCount)) ? Math.max(0, Math.round(Number(value.misclickCount))) : 0,
+    surveyAnswers: value.surveyAnswers && typeof value.surveyAnswers === 'object' ? value.surveyAnswers : {},
+    taskPanelOpen: typeof value.taskPanelOpen === 'boolean' ? value.taskPanelOpen : true,
+  }
+}
+
 export default function ResearchRunner({studySlug, session}) {
   const imageRef = useRef(null)
   const destinationCompletionRef = useRef(null)
+  const progressHydratedRef = useRef(false)
+  const progressTimerRef = useRef(null)
   const [configState, setConfigState] = useState({status: 'loading'})
   const [phase, setPhase] = useState('intro')
   const [stepIndex, setStepIndex] = useState(0)
@@ -164,6 +186,9 @@ export default function ResearchRunner({studySlug, session}) {
   const [busy, setBusy] = useState(false)
   const [imageMeta, setImageMeta] = useState(null)
   const [taskPanelOpen, setTaskPanelOpen] = useState(true)
+  const [feedback, setFeedback] = useState(null)
+
+  const progressKey = session?.sessionId ? `vertolio_research_progress_${session.sessionId}` : null
 
   useEffect(() => {
     if (!studySlug) return
@@ -210,6 +235,91 @@ export default function ResearchRunner({studySlug, session}) {
     setImageMeta(null)
   }, [screen?.screenId, screen?.imageUrl])
 
+  useEffect(() => {
+    if (!steps.length || progressHydratedRef.current) return
+
+    let restored = null
+    if (session?.progressState) restored = safeProgress(session.progressState)
+
+    if (!restored && progressKey) {
+      try {
+        restored = safeProgress(JSON.parse(window.localStorage.getItem(progressKey) || 'null'))
+      } catch {
+        restored = null
+      }
+    }
+
+    if (restored && restored.stepIndex < steps.length) {
+      const restoredStep = steps[restored.stepIndex]
+      const restoredTask = restoredStep?.kind === 'task' ? restoredStep.task : null
+      const safeScreenIndex = restoredTask?.screens?.length
+        ? Math.min(restored.screenIndex, restoredTask.screens.length - 1)
+        : 0
+      const safePhase = restored.phase === 'task' && !restored.taskRunId
+        ? 'taskBrief'
+        : restored.phase
+
+      setStepIndex(restored.stepIndex)
+      setScreenIndex(safeScreenIndex)
+      setTaskRunId(restored.taskRunId)
+      setTaskStartedAt(restored.taskStartedAt)
+      setAttempts(restored.attempts)
+      setMisclickCount(restored.misclickCount)
+      setSurveyAnswers(restored.surveyAnswers)
+      setTaskPanelOpen(restored.taskPanelOpen)
+      setPhase(safePhase)
+    }
+
+    progressHydratedRef.current = true
+  }, [steps, session?.progressState, progressKey])
+
+  useEffect(() => {
+    if (!progressHydratedRef.current || !progressKey || phase === 'done') return
+
+    const payload = {
+      studySlug,
+      variant: session.variant,
+      phase,
+      stepIndex,
+      screenIndex,
+      taskRunId,
+      taskStartedAt,
+      attempts,
+      misclickCount,
+      surveyAnswers,
+      taskPanelOpen,
+      updatedAt: new Date().toISOString(),
+    }
+
+    window.localStorage.setItem(progressKey, JSON.stringify(payload))
+
+    if (progressTimerRef.current) window.clearTimeout(progressTimerRef.current)
+    progressTimerRef.current = window.setTimeout(() => {
+      postJson('/api/research/session/progress', {
+        sessionId: session.sessionId,
+        progressState: payload,
+      }).catch(() => {})
+    }, 450)
+
+    return () => {
+      if (progressTimerRef.current) window.clearTimeout(progressTimerRef.current)
+    }
+  }, [
+    progressKey,
+    phase,
+    stepIndex,
+    screenIndex,
+    taskRunId,
+    taskStartedAt,
+    attempts,
+    misclickCount,
+    surveyAnswers,
+    taskPanelOpen,
+    session.sessionId,
+    session.variant,
+    studySlug,
+  ])
+
   function resetStepState() {
     destinationCompletionRef.current = null
     setScreenIndex(0)
@@ -219,6 +329,7 @@ export default function ResearchRunner({studySlug, session}) {
     setMisclickCount(0)
     setSurveyAnswers({})
     setTaskPanelOpen(true)
+    setFeedback(null)
     setError(null)
   }
 
@@ -259,6 +370,7 @@ export default function ResearchRunner({studySlug, session}) {
       setAttempts(0)
       setMisclickCount(0)
       setTaskPanelOpen(false)
+      setFeedback(null)
       setPhase('task')
     } catch (err) {
       setError(err.message)
@@ -296,6 +408,7 @@ export default function ResearchRunner({studySlug, session}) {
         durationMs: taskStartedAt ? Date.now() - taskStartedAt : null,
       })
 
+      setFeedback(null)
       if (!skipPostTaskSurvey && postTaskQuestions.length) {
         setSurveyAnswers({})
         setPhase('postTaskSurvey')
@@ -328,6 +441,7 @@ export default function ResearchRunner({studySlug, session}) {
 
     try {
       await postJson('/api/research/complete', {sessionId: session.sessionId})
+      if (progressKey) window.localStorage.removeItem(progressKey)
       setPhase('done')
     } catch (err) {
       setError(err.message)
@@ -351,7 +465,12 @@ export default function ResearchRunner({studySlug, session}) {
     return () => window.clearTimeout(timer)
   }, [phase, taskRunId, screen?.screenId, screen?.isDestination, screen?.completionDelaySeconds])
 
-  async function handleScreenClick(event) {
+  function pulse(type) {
+    setFeedback(type)
+    window.setTimeout(() => setFeedback(null), 180)
+  }
+
+  function handleScreenClick(event) {
     if (phase !== 'task' || !taskRunId || !screen || busy) return
 
     const bounds = imageRef.current?.getBoundingClientRect()
@@ -370,8 +489,9 @@ export default function ResearchRunner({studySlug, session}) {
 
     setAttempts(nextAttempts)
     setMisclickCount(nextMisclickCount)
+    pulse(isMisclick ? 'miss' : 'hit')
 
-    await logScreenEvent({
+    void logScreenEvent({
       screenId: screen.screenId,
       eventType: 'click',
       x,
@@ -385,11 +505,6 @@ export default function ResearchRunner({studySlug, session}) {
 
     if (!hit) return
 
-    if (hit.action === 'completeTask') {
-      await finishTask({success: !isMisclick, finalAttempts: nextAttempts, finalMisclickCount: nextMisclickCount})
-      return
-    }
-
     if (hit.action === 'goToScreen' && hit.targetScreenId) {
       const targetIndex = (task.screens || []).findIndex((item) => item.screenId === hit.targetScreenId)
       if (targetIndex >= 0) setScreenIndex(targetIndex)
@@ -398,6 +513,11 @@ export default function ResearchRunner({studySlug, session}) {
 
     if (hit.action === 'back') {
       setScreenIndex((current) => Math.max(0, current - 1))
+      return
+    }
+
+    if (hit.action === 'completeTask') {
+      finishTask({success: !isMisclick, finalAttempts: nextAttempts, finalMisclickCount: nextMisclickCount})
       return
     }
 
@@ -495,7 +615,7 @@ export default function ResearchRunner({studySlug, session}) {
 
       return (
         <div className="research-question-control">
-          <div className="research-likert-scale" role="radiogroup" aria-label={question.label}>
+          <div className="research-likert-scale" role="radiogroup" aria-label={question.label || 'Question'}>
             <div className="research-likert-options">
               {[1, 2, 3, 4, 5, 6, 7].map((value) => (
                 <label key={value} className="research-likert-option">
@@ -550,12 +670,12 @@ export default function ResearchRunner({studySlug, session}) {
     return (
       <section className="section tight">
         <div className="kicker"><span className="dot" /> Research</div>
-        <h1 style={{marginTop: 12}}>{title}</h1>
+        {title ? <h1 style={{marginTop: 12}}>{title}</h1> : null}
         {subtitle ? <p className="lead" style={{marginTop: 8}}>{subtitle}</p> : null}
         <div className="research-question-stack">
           {questions.map((question) => (
             <div className="research-question-card" key={questionKey(question)}>
-              <p className="research-question-label">{question.label}{question.required ? ' *' : ''}</p>
+              {question.label ? <p className="research-question-label">{question.label}{question.required ? ' *' : ''}</p> : null}
               {renderQuestionMedia(question)}
               {renderQuestionControl(question)}
             </div>
@@ -576,12 +696,12 @@ export default function ResearchRunner({studySlug, session}) {
       : 'is-portrait-image'
 
     return (
-      <main className={`research-prototype-stage ${orientation} ${dimmed ? 'is-dimmed' : ''}`}>
+      <main className={`research-prototype-stage ${orientation} ${dimmed ? 'is-dimmed' : ''} ${feedback ? `is-${feedback}` : ''}`}>
         {screen?.imageUrl ? (
           <img
             ref={imageRef}
             src={screen.imageUrl}
-            alt={screen.alt || screen.title || screen.screenId}
+            alt={screen.alt || screen.title || 'Prototype screen'}
             draggable="false"
             onLoad={(event) => {
               const img = event.currentTarget
@@ -590,7 +710,7 @@ export default function ResearchRunner({studySlug, session}) {
             onClick={handleScreenClick}
             role={phase === 'task' ? 'button' : undefined}
             tabIndex={phase === 'task' ? 0 : -1}
-            aria-label={screen.alt || screen.title || screen.screenId}
+            aria-label={screen.alt || screen.title || 'Prototype screen'}
             className="research-prototype-image"
           />
         ) : (
@@ -606,10 +726,9 @@ export default function ResearchRunner({studySlug, session}) {
       <aside className="research-instruction-panel" aria-label="Task instruction">
         <div className="research-panel-scroll">
           <p className="research-task-meta">Research task</p>
-          <p className="research-task-step">Task {taskNumber || 1} of {Math.max(totalTasks, 1)} • Screen {screenIndex + 1} of {task.screens?.length || 1}</p>
-          <h1>{task.title}</h1>
+          <p className="research-task-step">Task {taskNumber || 1} of {Math.max(totalTasks, 1)}</p>
+          {task.title ? <h1>{task.title}</h1> : null}
           {task.scenario ? <p className="lead" style={{whiteSpace: 'pre-line'}}>{task.scenario}</p> : null}
-          {screen?.title ? <p className="research-screen-title">Current screen: <strong>{screen.title}</strong></p> : null}
           {isStarted ? <p className="research-task-hint">The task is already running. If you are stuck, you may skip this task and continue.</p> : <p className="research-task-hint">The timer starts after you press Start task.</p>}
           {busy ? <p className="research-task-status">Saving…</p> : null}
           {error ? <p className="research-task-error">{error}</p> : null}
@@ -681,7 +800,7 @@ export default function ResearchRunner({studySlug, session}) {
 
   if (phase === 'flowQuestion') {
     return renderQuestionPage({
-      title: step.title || 'Question',
+      title: step.title,
       subtitle: `Step ${stepIndex + 1} of ${steps.length}`,
       questions: [flowQuestion],
       onSubmit: () => submitQuestions({questions: [flowQuestion], surveyId: `flow_${step.stepId}`, next: goNextStep}),
@@ -689,9 +808,12 @@ export default function ResearchRunner({studySlug, session}) {
   }
 
   if (phase === 'postTaskSurvey') {
+    const subtitle = task?.title
+      ? `Task ${taskNumber} of ${Math.max(totalTasks, 1)}: ${task.title}`
+      : `Task ${taskNumber} of ${Math.max(totalTasks, 1)}`
     return renderQuestionPage({
       title: 'Quick follow-up',
-      subtitle: `Task ${taskNumber} of ${Math.max(totalTasks, 1)}: ${task.title}`,
+      subtitle,
       questions: postTaskQuestions,
       onSubmit: () => submitQuestions({questions: postTaskQuestions, surveyId: `${task.taskId}_post_task`, scopedTaskRunId: taskRunId, next: goNextStep}),
     })
@@ -752,12 +874,12 @@ function runnerCss() {
       .research-panel-scroll { min-width: 0; overflow: auto; overflow-x: hidden; padding: clamp(22px, 3vw, 44px) clamp(20px, 2.8vw, 36px); }
       .research-panel-actions { min-width: 0; padding: 18px clamp(20px, 2.8vw, 36px) clamp(20px, 2.8vw, 34px); border-top: 1px solid #eee; display: flex; gap: 12px; flex-wrap: wrap; background: #fff; overflow-x: hidden; }
       .research-panel-scroll > *, .research-panel-actions > * { max-width: 100%; overflow-wrap: anywhere; box-sizing: border-box; }
-      .research-task-meta, .research-task-step, .research-screen-title, .research-task-status, .research-task-error, .research-task-hint { margin-top: 0; max-width: 360px; overflow-wrap: anywhere; }
+      .research-task-meta, .research-task-step, .research-task-status, .research-task-error, .research-task-hint { margin-top: 0; max-width: 360px; overflow-wrap: anywhere; }
       .research-task-meta { color: #777; font-size: 0.76rem; letter-spacing: 0.02em; }
       .research-task-step { margin-top: 14px; color: #555; font-size: 0.88rem; }
       .research-instruction-panel h1 { margin-top: 10px; max-width: 360px; font-size: clamp(1.2rem, 1.45vw, 1.65rem); line-height: 1.08; letter-spacing: -0.02em; overflow-wrap: anywhere; word-break: break-word; }
       .research-instruction-panel .lead { margin-top: 18px; max-width: 360px; font-size: clamp(0.95rem, 1.05vw, 1.05rem); line-height: 1.45; }
-      .research-screen-title, .research-task-status, .research-task-error, .research-task-hint { margin-top: 18px; font-size: 0.88rem; }
+      .research-task-status, .research-task-error, .research-task-hint { margin-top: 18px; font-size: 0.88rem; }
       .research-task-hint { color: #666; }
       .research-task-error { color: #b00020; }
       .research-skip-task { border: 0; background: transparent; color: #777; text-decoration: underline; font: inherit; cursor: pointer; padding: 10px 0; }
@@ -766,13 +888,18 @@ function runnerCss() {
       .research-prototype-stage { position: relative; height: 100dvh; width: 100%; box-sizing: border-box; display: grid; place-items: center; padding: clamp(18px, 3.2vw, 56px); background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.08), rgba(255,255,255,0) 42%), #101010; overflow: hidden; }
       .research-runner-shell.is-panel-closed .research-prototype-stage { position: fixed; inset: 0; width: 100vw; height: 100dvh; max-width: none; margin: 0; padding: clamp(24px, 4vw, 64px); display: grid; place-items: center; transform: none; z-index: 1000; }
       .research-prototype-stage.is-dimmed .research-prototype-image { opacity: 0.42; filter: saturate(0.8); }
+      .research-prototype-stage.is-hit::after, .research-prototype-stage.is-miss::after { content: ""; position: absolute; inset: 0; pointer-events: none; animation: research-feedback 180ms ease-out; }
+      .research-prototype-stage.is-hit::after { background: rgba(255,255,255,0.16); }
+      .research-prototype-stage.is-miss::after { background: rgba(255,255,255,0.08); }
       .research-prototype-empty { color: #aaa; border: 1px dashed rgba(255,255,255,0.25); padding: 32px; }
-      .research-prototype-image { display: block; width: auto; height: auto; max-width: 100%; max-height: calc(100dvh - clamp(36px, 6.4vw, 112px)); object-fit: contain; object-position: center center; border: 1px solid rgba(255,255,255,0.16); background: #fff; box-shadow: 0 24px 80px rgba(0,0,0,0.36); cursor: pointer; user-select: none; transition: opacity 160ms ease, filter 160ms ease; }
+      .research-prototype-image { display: block; width: auto; height: auto; max-width: 100%; max-height: calc(100dvh - clamp(36px, 6.4vw, 112px)); object-fit: contain; object-position: center center; border: 1px solid rgba(255,255,255,0.16); background: #fff; box-shadow: 0 24px 80px rgba(0,0,0,0.36); cursor: pointer; user-select: none; transition: opacity 120ms ease, filter 120ms ease, transform 120ms ease; }
+      .research-prototype-stage.is-hit .research-prototype-image, .research-prototype-stage.is-miss .research-prototype-image { transform: scale(0.998); }
       .research-runner-shell.is-panel-closed .research-prototype-image { justify-self: center; align-self: center; max-width: calc(100vw - clamp(48px, 8vw, 128px)); max-height: calc(100dvh - clamp(48px, 8vw, 128px)); margin: 0 auto; }
       .research-runner-shell.is-panel-closed .research-prototype-stage.is-landscape-image .research-prototype-image { width: calc(100vw - clamp(48px, 8vw, 128px)); height: auto; }
       .research-runner-shell.is-panel-closed .research-prototype-stage.is-portrait-image .research-prototype-image { width: auto; height: calc(100dvh - clamp(48px, 8vw, 128px)); }
       .research-runner-shell.is-briefing .research-prototype-image { cursor: default; }
       .research-show-task { position: fixed; left: 24px; top: 24px; z-index: 1002; border: 1px solid rgba(255,255,255,0.28); background: rgba(17,17,17,0.78); color: #fff; backdrop-filter: blur(10px); padding: 10px 14px; font: inherit; cursor: pointer; }
+      @keyframes research-feedback { from { opacity: 1; } to { opacity: 0; } }
       @media (max-width: 899px) {
         .research-runner-frame, .research-runner-shell.is-panel-closed .research-runner-frame { grid-template-columns: minmax(0, 1fr); }
         .research-prototype-stage, .research-runner-shell.is-panel-closed .research-prototype-stage { grid-column: 1; grid-row: 1; padding: 14px; }
@@ -782,7 +909,7 @@ function runnerCss() {
         .research-instruction-panel { position: fixed; left: 0; right: 0; bottom: 0; z-index: 1001; height: auto; max-height: min(72dvh, 620px); border-right: 0; border-top: 1px solid #e6e6e6; border-radius: 18px 18px 0 0; box-shadow: 0 -20px 70px rgba(0,0,0,0.32); }
         .research-panel-scroll { padding: 24px 22px 18px; }
         .research-panel-actions { padding: 16px 22px 22px; }
-        .research-instruction-panel h1, .research-instruction-panel .lead, .research-task-meta, .research-task-step, .research-screen-title, .research-task-hint, .research-task-status, .research-task-error { max-width: 100%; }
+        .research-instruction-panel h1, .research-instruction-panel .lead, .research-task-meta, .research-task-step, .research-task-hint, .research-task-status, .research-task-error { max-width: 100%; }
         .research-show-task { top: auto; left: 50%; bottom: 18px; transform: translateX(-50%); border-radius: 999px; padding: 11px 16px; }
       }
     `}</style>
