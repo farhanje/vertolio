@@ -182,6 +182,7 @@ export default function ResearchRunner({studySlug, session}) {
   const [attempts, setAttempts] = useState(0)
   const [misclickCount, setMisclickCount] = useState(0)
   const [surveyAnswers, setSurveyAnswers] = useState({})
+  const [validationErrors, setValidationErrors] = useState({})
   const [error, setError] = useState(null)
   const [busy, setBusy] = useState(false)
   const [imageMeta, setImageMeta] = useState(null)
@@ -230,6 +231,7 @@ export default function ResearchRunner({studySlug, session}) {
   const flowQuestion = step?.kind === 'question' ? step.question : null
   const taskNumber = steps.slice(0, stepIndex + 1).filter((item) => item.kind === 'task').length
   const totalTasks = steps.filter((item) => item.kind === 'task').length
+  const destinationReached = phase === 'task' && Boolean(screen?.isDestination)
 
   useEffect(() => {
     setImageMeta(null)
@@ -328,6 +330,7 @@ export default function ResearchRunner({studySlug, session}) {
     setAttempts(0)
     setMisclickCount(0)
     setSurveyAnswers({})
+    setValidationErrors({})
     setTaskPanelOpen(true)
     setFeedback(null)
     setError(null)
@@ -411,6 +414,7 @@ export default function ResearchRunner({studySlug, session}) {
       setFeedback(null)
       if (!skipPostTaskSurvey && postTaskQuestions.length) {
         setSurveyAnswers({})
+        setValidationErrors({})
         setPhase('postTaskSurvey')
       } else {
         await goNextStep()
@@ -524,12 +528,24 @@ export default function ResearchRunner({studySlug, session}) {
     setScreenIndex((current) => Math.min((task.screens?.length || 1) - 1, current + 1))
   }
 
+  function clearValidation(question) {
+    const key = questionKey(question)
+    setValidationErrors((current) => {
+      if (!current[key]) return current
+      const next = {...current}
+      delete next[key]
+      return next
+    })
+  }
+
   function setAnswer(question, value) {
+    clearValidation(question)
     setSurveyAnswers((current) => ({...current, [questionKey(question)]: value}))
   }
 
   function toggleMulti(question, option) {
     const key = questionKey(question)
+    clearValidation(question)
     setSurveyAnswers((current) => {
       const previous = Array.isArray(current[key]) ? current[key] : []
       const next = previous.includes(option) ? previous.filter((item) => item !== option) : [...previous, option]
@@ -537,23 +553,31 @@ export default function ResearchRunner({studySlug, session}) {
     })
   }
 
-  function validateQuestions(questions) {
-    return questions.some((question) => {
-      if (!question.required) return false
-      const value = surveyAnswers[questionKey(question)]
-      if (question.type === 'multi') return !Array.isArray(value) || value.length === 0
-      return value === undefined || value === null || value === ''
-    })
+  function getRequiredErrors(questions) {
+    const nextErrors = {}
+    for (const question of questions) {
+      if (!question.required) continue
+      const key = questionKey(question)
+      const value = surveyAnswers[key]
+      const missing = question.type === 'multi'
+        ? !Array.isArray(value) || value.length === 0
+        : value === undefined || value === null || value === ''
+      if (missing) nextErrors[key] = 'This question is required.'
+    }
+    return nextErrors
   }
 
   async function submitQuestions({questions, surveyId, next, scopedTaskRunId = null}) {
-    if (validateQuestions(questions)) {
-      setError('Please answer the required questions first.')
+    const nextValidationErrors = getRequiredErrors(questions)
+    if (Object.keys(nextValidationErrors).length) {
+      setValidationErrors(nextValidationErrors)
+      setError('Please complete the required question before continuing.')
       return
     }
 
     setBusy(true)
     setError(null)
+    setValidationErrors({})
 
     try {
       await postJson('/api/research/survey', {
@@ -673,13 +697,18 @@ export default function ResearchRunner({studySlug, session}) {
         {title ? <h1 style={{marginTop: 12}}>{title}</h1> : null}
         {subtitle ? <p className="lead" style={{marginTop: 8}}>{subtitle}</p> : null}
         <div className="research-question-stack">
-          {questions.map((question) => (
-            <div className="research-question-card" key={questionKey(question)}>
-              {question.label ? <p className="research-question-label">{question.label}{question.required ? ' *' : ''}</p> : null}
-              {renderQuestionMedia(question)}
-              {renderQuestionControl(question)}
-            </div>
-          ))}
+          {questions.map((question) => {
+            const key = questionKey(question)
+            const helper = validationErrors[key]
+            return (
+              <div className={`research-question-card ${helper ? 'has-error' : ''}`} key={key}>
+                {question.label ? <p className="research-question-label">{question.label}{question.required ? ' *' : ''}</p> : null}
+                {renderQuestionMedia(question)}
+                {renderQuestionControl(question)}
+                {helper ? <p className="research-question-error">{helper}</p> : null}
+              </div>
+            )
+          })}
         </div>
         {error ? <p style={{marginTop: 18}}>{error}</p> : null}
         <button className="btn" type="button" disabled={busy} onClick={onSubmit} style={{marginTop: 32}}>
@@ -696,7 +725,7 @@ export default function ResearchRunner({studySlug, session}) {
       : 'is-portrait-image'
 
     return (
-      <main className={`research-prototype-stage ${orientation} ${dimmed ? 'is-dimmed' : ''} ${feedback ? `is-${feedback}` : ''}`}>
+      <main className={`research-prototype-stage ${orientation} ${dimmed ? 'is-dimmed' : ''} ${feedback ? `is-${feedback}` : ''} ${destinationReached ? 'is-destination' : ''}`}>
         {screen?.imageUrl ? (
           <img
             ref={imageRef}
@@ -716,6 +745,15 @@ export default function ResearchRunner({studySlug, session}) {
         ) : (
           <div className="research-prototype-empty"><p>This screen is missing its PNG image.</p></div>
         )}
+        {destinationReached ? (
+          <div className="research-destination-overlay" aria-live="polite">
+            <div className="research-destination-card">
+              <span className="research-destination-check">✓</span>
+              <strong>Task complete</strong>
+              <small>Saving and moving on…</small>
+            </div>
+          </div>
+        ) : null}
       </main>
     )
   }
@@ -840,6 +878,8 @@ function questionCss() {
       .research-question-stack { display: grid; gap: 30px; margin-top: 32px; max-width: 860px; }
       .research-question-card { display: grid; gap: 16px; }
       .research-question-label { margin: 0; font-weight: 700; line-height: 1.35; max-width: 760px; }
+      .research-question-card.has-error .research-question-label { color: #b00020; }
+      .research-question-error { margin: -4px 0 0; color: #b00020; font-size: 0.88rem; line-height: 1.35; }
       .research-question-media { margin: 4px 0 2px; max-width: 760px; }
       .research-question-media img { display: block; width: 100%; max-height: min(52vh, 520px); object-fit: contain; border: 1px solid #e4e4e4; background: #f7f7f7; }
       .research-question-media figcaption { margin-top: 8px; color: #666; font-size: 0.9rem; }
@@ -856,6 +896,7 @@ function questionCss() {
       .research-choice-list { display: grid; gap: 10px; max-width: 720px; }
       .research-choice-list label { display: inline-flex; align-items: center; gap: 8px; }
       .research-form-field { width: 100%; max-width: 720px; padding: 12px; border: 1px solid #ddd; font: inherit; box-sizing: border-box; }
+      .research-question-card.has-error .research-form-field { border-color: #b00020; }
       @media (max-width: 640px) {
         .research-likert-options { grid-template-columns: repeat(7, minmax(28px, 1fr)); column-gap: 4px; }
         .research-likert-anchors { font-size: 0.82rem; }
@@ -891,8 +932,15 @@ function runnerCss() {
       .research-prototype-stage.is-hit::after, .research-prototype-stage.is-miss::after { content: ""; position: absolute; inset: 0; pointer-events: none; animation: research-feedback 180ms ease-out; }
       .research-prototype-stage.is-hit::after { background: rgba(255,255,255,0.16); }
       .research-prototype-stage.is-miss::after { background: rgba(255,255,255,0.08); }
+      .research-prototype-stage.is-destination { background: radial-gradient(circle at 50% 50%, rgba(52,199,89,0.28), rgba(52,199,89,0.08) 44%, rgba(16,16,16,1) 78%), #071b0f; }
+      .research-destination-overlay { position: absolute; inset: 0; z-index: 4; display: grid; place-items: center; pointer-events: none; background: rgba(19, 152, 69, 0.2); backdrop-filter: saturate(1.1); }
+      .research-destination-card { display: grid; justify-items: center; gap: 6px; padding: 18px 22px; color: #fff; background: rgba(0, 76, 28, 0.72); border: 1px solid rgba(255,255,255,0.28); box-shadow: 0 18px 60px rgba(0,0,0,0.36); text-align: center; }
+      .research-destination-check { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 999px; background: #fff; color: #08752f; font-weight: 900; }
+      .research-destination-card strong { font-size: 1rem; letter-spacing: -0.01em; }
+      .research-destination-card small { color: rgba(255,255,255,0.84); }
       .research-prototype-empty { color: #aaa; border: 1px dashed rgba(255,255,255,0.25); padding: 32px; }
       .research-prototype-image { display: block; width: auto; height: auto; max-width: 100%; max-height: calc(100dvh - clamp(36px, 6.4vw, 112px)); object-fit: contain; object-position: center center; border: 1px solid rgba(255,255,255,0.16); background: #fff; box-shadow: 0 24px 80px rgba(0,0,0,0.36); cursor: pointer; user-select: none; transition: opacity 120ms ease, filter 120ms ease, transform 120ms ease; }
+      .research-prototype-stage.is-destination .research-prototype-image { filter: saturate(0.85) brightness(0.8); }
       .research-prototype-stage.is-hit .research-prototype-image, .research-prototype-stage.is-miss .research-prototype-image { transform: scale(0.998); }
       .research-runner-shell.is-panel-closed .research-prototype-image { justify-self: center; align-self: center; max-width: calc(100vw - clamp(48px, 8vw, 128px)); max-height: calc(100dvh - clamp(48px, 8vw, 128px)); margin: 0 auto; }
       .research-runner-shell.is-panel-closed .research-prototype-stage.is-landscape-image .research-prototype-image { width: calc(100vw - clamp(48px, 8vw, 128px)); height: auto; }
