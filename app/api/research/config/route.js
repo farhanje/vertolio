@@ -11,7 +11,7 @@ const screenProjection = `{
   "imageUrl": image.asset->url,
   hotspots[]{
     _key,
-    "hotspotId": coalesce(hotspotId, _key),
+    "hotspotId": coalesce(hotspotKey, hotspotId, _key),
     "hotspotKey": coalesce(hotspotKey, hotspotId, _key),
     label,
     x,
