@@ -1,6 +1,7 @@
 import {NextResponse} from 'next/server'
 import {supabaseServer} from '@/lib/supabase.server'
 
+// Runtime endpoint for saving survey answers.
 export async function POST(req) {
   try {
     const body = await req.json()
