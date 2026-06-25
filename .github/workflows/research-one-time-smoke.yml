@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - .github/workflows/research-one-time-smoke.yml
+      - load-tests/research-smoke.js
   workflow_dispatch:
 
 jobs:
