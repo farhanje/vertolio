@@ -77,7 +77,6 @@ const questionFields = (hidden) => [
   {name: 'minLabel', title: 'Likert low label', type: 'string', hidden},
   {name: 'maxLabel', title: 'Likert high label', type: 'string', hidden},
   {name: 'options', title: 'Options', type: 'array', of: [{type: 'string'}], hidden},
-  analysisMetaField(hidden),
   {
     name: 'mediaType',
     title: 'Question media',
@@ -159,7 +158,6 @@ const taskFields = (hidden, includeTitle = true) => [
   {name: 'scenarioKey', title: 'Analysis scenario key', type: 'string', hidden, description: 'Stable scenario key for analysis, e.g. procedure, missing_order. If empty, Task ID is used.'},
   ...(includeTitle ? [{name: 'title', title: 'Task title', type: 'string', hidden}] : []),
   {name: 'scenario', title: 'Scenario', type: 'text', rows: 4, hidden},
-  analysisMetaField(hidden),
   screensField(hidden),
   postTaskSurveyField(hidden),
 ]
