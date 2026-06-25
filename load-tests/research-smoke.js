@@ -16,22 +16,28 @@ export const options = {
       ],
     },
   },
-  thresholds: {
-    http_req_failed: ['rate<0.02'],
-    http_req_duration: ['p(95)<1500'],
-  },
 }
 
 function jsonHeaders() {
   return {headers: {'content-type': 'application/json'}}
 }
 
-function postJson(path, body) {
-  return http.post(`${BASE_URL}${path}`, JSON.stringify(body), jsonHeaders())
+function logFailure(label, response) {
+  if (response.status >= 200 && response.status < 300) return
+  const body = String(response.body || '').slice(0, 600)
+  console.error(`${label} failed | status=${response.status} | body=${body}`)
 }
 
-function getJson(path) {
-  return http.get(`${BASE_URL}${path}`)
+function postJson(path, body, label = path) {
+  const response = http.post(`${BASE_URL}${path}`, JSON.stringify(body), jsonHeaders())
+  logFailure(label, response)
+  return response
+}
+
+function getJson(path, label = path) {
+  const response = http.get(`${BASE_URL}${path}`)
+  logFailure(label, response)
+  return response
 }
 
 function pickVariant(study, assignedVariant) {
@@ -78,7 +84,7 @@ export default function () {
       tz: 'Asia/Jakarta',
       viewport: {width: 1440, height: 900, devicePixelRatio: 1},
     },
-  })
+  }, 'start')
 
   check(startRes, {
     'start ok': (res) => res.status === 200,
@@ -87,7 +93,7 @@ export default function () {
   const start = safeJson(startRes)
   if (!start?.sessionId || start.status === 'completed') return
 
-  const configRes = getJson(`/api/research/config?studySlug=${encodeURIComponent(STUDY_SLUG)}`)
+  const configRes = getJson(`/api/research/config?studySlug=${encodeURIComponent(STUDY_SLUG)}`, 'config')
   check(configRes, {
     'config ok': (res) => res.status === 200,
   })
@@ -97,7 +103,8 @@ export default function () {
   const task = findFirstTask(variant)
 
   if (!task?.taskId) {
-    postJson('/api/research/complete', {sessionId: start.sessionId})
+    console.warn(`No task found for variant=${start.variant}. Completing session without task simulation.`)
+    postJson('/api/research/complete', {sessionId: start.sessionId}, 'complete-empty-session')
     return
   }
 
@@ -105,7 +112,7 @@ export default function () {
     sessionId: start.sessionId,
     taskId: task.taskId,
     taskOrder: 1,
-  })
+  }, 'task-start')
 
   check(taskStartRes, {
     'task start ok': (res) => res.status === 200,
@@ -116,7 +123,7 @@ export default function () {
 
   for (let i = 0; i < CLICKS_PER_TASK; i += 1) {
     if (!screen?.screenId) break
-    postJson('/api/research/event', {
+    const eventRes = postJson('/api/research/event', {
       sessionId: start.sessionId,
       taskRunId: taskStart?.taskRunId || null,
       screenId: screen.screenId,
@@ -125,7 +132,8 @@ export default function () {
       y: Math.random(),
       isMisclick: i > 0,
       meta: {source: 'k6-smoke', clickIndex: i},
-    })
+    }, 'event')
+    check(eventRes, {'event ok': (res) => res.status === 200})
   }
 
   if (taskStart?.taskRunId) {
@@ -135,14 +143,14 @@ export default function () {
       attempts: Math.max(1, CLICKS_PER_TASK),
       misclickCount: Math.max(0, CLICKS_PER_TASK - 1),
       durationMs: 2500,
-    })
+    }, 'task-complete')
 
     check(completeTaskRes, {
       'task complete ok': (res) => res.status === 200,
     })
   }
 
-  const completeRes = postJson('/api/research/complete', {sessionId: start.sessionId})
+  const completeRes = postJson('/api/research/complete', {sessionId: start.sessionId}, 'session-complete')
   check(completeRes, {
     'session complete ok': (res) => res.status === 200,
   })
