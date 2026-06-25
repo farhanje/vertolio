@@ -30,6 +30,15 @@ const HOTSPOT_ACTIONS = [
   {title: 'Complete task', value: 'completeTask'},
 ]
 
+const CLICK_TYPES = [
+  {title: 'Hotspot click', value: 'hotspot_click'},
+  {title: 'Correct completion', value: 'correct_completion'},
+  {title: 'Misclick', value: 'misclick'},
+  {title: 'Navigation next', value: 'nav_next'},
+  {title: 'Navigation back', value: 'nav_back'},
+  {title: 'Other', value: 'other'},
+]
+
 const FLOW_STEP_TYPES = [
   {title: 'Question', value: 'question'},
   {title: 'Prototype task', value: 'task'},
@@ -44,6 +53,15 @@ const hiddenIdField = (name, title, description, hidden) => ({
   description,
 })
 
+const analysisMetaField = (hidden) => ({
+  name: 'analysisMeta',
+  title: 'Analysis metadata JSON',
+  type: 'text',
+  rows: 3,
+  hidden,
+  description: 'Optional generic JSON for analysis, e.g. {"condition":"avatar","order":"procedure_first"}. Keep empty if not needed.',
+})
+
 const resolveHidden = (hidden, args) => {
   if (typeof hidden === 'function') return hidden(args)
   return Boolean(hidden)
@@ -51,12 +69,15 @@ const resolveHidden = (hidden, args) => {
 
 const questionFields = (hidden) => [
   hiddenIdField('questionId', 'Question ID', 'Auto-managed internally. The system falls back to this item key.', hidden),
+  {name: 'questionKey', title: 'Analysis question key', type: 'string', hidden, description: 'Stable key for export/analysis, e.g. procedure_trust. If empty, Question ID is used.'},
+  {name: 'constructKey', title: 'Analysis construct key', type: 'string', hidden, description: 'Stable construct, e.g. trust, clarity, relevance, confidence.'},
   {name: 'label', title: 'Question label', type: 'text', rows: 2, hidden},
   {name: 'type', title: 'Question type', type: 'string', initialValue: 'likert', options: {list: QUESTION_TYPES}, hidden},
   {name: 'required', title: 'Required', type: 'boolean', initialValue: false, hidden},
   {name: 'minLabel', title: 'Likert low label', type: 'string', hidden},
   {name: 'maxLabel', title: 'Likert high label', type: 'string', hidden},
   {name: 'options', title: 'Options', type: 'array', of: [{type: 'string'}], hidden},
+  analysisMetaField(hidden),
   {
     name: 'mediaType',
     title: 'Question media',
@@ -89,12 +110,14 @@ const questionFields = (hidden) => [
 
 const hotspotFields = [
   hiddenIdField('hotspotId', 'Hotspot ID', 'Auto-managed internally. The system falls back to this item key.'),
+  {name: 'hotspotKey', title: 'Analysis hotspot key', type: 'string', description: 'Stable key for click analysis. If empty, Hotspot ID is used.'},
   {name: 'label', title: 'Label', type: 'string'},
   {name: 'x', title: 'X', type: 'number', hidden: true, validation: (Rule) => Rule.min(0).max(1)},
   {name: 'y', title: 'Y', type: 'number', hidden: true, validation: (Rule) => Rule.min(0).max(1)},
   {name: 'w', title: 'Width', type: 'number', hidden: true, validation: (Rule) => Rule.min(0).max(1)},
   {name: 'h', title: 'Height', type: 'number', hidden: true, validation: (Rule) => Rule.min(0).max(1)},
   {name: 'action', title: 'Action', type: 'string', initialValue: 'next', options: {list: HOTSPOT_ACTIONS}},
+  {name: 'clickType', title: 'Analysis click type', type: 'string', options: {list: CLICK_TYPES}, description: 'Optional. If empty, the API infers from action/correctness.'},
   {name: 'targetScreenId', title: 'Target screen ID', type: 'string', hidden: true},
   {name: 'isCorrect', title: 'Counts as correct click', type: 'boolean', initialValue: true},
 ]
@@ -111,7 +134,7 @@ const screenFields = [
     title: 'Hotspots',
     type: 'array',
     components: {input: HotspotArrayInput},
-    of: [{type: 'object', name: 'studyHotspot', title: 'Hotspot', fields: hotspotFields, preview: {select: {title: 'label', subtitle: 'hotspotId'}}}],
+    of: [{type: 'object', name: 'studyHotspot', title: 'Hotspot', fields: hotspotFields, preview: {select: {title: 'label', subtitle: 'hotspotKey'}}}],
   },
 ]
 
@@ -128,13 +151,15 @@ const postTaskSurveyField = (hidden) => ({
   title: 'Post-task survey',
   type: 'array',
   hidden,
-  of: [{type: 'object', name: 'studyQuestion', title: 'Question', fields: questionFields(), preview: {select: {title: 'label', subtitle: 'type'}}}],
+  of: [{type: 'object', name: 'studyQuestion', title: 'Question', fields: questionFields(), preview: {select: {title: 'label', subtitle: 'constructKey'}}}],
 })
 
 const taskFields = (hidden, includeTitle = true) => [
   hiddenIdField('taskId', 'Task ID', 'Auto-managed internally. The system falls back to this item key.', hidden),
+  {name: 'scenarioKey', title: 'Analysis scenario key', type: 'string', hidden, description: 'Stable scenario key for analysis, e.g. procedure, missing_order. If empty, Task ID is used.'},
   ...(includeTitle ? [{name: 'title', title: 'Task title', type: 'string', hidden}] : []),
   {name: 'scenario', title: 'Scenario', type: 'text', rows: 4, hidden},
+  analysisMetaField(hidden),
   screensField(hidden),
   postTaskSurveyField(hidden),
 ]
@@ -176,6 +201,7 @@ export default {
         fields: [
           {name: 'key', title: 'Variant key', type: 'string', validation: (Rule) => Rule.required()},
           {name: 'label', title: 'Label', type: 'string'},
+          analysisMetaField(),
           {
             name: 'flowSteps',
             title: 'Study flow',
@@ -192,15 +218,15 @@ export default {
                 ...taskFields(hideUnlessTask, false),
               ],
               preview: {
-                select: {stepType: 'stepType', title: 'stepTitle', question: 'label'},
-                prepare({stepType, title, question}) {
+                select: {stepType: 'stepType', title: 'stepTitle', question: 'label', scenarioKey: 'scenarioKey'},
+                prepare({stepType, title, question, scenarioKey}) {
                   const label = stepType === 'question' ? 'Question' : 'Prototype task'
-                  return {title: title || question || label, subtitle: label}
+                  return {title: title || question || scenarioKey || label, subtitle: label}
                 },
               },
             }],
           },
-          {name: 'tasks', title: 'Legacy tasks', type: 'array', description: 'Fallback for older studies. New studies should use Study flow above.', of: [{type: 'object', name: 'studyTask', title: 'Task', fields: taskFields(), preview: {select: {title: 'title'}}}]},
+          {name: 'tasks', title: 'Legacy tasks', type: 'array', description: 'Fallback for older studies. New studies should use Study flow above.', of: [{type: 'object', name: 'studyTask', title: 'Task', fields: taskFields(), preview: {select: {title: 'title', subtitle: 'scenarioKey'}}}]},
         ],
         preview: {select: {title: 'label', subtitle: 'key'}},
       }],
