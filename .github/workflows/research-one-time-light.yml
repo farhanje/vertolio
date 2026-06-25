@@ -1,0 +1,30 @@
+name: One-Time Research Light Load Test
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/research-one-time-light.yml
+      - load-tests/research-light.js
+  workflow_dispatch:
+
+jobs:
+  light:
+    name: Run k6 light load test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run light load test
+        run: |
+          docker run --rm \
+            -v "$PWD:/work" \
+            -w /work \
+            -e BASE_URL="https://www.farhanje.com" \
+            -e STUDY_SLUG="ai-support" \
+            -e CLICKS_PER_TASK="3" \
+            grafana/k6:latest run load-tests/research-light.js
