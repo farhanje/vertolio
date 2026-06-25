@@ -7,6 +7,8 @@ const sanityVariantQuery = `*[_type == "researchStudy" && slug.current == $study
   status,
   variants[]{
     key,
+    label,
+    analysisMeta,
     "flowStepCount": count(coalesce(flowSteps, [])),
     "legacyTaskCount": count(coalesce(tasks, []))
   }
@@ -17,6 +19,31 @@ function randToken(len = 28) {
   let out = ''
   for (let i = 0; i < len; i++) out += chars[Math.floor(Math.random() * chars.length)]
   return out
+}
+
+function parseJsonMeta(value) {
+  if (!value) return null
+  if (typeof value === 'object') return value
+  if (typeof value !== 'string') return null
+
+  try {
+    const parsed = JSON.parse(value)
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : null
+  } catch {
+    return null
+  }
+}
+
+function buildAssignmentMeta(variant) {
+  const variantKey = String(variant?.key || '').trim()
+  const variantParts = variantKey.split('-').filter(Boolean)
+
+  return {
+    variantKey,
+    variantLabel: variant?.label || null,
+    variantParts,
+    analysisMeta: parseJsonMeta(variant?.analysisMeta),
+  }
 }
 
 function pickBalancedVariant(variantKeys, rows = []) {
@@ -56,10 +83,15 @@ export async function POST(req) {
     if (!sanityStudy) return jsonError('Study config not found in Sanity', 404)
     if (sanityStudy.status !== 'active') return jsonError('Study config is not active', 403)
 
-    const availableVariantKeys = (sanityStudy.variants || [])
+    const availableVariants = (sanityStudy.variants || [])
       .filter((variant) => Number(variant.flowStepCount || 0) > 0 || Number(variant.legacyTaskCount || 0) > 0)
-      .map((variant) => String(variant.key || '').trim())
-      .filter(Boolean)
+      .map((variant) => ({
+        ...variant,
+        key: String(variant.key || '').trim(),
+      }))
+      .filter((variant) => variant.key)
+
+    const availableVariantKeys = availableVariants.map((variant) => variant.key)
 
     if (!availableVariantKeys.length) {
       return jsonError('Study has no participant flow yet. Add at least one item in Variant → Study flow.', 400)
@@ -179,6 +211,9 @@ export async function POST(req) {
       tokenRow = updatedToken.data
     }
 
+    const assignedVariantConfig = availableVariants.find((variant) => variant.key === tokenRow.variantAssigned) || null
+    const assignmentMeta = buildAssignmentMeta(assignedVariantConfig || {key: tokenRow.variantAssigned})
+
     // Create or get session: 1 session per tokenId.
     const existingSession = await sb.from('sessions').select('*').eq('tokenId', tokenRow.id).maybeSingle()
     if (existingSession.error) {
@@ -194,6 +229,7 @@ export async function POST(req) {
           studyId: study.id,
           tokenId: tokenRow.id,
           variant: tokenRow.variantAssigned,
+          assignmentMeta,
           completionStatus: 'in_progress',
           deviceViewport: meta.viewport || null,
         })
@@ -214,10 +250,14 @@ export async function POST(req) {
       if (startedToken.error) {
         return jsonError('Session was created, but token could not be marked started', 500, startedToken.error.message)
       }
-    } else if (session.variant !== tokenRow.variantAssigned) {
+    } else if (session.variant !== tokenRow.variantAssigned || !session.assignmentMeta) {
       const updatedSession = await sb
         .from('sessions')
-        .update({ variant: tokenRow.variantAssigned, deviceViewport: meta.viewport || session.deviceViewport || null })
+        .update({
+          variant: tokenRow.variantAssigned,
+          assignmentMeta,
+          deviceViewport: meta.viewport || session.deviceViewport || null,
+        })
         .eq('id', session.id)
         .select('*')
         .single()
