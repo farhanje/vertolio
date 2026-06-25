@@ -237,6 +237,7 @@ export async function POST(req) {
       status: 'ok',
       variant: tokenRow.variantAssigned,
       sessionId: session.id,
+      progressState: session.progressState || null,
     })
   } catch (e) {
     return jsonError('Server error', 500, String(e?.message || e))
