@@ -12,12 +12,14 @@ const screenProjection = `{
   hotspots[]{
     _key,
     "hotspotId": coalesce(hotspotId, _key),
+    "hotspotKey": coalesce(hotspotKey, hotspotId, _key),
     label,
     x,
     y,
     w,
     h,
     action,
+    clickType,
     targetScreenId,
     isCorrect
   }
@@ -25,7 +27,10 @@ const screenProjection = `{
 
 const questionProjection = `{
   _key,
-  "questionId": coalesce(questionId, _key),
+  "questionId": coalesce(questionKey, questionId, _key),
+  "questionKey": coalesce(questionKey, questionId, _key),
+  constructKey,
+  analysisMeta,
   label,
   type,
   required,
@@ -55,11 +60,14 @@ const query = `*[_type == "researchStudy" && slug.current == $studySlug][0]{
     _key,
     key,
     label,
+    analysisMeta,
     flowSteps[]{
       _key,
       stepType,
       stepTitle,
-      "questionId": coalesce(questionId, _key),
+      "questionId": coalesce(questionKey, questionId, _key),
+      "questionKey": coalesce(questionKey, questionId, _key),
+      constructKey,
       label,
       type,
       required,
@@ -70,14 +78,18 @@ const query = `*[_type == "researchStudy" && slug.current == $studySlug][0]{
       mediaUrl,
       mediaCaption,
       "mediaImageUrl": mediaImage.asset->url,
-      "taskId": coalesce(taskId, _key),
+      "taskId": coalesce(scenarioKey, taskId, _key),
+      "scenarioKey": coalesce(scenarioKey, taskId, _key),
+      analysisMeta,
       scenario,
       screens[]${screenProjection},
       postTaskSurvey[]${questionProjection}
     },
     tasks[]{
       _key,
-      "taskId": coalesce(taskId, _key),
+      "taskId": coalesce(scenarioKey, taskId, _key),
+      "scenarioKey": coalesce(scenarioKey, taskId, _key),
+      analysisMeta,
       title,
       scenario,
       screens[]${screenProjection},
