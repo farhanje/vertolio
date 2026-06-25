@@ -1,0 +1,29 @@
+name: One-Time Research Smoke Test
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/research-one-time-smoke.yml
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    name: Run conservative k6 smoke test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run one-time smoke test
+        run: |
+          docker run --rm \
+            -v "$PWD:/work" \
+            -w /work \
+            -e BASE_URL="https://www.farhanje.com" \
+            -e STUDY_SLUG="ai-support" \
+            -e CLICKS_PER_TASK="2" \
+            grafana/k6:latest run load-tests/research-smoke.js
