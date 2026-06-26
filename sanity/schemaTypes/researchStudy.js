@@ -77,6 +77,45 @@ const richTextField = (name, title, description) => ({
         ],
       },
     },
+    {
+      type: 'image',
+      name: 'richImage',
+      title: 'Image',
+      options: {hotspot: false},
+      fields: [
+        {name: 'alt', title: 'Alt text', type: 'string'},
+        {name: 'caption', title: 'Caption', type: 'string'},
+      ],
+    },
+    {
+      type: 'object',
+      name: 'embedBlock',
+      title: 'YouTube / iframe embed',
+      fields: [
+        {name: 'title', title: 'Embed title', type: 'string'},
+        {name: 'url', title: 'YouTube, Vimeo, Loom, or iframe URL', type: 'url', validation: (Rule) => Rule.required()},
+        {name: 'caption', title: 'Caption', type: 'string'},
+        {
+          name: 'aspectRatio',
+          title: 'Aspect ratio',
+          type: 'string',
+          initialValue: '16 / 9',
+          options: {
+            list: [
+              {title: '16:9', value: '16 / 9'},
+              {title: '4:3', value: '4 / 3'},
+              {title: '1:1', value: '1 / 1'},
+            ],
+          },
+        },
+      ],
+      preview: {
+        select: {title: 'title', subtitle: 'url'},
+        prepare({title, subtitle}) {
+          return {title: title || 'Embed', subtitle}
+        },
+      },
+    },
   ],
 })
 
