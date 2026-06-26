@@ -52,9 +52,11 @@ const query = `*[_type == "researchStudy" && slug.current == $studySlug][0]{
   researchType,
   introTitle,
   introBody,
+  introBodyRich,
   consentText,
   completionTitle,
   completionBody,
+  completionBodyRich,
   variants[]{
     _key,
     key,
