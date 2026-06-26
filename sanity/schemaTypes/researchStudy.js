@@ -44,6 +44,42 @@ const FLOW_STEP_TYPES = [
   {title: 'Prototype task', value: 'task'},
 ]
 
+const richTextField = (name, title, description) => ({
+  name,
+  title,
+  type: 'array',
+  description,
+  of: [
+    {
+      type: 'block',
+      styles: [
+        {title: 'Normal', value: 'normal'},
+        {title: 'Heading 2', value: 'h2'},
+        {title: 'Heading 3', value: 'h3'},
+        {title: 'Quote', value: 'blockquote'},
+      ],
+      lists: [
+        {title: 'Bullet', value: 'bullet'},
+        {title: 'Numbered', value: 'number'},
+      ],
+      marks: {
+        decorators: [
+          {title: 'Strong', value: 'strong'},
+          {title: 'Emphasis', value: 'em'},
+        ],
+        annotations: [
+          {
+            name: 'link',
+            type: 'object',
+            title: 'Link',
+            fields: [{name: 'href', type: 'url', title: 'URL'}],
+          },
+        ],
+      },
+    },
+  ],
+})
+
 const hiddenIdField = (name, title, description, hidden) => ({
   name,
   title,
@@ -77,6 +113,7 @@ const questionFields = (hidden) => [
   {name: 'minLabel', title: 'Likert low label', type: 'string', hidden},
   {name: 'maxLabel', title: 'Likert high label', type: 'string', hidden},
   {name: 'options', title: 'Options', type: 'array', of: [{type: 'string'}], hidden},
+  analysisMetaField(hidden),
   {
     name: 'mediaType',
     title: 'Question media',
@@ -158,6 +195,7 @@ const taskFields = (hidden, includeTitle = true) => [
   {name: 'scenarioKey', title: 'Analysis scenario key', type: 'string', hidden, description: 'Stable scenario key for analysis, e.g. procedure, missing_order. If empty, Task ID is used.'},
   ...(includeTitle ? [{name: 'title', title: 'Task title', type: 'string', hidden}] : []),
   {name: 'scenario', title: 'Scenario', type: 'text', rows: 4, hidden},
+  analysisMetaField(hidden),
   screensField(hidden),
   postTaskSurveyField(hidden),
 ]
@@ -182,10 +220,12 @@ export default {
     },
     {name: 'researchType', title: 'Research type', type: 'string', initialValue: 'usability_test', options: {layout: 'radio', list: RESEARCH_TYPES}, validation: (Rule) => Rule.required()},
     {name: 'introTitle', title: 'Intro title', type: 'string', initialValue: 'Before we start'},
-    {name: 'introBody', title: 'Intro body', type: 'text', rows: 4},
+    {name: 'introBody', title: 'Intro body fallback plain text', type: 'text', rows: 4, description: 'Legacy fallback. Prefer Intro body rich text below.'},
+    richTextField('introBodyRich', 'Intro body rich text', 'Rich intro body shown to participants. Plain text remains as fallback.'),
     {name: 'consentText', title: 'Consent text', type: 'text', rows: 4},
     {name: 'completionTitle', title: 'Completion title', type: 'string', initialValue: 'Thank you'},
-    {name: 'completionBody', title: 'Completion body', type: 'text', rows: 3},
+    {name: 'completionBody', title: 'Completion body fallback plain text', type: 'text', rows: 3, description: 'Legacy fallback. Prefer Completion body rich text below.'},
+    richTextField('completionBodyRich', 'Completion body rich text', 'Rich completion body shown to participants. Plain text remains as fallback.'),
     {
       name: 'variants',
       title: 'Variants',
