@@ -1,6 +1,14 @@
 import {NextResponse} from 'next/server'
 import {sanityFetch} from '@/lib/sanity.client'
 
+const richTextProjection = `[]{
+  ...,
+  _type == "image" => {
+    ...,
+    "imageUrl": asset->url
+  }
+}`
+
 const screenProjection = `{
   _key,
   "screenId": coalesce(screenId, _key),
@@ -52,11 +60,11 @@ const query = `*[_type == "researchStudy" && slug.current == $studySlug][0]{
   researchType,
   introTitle,
   introBody,
-  introBodyRich,
+  "introBodyRich": introBodyRich${richTextProjection},
   consentText,
   completionTitle,
   completionBody,
-  completionBodyRich,
+  "completionBodyRich": completionBodyRich${richTextProjection},
   variants[]{
     _key,
     key,
