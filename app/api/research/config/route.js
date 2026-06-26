@@ -3,7 +3,7 @@ import {sanityFetch} from '@/lib/sanity.client'
 
 const richTextProjection = `[]{
   ...,
-  _type == "image" => {
+  _type in ["image", "richImage"] => {
     ...,
     "imageUrl": asset->url
   }
