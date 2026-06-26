@@ -3,6 +3,7 @@
 import {useEffect, useState} from 'react'
 import {useParams} from 'next/navigation'
 import ResearchRunner from '@/components/research/ResearchRunner'
+import ResearchRichTextBridge from '@/components/research/ResearchRichTextBridge'
 import {useDeviceId} from '@/components/research/useDeviceId'
 import './runner-overrides.css'
 
@@ -88,6 +89,7 @@ export default function ResearchStudyPage() {
 
   return (
     <main className="container">
+      <ResearchRichTextBridge studySlug={studySlug} />
       <ResearchRunner studySlug={studySlug} session={data} />
     </main>
   )
