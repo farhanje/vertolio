@@ -141,6 +141,20 @@ function RichTextContent({value}) {
   )
 }
 
+function sectionMatchesTarget(section, target) {
+  if (!section || !target) return false
+
+  const heading = section.querySelector('h1')
+  if (!heading) return false
+  if (normalizeText(heading.textContent) !== normalizeText(target.title)) return false
+
+  if (target.requiresContinue) {
+    return Array.from(section.querySelectorAll('button')).some((button) => normalizeText(button.textContent) === 'continue')
+  }
+
+  return true
+}
+
 export default function ResearchRichTextBridge({studySlug}) {
   const [study, setStudy] = useState(null)
   const rootsRef = useRef(new Map())
@@ -184,7 +198,36 @@ export default function ResearchRichTextBridge({studySlug}) {
 
     ensureStyles()
 
+    const removeStaleMounts = () => {
+      const mounts = Array.from(document.querySelectorAll('[data-research-rich-text]'))
+
+      for (const mount of mounts) {
+        const target = richTargets.find((item) => item.key === mount.dataset.researchRichText)
+        const section = mount.closest('section')
+
+        if (sectionMatchesTarget(section, target)) continue
+
+        const root = rootsRef.current.get(mount)
+        if (root) {
+          root.unmount()
+          rootsRef.current.delete(mount)
+        }
+
+        const fallbackKey = mount.dataset.researchRichText
+        mount.remove()
+
+        if (section && fallbackKey) {
+          section.querySelectorAll(`p.lead[data-research-rich-text-fallback="${fallbackKey}"]`).forEach((item) => {
+            item.style.display = ''
+            delete item.dataset.researchRichTextFallback
+          })
+        }
+      }
+    }
+
     const mountRichText = () => {
+      removeStaleMounts()
+
       for (const target of richTargets) {
         const expectedTitle = normalizeText(target.title)
         const headings = Array.from(document.querySelectorAll('main.container section h1'))
@@ -192,12 +235,7 @@ export default function ResearchRichTextBridge({studySlug}) {
         if (!heading) continue
 
         const section = heading.closest('section')
-        if (!section) continue
-
-        if (target.requiresContinue) {
-          const hasContinueButton = Array.from(section.querySelectorAll('button')).some((button) => normalizeText(button.textContent) === 'continue')
-          if (!hasContinueButton) continue
-        }
+        if (!sectionMatchesTarget(section, target)) continue
 
         const originalLead = Array.from(section.querySelectorAll('p.lead')).find((item) => !item.dataset.researchRichTextFallback)
         if (originalLead) {
@@ -229,6 +267,11 @@ export default function ResearchRichTextBridge({studySlug}) {
       observer.disconnect()
       for (const root of rootsRef.current.values()) root.unmount()
       rootsRef.current.clear()
+      document.querySelectorAll('[data-research-rich-text]').forEach((mount) => mount.remove())
+      document.querySelectorAll('p.lead[data-research-rich-text-fallback]').forEach((item) => {
+        item.style.display = ''
+        delete item.dataset.researchRichTextFallback
+      })
     }
   }, [richTargets])
 
