@@ -103,7 +103,7 @@ const resolveHidden = (hidden, args) => {
   return Boolean(hidden)
 }
 
-const questionFields = (hidden) => [
+const questionFields = (hidden, includeAnalysisMeta = true) => [
   hiddenIdField('questionId', 'Question ID', 'Auto-managed internally. The system falls back to this item key.', hidden),
   {name: 'questionKey', title: 'Analysis question key', type: 'string', hidden, description: 'Stable key for export/analysis, e.g. procedure_trust. If empty, Question ID is used.'},
   {name: 'constructKey', title: 'Analysis construct key', type: 'string', hidden, description: 'Stable construct, e.g. trust, clarity, relevance, confidence.'},
@@ -113,7 +113,7 @@ const questionFields = (hidden) => [
   {name: 'minLabel', title: 'Likert low label', type: 'string', hidden},
   {name: 'maxLabel', title: 'Likert high label', type: 'string', hidden},
   {name: 'options', title: 'Options', type: 'array', of: [{type: 'string'}], hidden},
-  analysisMetaField(hidden),
+  ...(includeAnalysisMeta ? [analysisMetaField(hidden)] : []),
   {
     name: 'mediaType',
     title: 'Question media',
@@ -190,12 +190,12 @@ const postTaskSurveyField = (hidden) => ({
   of: [{type: 'object', name: 'studyQuestion', title: 'Question', fields: questionFields(), preview: {select: {title: 'label', subtitle: 'constructKey'}}}],
 })
 
-const taskFields = (hidden, includeTitle = true) => [
+const taskFields = (hidden, includeTitle = true, includeAnalysisMeta = true) => [
   hiddenIdField('taskId', 'Task ID', 'Auto-managed internally. The system falls back to this item key.', hidden),
   {name: 'scenarioKey', title: 'Analysis scenario key', type: 'string', hidden, description: 'Stable scenario key for analysis, e.g. procedure, missing_order. If empty, Task ID is used.'},
   ...(includeTitle ? [{name: 'title', title: 'Task title', type: 'string', hidden}] : []),
   {name: 'scenario', title: 'Scenario', type: 'text', rows: 4, hidden},
-  analysisMetaField(hidden),
+  ...(includeAnalysisMeta ? [analysisMetaField(hidden)] : []),
   screensField(hidden),
   postTaskSurveyField(hidden),
 ]
@@ -252,8 +252,9 @@ export default {
               fields: [
                 {name: 'stepType', title: 'Step type', type: 'string', initialValue: 'task', options: {layout: 'radio', list: FLOW_STEP_TYPES}},
                 {name: 'stepTitle', title: 'Step title', type: 'string'},
-                ...questionFields(hideUnlessQuestion),
-                ...taskFields(hideUnlessTask, false),
+                analysisMetaField(),
+                ...questionFields(hideUnlessQuestion, false),
+                ...taskFields(hideUnlessTask, false, false),
               ],
               preview: {
                 select: {stepType: 'stepType', title: 'stepTitle', question: 'label', scenarioKey: 'scenarioKey'},
