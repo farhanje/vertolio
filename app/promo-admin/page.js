@@ -32,14 +32,19 @@ function Metric({label, value}) {
   )
 }
 
+function titleCase(value) {
+  return String(value || '').split('_').map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(' ')
+}
+
 export default async function PromoAdminPage() {
   const sb = supabaseServer()
 
-  const [sourcesResult, jobsResult, reviewResult, promotionsResult] = await Promise.all([
+  const [sourcesResult, jobsResult, reviewResult, promotionsResult, outletsResult] = await Promise.all([
     sb.from('promo_sources').select('*').order('name'),
     sb.from('promo_ingestion_jobs').select('*').order('created_at', {ascending: false}).limit(20),
     sb.from('promo_review_queue').select('id', {count: 'exact', head: true}).in('status', ['pending','in_review']),
-    sb.from('promotions').select('id,publication_status,status,created_at'),
+    sb.from('promotions').select('id,publication_status,status,created_at,primary_category,cities,outlet_count,segmentation_method'),
+    sb.from('promo_outlets').select('id', {count: 'exact', head: true}),
   ])
 
   const sources = sourcesResult.data || []
@@ -50,23 +55,27 @@ export default async function PromoAdminPage() {
   const today = new Date().toISOString().slice(0, 10)
   const foundToday = promotions.filter((promo) => String(promo.created_at || '').startsWith(today)).length
   const autoPublished = promotions.filter((promo) => promo.publication_status === 'published').length
+  const categorized = promotions.filter((promo) => promo.primary_category && promo.primary_category !== 'other').length
+  const cityTagged = promotions.filter((promo) => (promo.cities || []).length > 0).length
+  const llmSorted = promotions.filter((promo) => promo.segmentation_method === 'llm_hybrid').length
   const openReviews = reviewResult.count || 0
+  const outletRows = outletsResult.count || 0
+
+  const categoryCounts = promotions.reduce((accumulator, promo) => {
+    const key = promo.primary_category || 'other'
+    accumulator[key] = (accumulator[key] || 0) + 1
+    return accumulator
+  }, {})
+  const topCategories = Object.entries(categoryCounts).sort((a, b) => b[1] - a[1]).slice(0, 8)
 
   return (
     <main className="container" style={{paddingTop: 96, paddingBottom: 96}}>
       <section className="section tight">
-        <div className="kicker"><span className="dot" /> Promo automation admin</div>
-        <h1 style={{maxWidth: 900}}>Source monitoring and review</h1>
-        <p className="lead" style={{maxWidth: 760}}>
-          Automation is the primary workflow. Register official public sources here, monitor source health,
-          and intervene only when extraction needs review.
+        <div className="kicker"><span className="dot" /> Promo intelligence admin</div>
+        <h1 style={{maxWidth: 900}}>Automated sources, segmentation, and location coverage</h1>
+        <p className="lead" style={{maxWidth: 800}}>
+          The ingestion worker now sorts promos automatically by category and geographic scope. Expired promos are removed automatically; review remains available only as a fallback.
         </p>
-
-        <div className="cta-row" style={{marginTop: 20}}>
-          <a className="btn primary" href="/promo-admin/review">
-            Open review queue{openReviews ? ` (${openReviews})` : ''}
-          </a>
-        </div>
 
         <PromoAdminActions
           sources={sources.map(({id, name}) => ({id, name}))}
@@ -75,12 +84,30 @@ export default async function PromoAdminPage() {
 
         <div className="grid12" style={{marginTop: 36}}>
           <div style={{gridColumn: 'span 3'}}><Metric label="Healthy sources" value={sources.filter((s) => s.status === 'healthy').length} /></div>
-          <div style={{gridColumn: 'span 3'}}><Metric label="Degraded or failing" value={sources.filter((s) => ['degraded','failing','delayed'].includes(s.status)).length} /></div>
           <div style={{gridColumn: 'span 3'}}><Metric label="Active jobs" value={activeJobs.length} /></div>
-          <div style={{gridColumn: 'span 3'}}><Metric label="Review queue" value={openReviews} /></div>
-          <div style={{gridColumn: 'span 3'}}><Metric label="Promos found today" value={foundToday} /></div>
           <div style={{gridColumn: 'span 3'}}><Metric label="Auto-published" value={autoPublished} /></div>
+          <div style={{gridColumn: 'span 3'}}><Metric label="Promos found today" value={foundToday} /></div>
+          <div style={{gridColumn: 'span 3'}}><Metric label="Categorized" value={categorized} /></div>
+          <div style={{gridColumn: 'span 3'}}><Metric label="City-tagged" value={cityTagged} /></div>
+          <div style={{gridColumn: 'span 3'}}><Metric label="Atomic outlets" value={outletRows} /></div>
+          <div style={{gridColumn: 'span 3'}}><Metric label="LLM-sorted" value={llmSorted} /></div>
         </div>
+
+        {topCategories.length ? (
+          <div style={{border: '1px solid var(--hair)', padding: 18, marginTop: 24}}>
+            <div style={{display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap'}}>
+              <strong>Current category distribution</strong>
+              <a href="/promo-admin/review" style={{fontSize: 13, color: 'var(--muted)'}}>Fallback review ({openReviews})</a>
+            </div>
+            <div style={{display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 14}}>
+              {topCategories.map(([category, count]) => (
+                <span key={category} style={{border: '1px solid var(--hair2)', padding: '7px 10px', fontSize: 13}}>
+                  {titleCase(category)} · {count}
+                </span>
+              ))}
+            </div>
+          </div>
+        ) : null}
 
         <div className="hr" style={{margin: '44px 0'}} />
 
@@ -108,7 +135,7 @@ export default async function PromoAdminPage() {
                     <td style={{padding: '12px 8px', borderBottom: '1px solid var(--hair2)'}}>{source.last_success_at ? formatJakarta(source.last_success_at) : 'Never'}</td>
                     <td style={{padding: '12px 8px', borderBottom: '1px solid var(--hair2)'}}>{source.next_run_at ? formatJakarta(source.next_run_at) : 'Not scheduled'}</td>
                     <td style={{padding: '12px 8px', borderBottom: '1px solid var(--hair2)'}}>{source.consecutive_failure_count}</td>
-                    <td style={{padding: '12px 8px', borderBottom: '1px solid var(--hair2)'}}>{source.auto_publish_enabled ? 'Allowed' : 'Review first'}</td>
+                    <td style={{padding: '12px 8px', borderBottom: '1px solid var(--hair2)'}}>{source.auto_publish_enabled ? 'Automatic' : 'Confidence gated'}</td>
                   </tr>
                 )) : (
                   <tr>
@@ -136,8 +163,8 @@ export default async function PromoAdminPage() {
                   <span style={{fontSize: 12, color: 'var(--muted)'}}>{formatJakarta(job.created_at)}</span>
                 </div>
                 <div style={{fontSize: 13, color: 'var(--muted)', marginTop: 8}}>
-                  Discovered {job.records_discovered} · Created {job.records_created} · Updated {job.records_updated} ·
-                  Unchanged {job.records_unchanged} · Review {job.records_requiring_review}
+                  Discovered {job.records_discovered || 0} · Created {job.records_created || 0} · Updated {job.records_updated || 0} ·
+                  Unchanged {job.records_unchanged || 0} · Deleted expired {job.records_deleted || 0} · Skipped expired {job.records_expired_skipped || 0}
                 </div>
                 {job.error_message ? <div style={{fontSize: 13, marginTop: 8}}>{job.error_message}</div> : null}
               </div>
