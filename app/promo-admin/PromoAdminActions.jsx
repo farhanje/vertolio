@@ -2,15 +2,6 @@
 
 import { useState } from 'react'
 
-const initialForm = {
-  name: '',
-  baseUrl: '',
-  adapterKey: 'generic-html',
-  frequency: 'every_6_hours',
-  minimumConfidence: '0.90',
-  maxPagesPerRun: '25',
-}
-
 async function readJson(response) {
   const data = await response.json().catch(() => ({}))
   if (!response.ok) throw new Error(data.detail || data.error || 'Request failed')
@@ -21,91 +12,77 @@ function money(value) {
   return `$${Number(value || 0).toFixed(4)}`
 }
 
-function processedSummary(data) {
-  const counters = data.processed?.[0]?.counters
-  if (!counters) return `${data.processed?.length || 0} job(s) processed`
-
-  return [
-    `${data.processed.length} job(s) processed`,
-    `Gemini calls ${counters.llmCalled || 0}`,
-    `cache ${counters.llmCached || 0}`,
-    `failures ${counters.llmFailed || 0}`,
-    `budget skips ${counters.llmBudgetSkipped || 0}`,
-    `unchanged skips ${counters.llmSkippedUnchanged || 0}`,
-  ].join(' · ')
+function totalCounters(processed = []) {
+  return processed.reduce((totals, item) => {
+    for (const [key, value] of Object.entries(item?.counters || {})) {
+      totals[key] = Number(totals[key] || 0) + Number(value || 0)
+    }
+    return totals
+  }, {})
 }
 
-export default function PromoAdminActions({sources = [], adapters = [], llmConfig = {}, llmSummary = {}}) {
+export default function PromoAdminActions({sourceCount = 0, llmConfig = {}, llmSummary = {}}) {
   const [runState, setRunState] = useState({status: 'idle', message: ''})
-  const [addState, setAddState] = useState({status: 'idle', message: ''})
-  const [llmState, setLlmState] = useState({status: 'idle', message: ''})
-  const [sourceId, setSourceId] = useState('')
-  const [form, setForm] = useState(initialForm)
+  const [setupState, setSetupState] = useState({status: 'idle', message: ''})
+  const [diagnosticState, setDiagnosticState] = useState({status: 'idle', message: ''})
+  const [sourceForm, setSourceForm] = useState({name: '', baseUrl: ''})
 
-  function updateField(key, value) {
-    setForm((current) => ({...current, [key]: value}))
-  }
-
-  async function testLlm() {
-    setLlmState({status: 'running', message: 'Testing Gemini connection…'})
-    try {
-      const data = await readJson(await fetch('/api/promo-admin/llm/test', {method: 'POST'}))
-      const category = data.result?.category || 'unknown'
-      const city = data.result?.city || 'unknown'
-      setLlmState({
-        status: 'done',
-        message: `Health check passed in ${data.latencyMs} ms · ${category} · ${city} · ${data.inputTokens || 0} input / ${data.outputTokens || 0} output tokens · ${money(data.estimatedCostUsd)} paid-equivalent cost. This test does not increase Gemini-sorted until a real promo is processed.`,
-      })
-    } catch (error) {
-      setLlmState({status: 'error', message: String(error?.message || error)})
-    }
-  }
-
-  async function runCheck() {
-    setRunState({status: 'running', message: 'Running source check…'})
+  async function runAutomaticUpdate() {
+    setRunState({status: 'running', message: 'Checking every active source…'})
 
     try {
       const data = await readJson(await fetch('/api/promo-admin/run', {
         method: 'POST',
         headers: {'content-type': 'application/json'},
-        body: JSON.stringify({sourceId: sourceId || null}),
+        body: JSON.stringify({action: 'run_all'}),
       }))
-
-      setRunState({
-        status: 'done',
-        message: `${processedSummary(data)}. Refresh to see categories, cities, outlet records, and LLM usage.`,
-      })
+      const totals = totalCounters(data.processed)
+      const parts = [
+        `${data.processed?.length || 0} source job(s) finished`,
+        `${totals.aiEnriched || 0} AI-processed`,
+        `${totals.created || 0} new`,
+        `${totals.updated || 0} updated`,
+        `${totals.notPromotion || 0} rejected as non-promos`,
+        `${totals.duplicates || 0} duplicates blocked`,
+        `${totals.deleted || 0} expired removed`,
+      ]
+      if (data.remainingJobs) parts.push(`${data.remainingJobs} queued for the scheduler`)
+      setRunState({status: 'done', message: parts.join(' · ')})
+      window.setTimeout(() => window.location.reload(), 1200)
     } catch (error) {
       setRunState({status: 'error', message: String(error?.message || error)})
     }
   }
 
-  async function forceGeminiRetry() {
-    if (!sourceId) {
-      setRunState({status: 'error', message: 'Select one source before forcing a Gemini retry.'})
-      return
-    }
-
-    setRunState({status: 'running', message: 'Clearing the cooldown and retrying Gemini for the selected source…'})
+  async function addSource(event) {
+    event.preventDefault()
+    setSetupState({status: 'running', message: 'Adding official source…'})
 
     try {
-      const data = await readJson(await fetch('/api/promo-admin/run', {
+      const data = await readJson(await fetch('/api/promo-admin/sources', {
         method: 'POST',
         headers: {'content-type': 'application/json'},
-        body: JSON.stringify({sourceId, forceLlmRetry: true}),
+        body: JSON.stringify({
+          ...sourceForm,
+          adapterKey: 'generic-html',
+          frequency: 'every_6_hours',
+          minimumConfidence: 0.85,
+          maxPagesPerRun: 25,
+        }),
       }))
-
-      setRunState({
+      setSetupState({
         status: 'done',
-        message: `Gemini retry unlocked for ${data.forcedRetryRows || 0} existing promo(s) · ${processedSummary(data)}. Refresh the dashboard after this run.`,
+        message: data.created ? 'Source added. It will be included in the next automatic update.' : 'Source already existed and was re-enabled.',
       })
+      setSourceForm({name: '', baseUrl: ''})
+      window.setTimeout(() => window.location.reload(), 900)
     } catch (error) {
-      setRunState({status: 'error', message: String(error?.message || error)})
+      setSetupState({status: 'error', message: String(error?.message || error)})
     }
   }
 
   async function installStarterSources() {
-    setAddState({status: 'running', message: 'Installing starter sources…'})
+    setSetupState({status: 'running', message: 'Updating starter sources…'})
     try {
       const data = await readJson(await fetch('/api/promo-admin/sources', {
         method: 'POST',
@@ -114,171 +91,100 @@ export default function PromoAdminActions({sources = [], adapters = [], llmConfi
       }))
       const created = (data.results || []).filter((item) => item.created).length
       const updated = (data.results || []).filter((item) => item.updated).length
-      setAddState({status: 'done', message: `${created} source(s) added and ${updated} source(s) updated for automatic publishing. Reloading…`})
-      window.setTimeout(() => window.location.reload(), 700)
+      setSetupState({status: 'done', message: `${created} starter source(s) added · ${updated} refreshed.`})
+      window.setTimeout(() => window.location.reload(), 900)
     } catch (error) {
-      setAddState({status: 'error', message: String(error?.message || error)})
+      setSetupState({status: 'error', message: String(error?.message || error)})
     }
   }
 
-  async function addSource(event) {
-    event.preventDefault()
-    setAddState({status: 'running', message: 'Adding source…'})
-
+  async function testConnection() {
+    setDiagnosticState({status: 'running', message: 'Testing Gemini…'})
     try {
-      const data = await readJson(await fetch('/api/promo-admin/sources', {
-        method: 'POST',
-        headers: {'content-type': 'application/json'},
-        body: JSON.stringify(form),
-      }))
-      setAddState({
+      const data = await readJson(await fetch('/api/promo-admin/llm/test', {method: 'POST'}))
+      setDiagnosticState({
         status: 'done',
-        message: data.created ? 'Source added with a confidence gate. Reloading…' : 'That source already exists. Reloading…',
+        message: `Gemini connected in ${data.latencyMs} ms · ${data.inputTokens || 0} input / ${data.outputTokens || 0} output tokens · ${money(data.estimatedCostUsd)} paid-equivalent cost.`,
       })
-      setForm(initialForm)
-      window.setTimeout(() => window.location.reload(), 700)
     } catch (error) {
-      setAddState({status: 'error', message: String(error?.message || error)})
+      setDiagnosticState({status: 'error', message: String(error?.message || error)})
     }
   }
 
-  const fieldStyle = {
-    width: '100%',
-    minHeight: 42,
+  const statusColor = runState.status === 'error' ? 'var(--fg)' : 'var(--muted)'
+  const inputStyle = {
+    minHeight: 44,
     border: '1px solid var(--hair)',
     background: 'var(--bg)',
     color: 'var(--fg)',
-    padding: '9px 10px',
+    padding: '10px 12px',
     font: 'inherit',
+    width: '100%',
   }
 
   return (
-    <div style={{display: 'grid', gap: 22, marginTop: 24, maxWidth: 900}}>
-      <div style={{border: '1px solid var(--hair)', padding: 16, display: 'grid', gap: 12}}>
+    <div style={{display: 'grid', gap: 18, marginTop: 28, maxWidth: 920}}>
+      <section style={{border: '1px solid var(--hair)', padding: 20, display: 'grid', gap: 14}}>
         <div>
-          <strong>Gemini promo sorter</strong>
-          <p style={{margin: '4px 0 0', color: 'var(--muted)', fontSize: 14}}>
-            {llmConfig.provider || 'gemini'} · {llmConfig.model || 'gemini-3.1-flash-lite'} · {llmConfig.mode || 'new_changed'} mode · hard cap ${Number(llmConfig.monthlyBudgetUsd || 5).toFixed(2)}/month.
-            {' '}{llmConfig.apiKeyConfigured ? 'API key detected.' : 'GEMINI_API_KEY is missing, so rules are used.'}
-          </p>
-          <p style={{margin: '6px 0 0', color: 'var(--muted)', fontSize: 13}}>
-            This month: {llmSummary.calls || 0} successful call(s), {llmSummary.cacheHits || 0} cache hit(s), {llmSummary.failures || 0} failure(s), {llmSummary.budgetSkips || 0} budget skip(s), {money(llmSummary.estimatedCostUsd)} paid-equivalent usage.
+          <strong style={{fontSize: 18}}>Run the promo engine</strong>
+          <p style={{margin: '6px 0 0', color: 'var(--muted)', maxWidth: 720}}>
+            Checks all {sourceCount} active source(s), uses Gemini only for new or changed pages, verifies the terms, blocks duplicates, and removes expired promos automatically.
           </p>
         </div>
         <div>
-          <button className="btn" type="button" onClick={testLlm} disabled={llmState.status === 'running' || !llmConfig.apiKeyConfigured}>
-            {llmState.status === 'running' ? 'Testing…' : 'Test Gemini connection'}
+          <button className="btn primary" type="button" onClick={runAutomaticUpdate} disabled={runState.status === 'running' || sourceCount === 0}>
+            {runState.status === 'running' ? 'Running automatic update…' : 'Run automatic update'}
           </button>
         </div>
-        {llmState.message ? <span style={{fontSize: 14, color: llmState.status === 'error' ? 'var(--fg)' : 'var(--muted)'}}>{llmState.message}</span> : null}
-        {!llmSummary.available && llmSummary.error ? (
-          <span style={{fontSize: 13, color: 'var(--muted)'}}>Run the promo LLM budget migration before testing: {llmSummary.error}</span>
-        ) : null}
-      </div>
+        {runState.message ? <div style={{fontSize: 14, color: statusColor}}>{runState.message}</div> : null}
+      </section>
 
-      <div style={{border: '1px solid var(--hair)', padding: 16, display: 'grid', gap: 10}}>
-        <div>
-          <strong>Recommended starting sources</strong>
-          <p style={{margin: '4px 0 0', color: 'var(--muted)', fontSize: 14}}>
-            Install BCA and Ultra Voucher with automatic high-confidence publishing. New or changed results are categorized and location-tagged; unchanged pages skip the LLM entirely.
+      {!llmConfig.apiKeyConfigured ? (
+        <section style={{border: '1px solid var(--hair)', padding: 16}}>
+          <strong>Gemini is not connected</strong>
+          <p style={{margin: '6px 0 0', color: 'var(--muted)', fontSize: 14}}>
+            The engine will still run with rules, but full date, eligibility, quota, category, and location interpretation requires GEMINI_API_KEY in Vercel Production.
           </p>
-        </div>
-        <div>
-          <button className="btn primary" type="button" onClick={installStarterSources} disabled={addState.status === 'running'}>
-            Install or update BCA + Ultra Voucher
-          </button>
-        </div>
-      </div>
-
-      <div style={{display: 'grid', gap: 10}}>
-        <strong>Run a source check</strong>
-        <div style={{display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap'}}>
-          <select
-            style={{...fieldStyle, width: 'auto', minWidth: 260}}
-            value={sourceId}
-            onChange={(event) => setSourceId(event.target.value)}
-            aria-label="Source to check"
-          >
-            <option value="">All due sources</option>
-            {sources.map((source) => (
-              <option key={source.id} value={source.id}>{source.name}</option>
-            ))}
-          </select>
-          <button className="btn" type="button" onClick={runCheck} disabled={runState.status === 'running'}>
-            {runState.status === 'running' ? 'Running…' : 'Run source check'}
-          </button>
-          <button
-            className="btn"
-            type="button"
-            onClick={forceGeminiRetry}
-            disabled={runState.status === 'running' || !sourceId || !llmConfig.apiKeyConfigured}
-          >
-            Retry Gemini now
-          </button>
-        </div>
-        <span style={{fontSize: 13, color: 'var(--muted)'}}>
-          Use “Retry Gemini now” after fixing an API-key, quota, or migration error. It clears the 24-hour failure cooldown only for the selected source.
-        </span>
-        {runState.message ? <span style={{fontSize: 14, color: runState.status === 'error' ? 'var(--fg)' : 'var(--muted)'}}>{runState.message}</span> : null}
-      </div>
+        </section>
+      ) : null}
 
       <details style={{border: '1px solid var(--hair)', padding: 16}}>
-        <summary style={{cursor: 'pointer', fontWeight: 800}}>Add another public source</summary>
+        <summary style={{cursor: 'pointer', fontWeight: 800}}>Add a source</summary>
         <p style={{color: 'var(--muted)', fontSize: 14, maxWidth: 720}}>
-          Use the generic adapter for a new official public webpage. It starts behind a confidence gate; a dedicated adapter can be added later for special discovery or parsing rules.
+          Add the official promotion listing URL from a bank, wallet, voucher platform, or merchant. The default crawler checks it every six hours.
         </p>
-
-        <form onSubmit={addSource} style={{display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 14, marginTop: 16}}>
+        <form onSubmit={addSource} style={{display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1.5fr) auto', gap: 10, alignItems: 'end', marginTop: 14}}>
           <label style={{display: 'grid', gap: 6}}>
             <span style={{fontSize: 13, fontWeight: 700}}>Source name</span>
-            <input required value={form.name} onChange={(event) => updateField('name', event.target.value)} style={fieldStyle} placeholder="Qpon promotions" />
+            <input required value={sourceForm.name} onChange={(event) => setSourceForm((current) => ({...current, name: event.target.value}))} style={inputStyle} placeholder="Bank Jago Promotions" />
           </label>
-
           <label style={{display: 'grid', gap: 6}}>
-            <span style={{fontSize: 13, fontWeight: 700}}>Official public URL</span>
-            <input required type="url" value={form.baseUrl} onChange={(event) => updateField('baseUrl', event.target.value)} style={fieldStyle} placeholder="https://example.com/promos" />
+            <span style={{fontSize: 13, fontWeight: 700}}>Official promo URL</span>
+            <input required type="url" value={sourceForm.baseUrl} onChange={(event) => setSourceForm((current) => ({...current, baseUrl: event.target.value}))} style={inputStyle} placeholder="https://www.example.com/promotions" />
           </label>
-
-          <label style={{display: 'grid', gap: 6}}>
-            <span style={{fontSize: 13, fontWeight: 700}}>Adapter</span>
-            <select value={form.adapterKey} onChange={(event) => updateField('adapterKey', event.target.value)} style={fieldStyle}>
-              {adapters.map((adapter) => (
-                <option key={adapter.key} value={adapter.key}>{adapter.label}</option>
-              ))}
-            </select>
-          </label>
-
-          <label style={{display: 'grid', gap: 6}}>
-            <span style={{fontSize: 13, fontWeight: 700}}>Check frequency</span>
-            <select value={form.frequency} onChange={(event) => updateField('frequency', event.target.value)} style={fieldStyle}>
-              <option value="every_hour">Every hour</option>
-              <option value="every_3_hours">Every 3 hours</option>
-              <option value="every_6_hours">Every 6 hours</option>
-              <option value="every_12_hours">Every 12 hours</option>
-              <option value="daily">Daily</option>
-              <option value="weekly">Weekly</option>
-            </select>
-          </label>
-
-          <label style={{display: 'grid', gap: 6}}>
-            <span style={{fontSize: 13, fontWeight: 700}}>Confidence threshold</span>
-            <input type="number" min="0.5" max="1" step="0.01" value={form.minimumConfidence} onChange={(event) => updateField('minimumConfidence', event.target.value)} style={fieldStyle} />
-          </label>
-
-          <label style={{display: 'grid', gap: 6}}>
-            <span style={{fontSize: 13, fontWeight: 700}}>Maximum pages per run</span>
-            <input type="number" min="1" max="100" value={form.maxPagesPerRun} onChange={(event) => updateField('maxPagesPerRun', event.target.value)} style={fieldStyle} />
-          </label>
-
-          <div style={{gridColumn: '1 / -1'}}>
-            <button className="btn primary" type="submit" disabled={addState.status === 'running'}>
-              {addState.status === 'running' ? 'Adding…' : 'Add source with confidence gate'}
-            </button>
-          </div>
+          <button className="btn" type="submit" disabled={setupState.status === 'running'}>Add source</button>
         </form>
+        {setupState.message ? <div style={{fontSize: 14, color: setupState.status === 'error' ? 'var(--fg)' : 'var(--muted)', marginTop: 10}}>{setupState.message}</div> : null}
       </details>
 
-      {addState.message ? <span style={{fontSize: 14, color: 'var(--muted)'}}>{addState.message}</span> : null}
+      <details style={{border: '1px solid var(--hair)', padding: 16}}>
+        <summary style={{cursor: 'pointer', fontWeight: 800}}>Setup and diagnostics</summary>
+        <div style={{display: 'grid', gap: 12, marginTop: 14}}>
+          <div style={{fontSize: 14, color: 'var(--muted)'}}>
+            Gemini: {llmConfig.apiKeyConfigured ? 'connected' : 'not configured'} · Model: {llmConfig.model || 'gemini-3.1-flash-lite'} · This month: {llmSummary.calls || 0} calls, {llmSummary.failures || 0} failures, {money(llmSummary.estimatedCostUsd)} / ${Number(llmConfig.monthlyBudgetUsd || 5).toFixed(2)}.
+          </div>
+          <div style={{display: 'flex', gap: 10, flexWrap: 'wrap'}}>
+            <button className="btn" type="button" onClick={testConnection} disabled={diagnosticState.status === 'running' || !llmConfig.apiKeyConfigured}>
+              {diagnosticState.status === 'running' ? 'Testing…' : 'Test Gemini connection'}
+            </button>
+            <button className="btn" type="button" onClick={installStarterSources} disabled={setupState.status === 'running'}>
+              Restore BCA + Ultra Voucher
+            </button>
+          </div>
+          {diagnosticState.message ? <div style={{fontSize: 14, color: diagnosticState.status === 'error' ? 'var(--fg)' : 'var(--muted)'}}>{diagnosticState.message}</div> : null}
+          {!llmSummary.available && llmSummary.error ? <div style={{fontSize: 13, color: 'var(--muted)'}}>Database setup required: {llmSummary.error}</div> : null}
+        </div>
+      </details>
     </div>
   )
 }
