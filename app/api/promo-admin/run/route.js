@@ -4,13 +4,56 @@ import { processQueuedPromoJobs } from '@/lib/promo/ingestion'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
-export const maxDuration = 300
+export const maxDuration = 60
 
 function ensureFullExtractionOutputBudget() {
   const configured = Number(process.env.PROMO_LLM_MAX_OUTPUT_TOKENS || 0)
   if (!Number.isFinite(configured) || configured < 2600) {
     process.env.PROMO_LLM_MAX_OUTPUT_TOKENS = '2600'
   }
+}
+
+function staleRunningCutoff() {
+  return new Date(Date.now() - 90 * 1000).toISOString()
+}
+
+async function recoverStaleRunningJobs(sb, sourceIds = []) {
+  let query = sb
+    .from('promo_ingestion_jobs')
+    .update({
+      status: 'queued',
+      scheduled_at: new Date().toISOString(),
+      retry_at: null,
+      started_at: null,
+      completed_at: null,
+      error_message: null,
+    })
+    .eq('status', 'running')
+    .lt('started_at', staleRunningCutoff())
+
+  if (sourceIds.length) query = query.in('source_id', sourceIds)
+  const recovered = await query.select('id')
+  if (recovered.error) throw recovered.error
+  return recovered.data?.length || 0
+}
+
+async function reactivateDelayedRetries(sb, sourceIds = []) {
+  let query = sb
+    .from('promo_ingestion_jobs')
+    .update({
+      status: 'queued',
+      scheduled_at: new Date().toISOString(),
+      retry_at: null,
+      started_at: null,
+      completed_at: null,
+      error_message: null,
+    })
+    .eq('status', 'retrying')
+
+  if (sourceIds.length) query = query.in('source_id', sourceIds)
+  const reactivated = await query.select('id')
+  if (reactivated.error) throw reactivated.error
+  return reactivated.data?.length || 0
 }
 
 async function makeSourceRunnableNow(sb, sourceId) {
@@ -23,9 +66,7 @@ async function makeSourceRunnableNow(sb, sourceId) {
 
   if (existing.error) throw existing.error
 
-  const now = new Date()
-  const nowIso = now.toISOString()
-  const staleRunningBefore = new Date(now.getTime() - 15 * 60 * 1000)
+  const nowIso = new Date().toISOString()
 
   if (!existing.data) {
     const created = await sb.from('promo_ingestion_jobs').insert({
@@ -38,10 +79,7 @@ async function makeSourceRunnableNow(sb, sourceId) {
     return 'created'
   }
 
-  if (existing.data.status === 'running') {
-    const startedAt = existing.data.started_at ? new Date(existing.data.started_at) : null
-    if (startedAt && startedAt > staleRunningBefore) return 'already_running'
-  }
+  if (existing.data.status === 'running') return 'already_running'
 
   const reactivated = await sb
     .from('promo_ingestion_jobs')
@@ -83,55 +121,69 @@ async function unlockIncompleteIntelligence(sb, sourceIds) {
   return reset.data?.length || 0
 }
 
+async function activeJobCount(sb) {
+  const result = await sb
+    .from('promo_ingestion_jobs')
+    .select('id', {count: 'exact', head: true})
+    .in('status', ['queued','running','retrying'])
+
+  if (result.error) throw result.error
+  return result.count || 0
+}
+
 export async function POST(request) {
   try {
     ensureFullExtractionOutputBudget()
     const runStartedAt = new Date().toISOString()
     const body = await request.json().catch(() => ({}))
+    const action = body.action === 'continue' ? 'continue' : 'start'
     const sourceId = String(body.sourceId || '').trim()
     const sb = supabaseServer()
-
-    let sourceIds = []
-    if (sourceId) {
-      sourceIds = [sourceId]
-    } else {
-      const sources = await sb
-        .from('promo_sources')
-        .select('id')
-        .eq('enabled', true)
-        .not('status', 'in', '(paused,unsupported)')
-        .order('name')
-
-      if (sources.error) throw sources.error
-      sourceIds = (sources.data || []).map((source) => source.id)
-    }
-
-    const retryUnlocked = await unlockIncompleteIntelligence(sb, sourceIds)
     const queueActions = {
       created: 0,
       reactivated: 0,
       alreadyQueued: 0,
       alreadyRunning: 0,
+      staleRecovered: 0,
+      delayedRetriesReactivated: 0,
+    }
+    let retryUnlocked = 0
+    let sourceIds = []
+
+    if (action === 'start') {
+      if (sourceId) {
+        sourceIds = [sourceId]
+      } else {
+        const sources = await sb
+          .from('promo_sources')
+          .select('id')
+          .eq('enabled', true)
+          .not('status', 'in', '(paused,unsupported)')
+          .order('name')
+
+        if (sources.error) throw sources.error
+        sourceIds = (sources.data || []).map((source) => source.id)
+      }
+
+      queueActions.staleRecovered = await recoverStaleRunningJobs(sb, sourceIds)
+      queueActions.delayedRetriesReactivated = await reactivateDelayedRetries(sb, sourceIds)
+      retryUnlocked = await unlockIncompleteIntelligence(sb, sourceIds)
+
+      for (const id of sourceIds) {
+        const queueAction = await makeSourceRunnableNow(sb, id)
+        if (queueAction === 'created') queueActions.created += 1
+        if (queueAction === 'reactivated') queueActions.reactivated += 1
+        if (queueAction === 'already_queued') queueActions.alreadyQueued += 1
+        if (queueAction === 'already_running') queueActions.alreadyRunning += 1
+      }
+    } else {
+      queueActions.staleRecovered = await recoverStaleRunningJobs(sb)
+      queueActions.delayedRetriesReactivated = await reactivateDelayedRetries(sb)
     }
 
-    for (const id of sourceIds) {
-      const action = await makeSourceRunnableNow(sb, id)
-      if (action === 'created') queueActions.created += 1
-      if (action === 'reactivated') queueActions.reactivated += 1
-      if (action === 'already_queued') queueActions.alreadyQueued += 1
-      if (action === 'already_running') queueActions.alreadyRunning += 1
-    }
-
-    const runnableCount = queueActions.created + queueActions.reactivated + queueActions.alreadyQueued
-    const processed = runnableCount > 0
-      ? await processQueuedPromoJobs(Math.min(runnableCount, 3))
-      : []
-
-    const [remaining, latestFailure] = await Promise.all([
-      sb
-        .from('promo_ingestion_jobs')
-        .select('id', {count: 'exact', head: true})
-        .in('status', ['queued','running','retrying']),
+    const processed = await processQueuedPromoJobs(1)
+    const [remainingJobs, latestFailure] = await Promise.all([
+      activeJobCount(sb),
       sb
         .from('promo_llm_usage')
         .select('error_message,operation,model,created_at')
@@ -142,18 +194,19 @@ export async function POST(request) {
         .maybeSingle(),
     ])
 
-    if (remaining.error) throw remaining.error
-
     return NextResponse.json({
       ok: true,
+      action,
       queuedSources: queueActions.created,
       reactivatedJobs: queueActions.reactivated,
+      delayedRetriesReactivated: queueActions.delayedRetriesReactivated,
       alreadyQueuedJobs: queueActions.alreadyQueued,
       alreadyRunningJobs: queueActions.alreadyRunning,
+      staleRecoveredJobs: queueActions.staleRecovered,
       totalSources: sourceIds.length,
       retryUnlocked,
       processed,
-      remainingJobs: remaining.count || 0,
+      remainingJobs,
       outputTokenLimit: Number(process.env.PROMO_LLM_MAX_OUTPUT_TOKENS || 2600),
       latestAiFailure: latestFailure.error ? null : latestFailure.data,
     })
