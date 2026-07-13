@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 
+const MAX_AUTOMATIC_BATCHES = 80
+
 async function readJson(response) {
   const data = await response.json().catch(() => ({}))
   if (!response.ok) throw new Error(data.detail || data.error || 'Request failed')
@@ -10,6 +12,10 @@ async function readJson(response) {
 
 function money(value) {
   return `$${Number(value || 0).toFixed(4)}`
+}
+
+function sleep(milliseconds) {
+  return new Promise((resolve) => window.setTimeout(resolve, milliseconds))
 }
 
 function totalCounters(processed = []) {
@@ -21,6 +27,40 @@ function totalCounters(processed = []) {
   }, {})
 }
 
+function runSummary({processed, setup, remainingJobs, latestFailure, running = false}) {
+  const totals = totalCounters(processed)
+  const parts = [
+    `${processed.length} safe batch(es) finished`,
+    `${totals.aiEnriched || 0} AI-processed`,
+    `${totals.llmCalled || 0} Gemini call(s)`,
+    `${totals.llmCached || 0} cache hit(s)`,
+    `${totals.created || 0} new`,
+    `${totals.updated || 0} updated`,
+    `${totals.notPromotion || 0} rejected as non-promos`,
+    `${totals.duplicates || 0} duplicates blocked`,
+    `${totals.deleted || 0} expired removed`,
+  ]
+
+  if (setup?.retryUnlocked) parts.push(`${setup.retryUnlocked} incomplete promo(s) unlocked`)
+  if (setup?.reactivatedJobs) parts.push(`${setup.reactivatedJobs} delayed job(s) reactivated`)
+  if (setup?.staleRecoveredJobs) parts.push(`${setup.staleRecoveredJobs} timed-out job(s) recovered`)
+  if (setup?.queuedSources) parts.push(`${setup.queuedSources} source job(s) created`)
+  if (totals.llmFailed) parts.push(`${totals.llmFailed} Gemini failure(s)`)
+  if (remainingJobs) parts.push(`${remainingJobs} batch job(s) remaining`)
+  if (running && remainingJobs) parts.push('continuing automatically…')
+  if (latestFailure?.error_message) parts.push(`Latest Gemini error: ${latestFailure.error_message}`)
+
+  return parts.join(' · ')
+}
+
+async function postEngineAction(action) {
+  return readJson(await fetch('/api/promo-admin/run', {
+    method: 'POST',
+    headers: {'content-type': 'application/json'},
+    body: JSON.stringify({action}),
+  }))
+}
+
 export default function PromoAdminActions({sourceCount = 0, llmConfig = {}, llmSummary = {}}) {
   const [runState, setRunState] = useState({status: 'idle', message: ''})
   const [setupState, setSetupState] = useState({status: 'idle', message: ''})
@@ -28,45 +68,70 @@ export default function PromoAdminActions({sourceCount = 0, llmConfig = {}, llmS
   const [sourceForm, setSourceForm] = useState({name: '', baseUrl: ''})
 
   async function runAutomaticUpdate() {
-    setRunState({status: 'running', message: 'Reactivating delayed jobs and processing the active sources now…'})
+    setRunState({status: 'running', message: 'Preparing short, resumable promo batches…'})
+
+    const processed = []
+    let setup = null
+    let remainingJobs = 0
+    let latestFailure = null
 
     try {
-      const data = await readJson(await fetch('/api/promo-admin/run', {
-        method: 'POST',
-        headers: {'content-type': 'application/json'},
-        body: JSON.stringify({action: 'run_all'}),
-      }))
-      const totals = totalCounters(data.processed)
-      const parts = [
-        `${data.processed?.length || 0} source job(s) actually finished`,
-        `${totals.aiEnriched || 0} AI-processed`,
-        `${totals.created || 0} new`,
-        `${totals.updated || 0} updated`,
-        `${totals.notPromotion || 0} rejected as non-promos`,
-        `${totals.duplicates || 0} duplicates blocked`,
-        `${totals.deleted || 0} expired removed`,
-      ]
-      if (data.retryUnlocked) parts.push(`${data.retryUnlocked} incomplete promo(s) unlocked for AI retry`)
-      if (data.reactivatedJobs) parts.push(`${data.reactivatedJobs} delayed source job(s) reactivated`)
-      if (data.queuedSources) parts.push(`${data.queuedSources} new source job(s) created`)
-      if (data.alreadyRunningJobs) parts.push(`${data.alreadyRunningJobs} source job(s) already running`)
-      if (totals.llmCalled) parts.push(`${totals.llmCalled} Gemini call(s)`)
-      if (totals.llmCached) parts.push(`${totals.llmCached} cache hit(s)`)
-      if (totals.llmFailed) parts.push(`${totals.llmFailed} Gemini failure(s)`)
-      if (data.remainingJobs) parts.push(`${data.remainingJobs} job(s) still active`)
-      if (data.latestAiFailure?.error_message) {
-        parts.push(`Latest Gemini error: ${data.latestAiFailure.error_message}`)
-      }
-      if (!data.processed?.length && data.remainingJobs) {
-        parts.push('No job was claimable in this request; the active-job status above explains why')
-      }
+      let data = await postEngineAction('start')
+      setup = data
+      processed.push(...(data.processed || []))
+      remainingJobs = Number(data.remainingJobs || 0)
+      latestFailure = data.latestAiFailure || null
+
       setRunState({
-        status: data.latestAiFailure ? 'error' : 'done',
-        message: parts.join(' · '),
+        status: latestFailure ? 'error' : 'running',
+        message: runSummary({processed, setup, remainingJobs, latestFailure, running: !latestFailure}),
       })
-      window.setTimeout(() => window.location.reload(), data.latestAiFailure ? 4500 : 2200)
+
+      let batchNumber = 1
+      while (remainingJobs > 0 && !latestFailure && batchNumber < MAX_AUTOMATIC_BATCHES) {
+        await sleep(350)
+        data = await postEngineAction('continue')
+        processed.push(...(data.processed || []))
+        remainingJobs = Number(data.remainingJobs || 0)
+        latestFailure = data.latestAiFailure || null
+        batchNumber += 1
+
+        setRunState({
+          status: latestFailure ? 'error' : 'running',
+          message: runSummary({processed, setup, remainingJobs, latestFailure, running: !latestFailure}),
+        })
+      }
+
+      if (latestFailure) {
+        setRunState({
+          status: 'error',
+          message: runSummary({processed, setup, remainingJobs, latestFailure}),
+        })
+        return
+      }
+
+      if (remainingJobs > 0) {
+        setRunState({
+          status: 'done',
+          message: `${runSummary({processed, setup, remainingJobs, latestFailure})} · Safety pause reached; press Run automatic update again to continue.`,
+        })
+        return
+      }
+
+      setRunState({
+        status: 'done',
+        message: runSummary({processed, setup, remainingJobs: 0, latestFailure: null}),
+      })
+      window.setTimeout(() => window.location.reload(), 1800)
     } catch (error) {
-      setRunState({status: 'error', message: String(error?.message || error)})
+      const message = String(error?.message || error)
+      const networkFailure = /failed to fetch|networkerror|load failed/i.test(message)
+      setRunState({
+        status: 'error',
+        message: networkFailure
+          ? `${runSummary({processed, setup, remainingJobs, latestFailure})} · One batch lost its server connection. Completed batches are already saved; press Run automatic update again to resume.`
+          : `${runSummary({processed, setup, remainingJobs, latestFailure})} · ${message}`,
+      })
     }
   }
 
@@ -144,12 +209,12 @@ export default function PromoAdminActions({sourceCount = 0, llmConfig = {}, llmS
         <div>
           <strong style={{fontSize: 18}}>Run the promo engine</strong>
           <p style={{margin: '6px 0 0', color: 'var(--muted)', maxWidth: 720}}>
-            Checks all {sourceCount} active source(s), immediately reactivates delayed retries, verifies terms with Gemini, blocks duplicates, and removes expired promos automatically.
+            Processes one promo page at a time, continues automatically, verifies terms with Gemini, blocks duplicates, and saves progress after every safe batch.
           </p>
         </div>
         <div>
           <button className="btn primary" type="button" onClick={runAutomaticUpdate} disabled={runState.status === 'running' || sourceCount === 0}>
-            {runState.status === 'running' ? 'Running automatic update…' : 'Run automatic update'}
+            {runState.status === 'running' ? 'Processing safe batches…' : 'Run automatic update'}
           </button>
         </div>
         {runState.message ? <div style={{fontSize: 14, color: statusColor}}>{runState.message}</div> : null}
