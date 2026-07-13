@@ -1,76 +1,78 @@
 import { NextResponse } from 'next/server'
 import { supabaseServer } from '@/lib/supabase.server'
-import { enqueueDuePromoJobs, processQueuedPromoJobs } from '@/lib/promo/ingestion'
-import { getPromoLlmConfig } from '@/lib/promo/llm'
+import { processQueuedPromoJobs } from '@/lib/promo/ingestion'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
 
+async function queueSource(sb, sourceId) {
+  const existing = await sb
+    .from('promo_ingestion_jobs')
+    .select('id')
+    .eq('source_id', sourceId)
+    .in('status', ['queued','running','retrying'])
+    .maybeSingle()
+
+  if (existing.error) throw existing.error
+  if (existing.data) return false
+
+  const created = await sb.from('promo_ingestion_jobs').insert({
+    source_id: sourceId,
+    trigger_type: 'administrator_retry',
+    status: 'queued',
+    scheduled_at: new Date().toISOString(),
+  })
+  if (created.error) throw created.error
+  return true
+}
+
 export async function POST(request) {
   try {
     const body = await request.json().catch(() => ({}))
     const sourceId = String(body.sourceId || '').trim()
-    const forceLlmRetry = Boolean(body.forceLlmRetry)
     const sb = supabaseServer()
-    let forcedRetryRows = 0
 
-    if (forceLlmRetry) {
-      if (!sourceId) throw new Error('Select one source before forcing a Gemini retry')
-
-      const config = getPromoLlmConfig()
-      if (!config.enabled) {
-        throw new Error(config.apiKeyConfigured
-          ? `Gemini is disabled by PROMO_LLM_MODE=${config.mode}`
-          : 'GEMINI_API_KEY is not configured in this deployment')
-      }
-
-      const reset = await sb
-        .from('promotions')
-        .update({
-          segmentation_provider: null,
-          segmentation_model: null,
-          segmentation_prompt_version: null,
-          segmentation_taxonomy_version: null,
-          segmentation_llm_status: null,
-          segmentation_last_attempt_at: null,
-        })
-        .eq('source_id', sourceId)
-        .select('id')
-
-      if (reset.error) throw reset.error
-      forcedRetryRows = reset.data?.length || 0
-    }
-
+    let sourceIds = []
     if (sourceId) {
-      const existing = await sb
-        .from('promo_ingestion_jobs')
-        .select('id')
-        .eq('source_id', sourceId)
-        .in('status', ['queued','running','retrying'])
-        .maybeSingle()
-
-      if (existing.error) throw existing.error
-      if (!existing.data) {
-        const created = await sb.from('promo_ingestion_jobs').insert({
-          source_id: sourceId,
-          trigger_type: 'administrator_retry',
-          status: 'queued',
-          scheduled_at: new Date().toISOString(),
-        })
-        if (created.error) throw created.error
-      }
+      sourceIds = [sourceId]
     } else {
-      await enqueueDuePromoJobs(10, 'administrator_retry')
+      const sources = await sb
+        .from('promo_sources')
+        .select('id')
+        .eq('enabled', true)
+        .not('status', 'in', '(paused,unsupported)')
+        .order('name')
+
+      if (sources.error) throw sources.error
+      sourceIds = (sources.data || []).map((source) => source.id)
     }
 
-    const processed = await processQueuedPromoJobs(sourceId ? 1 : 3)
-    return NextResponse.json({ ok: true, processed, forcedRetryRows })
+    let queuedSources = 0
+    for (const id of sourceIds) {
+      if (await queueSource(sb, id)) queuedSources += 1
+    }
+
+    const processed = await processQueuedPromoJobs(Math.min(Math.max(sourceIds.length, 1), 3))
+    const remaining = await sb
+      .from('promo_ingestion_jobs')
+      .select('id', {count: 'exact', head: true})
+      .in('status', ['queued','running','retrying'])
+
+    if (remaining.error) throw remaining.error
+
+    return NextResponse.json({
+      ok: true,
+      queuedSources,
+      totalSources: sourceIds.length,
+      processed,
+      remainingJobs: remaining.count || 0,
+    })
   } catch (error) {
     return NextResponse.json({
       ok: false,
-      error: 'Admin source check failed',
+      error: 'Automatic promo update failed',
       detail: String(error?.message || error),
-    }, { status: 500 })
+    }, {status: 500})
   }
 }
