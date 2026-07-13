@@ -37,6 +37,25 @@ async function recoverStaleRunningJobs(sb, sourceIds = []) {
   return recovered.data?.length || 0
 }
 
+async function reactivateDelayedRetries(sb, sourceIds = []) {
+  let query = sb
+    .from('promo_ingestion_jobs')
+    .update({
+      status: 'queued',
+      scheduled_at: new Date().toISOString(),
+      retry_at: null,
+      started_at: null,
+      completed_at: null,
+      error_message: null,
+    })
+    .eq('status', 'retrying')
+
+  if (sourceIds.length) query = query.in('source_id', sourceIds)
+  const reactivated = await query.select('id')
+  if (reactivated.error) throw reactivated.error
+  return reactivated.data?.length || 0
+}
+
 async function makeSourceRunnableNow(sb, sourceId) {
   const existing = await sb
     .from('promo_ingestion_jobs')
@@ -126,6 +145,7 @@ export async function POST(request) {
       alreadyQueued: 0,
       alreadyRunning: 0,
       staleRecovered: 0,
+      delayedRetriesReactivated: 0,
     }
     let retryUnlocked = 0
     let sourceIds = []
@@ -146,6 +166,7 @@ export async function POST(request) {
       }
 
       queueActions.staleRecovered = await recoverStaleRunningJobs(sb, sourceIds)
+      queueActions.delayedRetriesReactivated = await reactivateDelayedRetries(sb, sourceIds)
       retryUnlocked = await unlockIncompleteIntelligence(sb, sourceIds)
 
       for (const id of sourceIds) {
@@ -157,6 +178,7 @@ export async function POST(request) {
       }
     } else {
       queueActions.staleRecovered = await recoverStaleRunningJobs(sb)
+      queueActions.delayedRetriesReactivated = await reactivateDelayedRetries(sb)
     }
 
     const processed = await processQueuedPromoJobs(1)
@@ -177,6 +199,7 @@ export async function POST(request) {
       action,
       queuedSources: queueActions.created,
       reactivatedJobs: queueActions.reactivated,
+      delayedRetriesReactivated: queueActions.delayedRetriesReactivated,
       alreadyQueuedJobs: queueActions.alreadyQueued,
       alreadyRunningJobs: queueActions.alreadyRunning,
       staleRecoveredJobs: queueActions.staleRecovered,
