@@ -17,7 +17,7 @@ set segmentation_provider = null,
     segmentation_llm_status = null,
     segmentation_last_attempt_at = null,
     intelligence_method = 'rules',
-    verification_status = 'needs_verification'
+    verification_status = 'needs_attention'
 where coalesce(intelligence_method, 'rules') in ('rules', 'cache')
   and coalesce(ai_summary, '') = '';
 
