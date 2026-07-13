@@ -5,6 +5,8 @@ export const config = {
     '/studio/:path*',
     '/research-admin/:path*',
     '/api/research/export',
+    '/promo-admin/:path*',
+    '/api/promo-admin/:path*',
     '/.env/:path*',
     '/.git/:path*',
     '/supabase/:path*',
@@ -76,6 +78,12 @@ export function middleware(req) {
     const user = process.env.RESEARCH_ADMIN_USER || process.env.STUDIO_USER
     const pass = process.env.RESEARCH_ADMIN_PASS || process.env.STUDIO_PASS
     if (!hasBasicAuth(req, user, pass)) return unauthorized('Research Admin')
+  }
+
+  if (pathname.startsWith('/promo-admin') || pathname.startsWith('/api/promo-admin')) {
+    const user = process.env.PROMO_ADMIN_USER || process.env.STUDIO_USER
+    const pass = process.env.PROMO_ADMIN_PASS || process.env.STUDIO_PASS
+    if (!user || !pass || !hasBasicAuth(req, user, pass)) return unauthorized('Promo Admin')
   }
 
   return NextResponse.next()
