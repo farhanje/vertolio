@@ -21,6 +21,20 @@ function money(value) {
   return `$${Number(value || 0).toFixed(4)}`
 }
 
+function processedSummary(data) {
+  const counters = data.processed?.[0]?.counters
+  if (!counters) return `${data.processed?.length || 0} job(s) processed`
+
+  return [
+    `${data.processed.length} job(s) processed`,
+    `Gemini calls ${counters.llmCalled || 0}`,
+    `cache ${counters.llmCached || 0}`,
+    `failures ${counters.llmFailed || 0}`,
+    `budget skips ${counters.llmBudgetSkipped || 0}`,
+    `unchanged skips ${counters.llmSkippedUnchanged || 0}`,
+  ].join(' · ')
+}
+
 export default function PromoAdminActions({sources = [], adapters = [], llmConfig = {}, llmSummary = {}}) {
   const [runState, setRunState] = useState({status: 'idle', message: ''})
   const [addState, setAddState] = useState({status: 'idle', message: ''})
@@ -40,7 +54,7 @@ export default function PromoAdminActions({sources = [], adapters = [], llmConfi
       const city = data.result?.city || 'unknown'
       setLlmState({
         status: 'done',
-        message: `Connected in ${data.latencyMs} ms · ${category} · ${city} · ${data.inputTokens || 0} input / ${data.outputTokens || 0} output tokens · ${money(data.estimatedCostUsd)} paid-equivalent cost.`,
+        message: `Health check passed in ${data.latencyMs} ms · ${category} · ${city} · ${data.inputTokens || 0} input / ${data.outputTokens || 0} output tokens · ${money(data.estimatedCostUsd)} paid-equivalent cost. This test does not increase Gemini-sorted until a real promo is processed.`,
       })
     } catch (error) {
       setLlmState({status: 'error', message: String(error?.message || error)})
@@ -59,7 +73,31 @@ export default function PromoAdminActions({sources = [], adapters = [], llmConfi
 
       setRunState({
         status: 'done',
-        message: `Finished. ${data.processed?.length || 0} job(s) processed. Refresh to see categories, cities, outlet records, and LLM usage.`,
+        message: `${processedSummary(data)}. Refresh to see categories, cities, outlet records, and LLM usage.`,
+      })
+    } catch (error) {
+      setRunState({status: 'error', message: String(error?.message || error)})
+    }
+  }
+
+  async function forceGeminiRetry() {
+    if (!sourceId) {
+      setRunState({status: 'error', message: 'Select one source before forcing a Gemini retry.'})
+      return
+    }
+
+    setRunState({status: 'running', message: 'Clearing the cooldown and retrying Gemini for the selected source…'})
+
+    try {
+      const data = await readJson(await fetch('/api/promo-admin/run', {
+        method: 'POST',
+        headers: {'content-type': 'application/json'},
+        body: JSON.stringify({sourceId, forceLlmRetry: true}),
+      }))
+
+      setRunState({
+        status: 'done',
+        message: `Gemini retry unlocked for ${data.forcedRetryRows || 0} existing promo(s) · ${processedSummary(data)}. Refresh the dashboard after this run.`,
       })
     } catch (error) {
       setRunState({status: 'error', message: String(error?.message || error)})
@@ -124,7 +162,7 @@ export default function PromoAdminActions({sources = [], adapters = [], llmConfi
             {' '}{llmConfig.apiKeyConfigured ? 'API key detected.' : 'GEMINI_API_KEY is missing, so rules are used.'}
           </p>
           <p style={{margin: '6px 0 0', color: 'var(--muted)', fontSize: 13}}>
-            This month: {llmSummary.calls || 0} model call(s), {llmSummary.cacheHits || 0} cache hit(s), {llmSummary.budgetSkips || 0} budget skip(s), {money(llmSummary.estimatedCostUsd)} paid-equivalent usage.
+            This month: {llmSummary.calls || 0} successful call(s), {llmSummary.cacheHits || 0} cache hit(s), {llmSummary.failures || 0} failure(s), {llmSummary.budgetSkips || 0} budget skip(s), {money(llmSummary.estimatedCostUsd)} paid-equivalent usage.
           </p>
         </div>
         <div>
@@ -169,8 +207,19 @@ export default function PromoAdminActions({sources = [], adapters = [], llmConfi
           <button className="btn" type="button" onClick={runCheck} disabled={runState.status === 'running'}>
             {runState.status === 'running' ? 'Running…' : 'Run source check'}
           </button>
+          <button
+            className="btn"
+            type="button"
+            onClick={forceGeminiRetry}
+            disabled={runState.status === 'running' || !sourceId || !llmConfig.apiKeyConfigured}
+          >
+            Retry Gemini now
+          </button>
         </div>
-        {runState.message ? <span style={{fontSize: 14, color: 'var(--muted)'}}>{runState.message}</span> : null}
+        <span style={{fontSize: 13, color: 'var(--muted)'}}>
+          Use “Retry Gemini now” after fixing an API-key, quota, or migration error. It clears the 24-hour failure cooldown only for the selected source.
+        </span>
+        {runState.message ? <span style={{fontSize: 14, color: runState.status === 'error' ? 'var(--fg)' : 'var(--muted)'}}>{runState.message}</span> : null}
       </div>
 
       <details style={{border: '1px solid var(--hair)', padding: 16}}>
