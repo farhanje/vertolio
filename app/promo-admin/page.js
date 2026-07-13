@@ -57,7 +57,7 @@ function jobSummary(job) {
 export default async function PromoAdminPage() {
   const sb = supabaseServer()
 
-  const [sourcesResult, jobsResult, promotionsResult, outletsResult, llmFailureResult] = await Promise.all([
+  const [sourcesResult, jobsResult, promotionsResult, outletsResult, llmFailureResult, llmSuccessResult] = await Promise.all([
     sb.from('promo_sources').select('*').order('name'),
     sb.from('promo_ingestion_jobs').select('*').order('created_at', {ascending: false}).limit(12),
     sb.from('promotions').select('*'),
@@ -65,6 +65,14 @@ export default async function PromoAdminPage() {
     sb.from('promo_llm_usage')
       .select('error_message,operation,model,created_at')
       .eq('status', 'failed')
+      .eq('operation', 'full_promo_extraction')
+      .order('created_at', {ascending: false})
+      .limit(1)
+      .maybeSingle(),
+    sb.from('promo_llm_usage')
+      .select('model,created_at')
+      .eq('status', 'success')
+      .eq('operation', 'full_promo_extraction')
       .order('created_at', {ascending: false})
       .limit(1)
       .maybeSingle(),
@@ -73,6 +81,7 @@ export default async function PromoAdminPage() {
   const llmSummary = await getPromoLlmUsageSummary(sb)
   const llmConfig = getPromoLlmConfig()
   const latestAiFailure = llmFailureResult.error ? null : llmFailureResult.data
+  const latestAiSuccess = llmSuccessResult.error ? null : llmSuccessResult.data
   const sources = sourcesResult.data || []
   const jobs = jobsResult.data || []
   const promotions = promotionsResult.data || []
@@ -96,17 +105,31 @@ export default async function PromoAdminPage() {
   }, {})
   const topCategories = Object.entries(categoryCounts).sort((a, b) => b[1] - a[1]).slice(0, 7)
 
-  const engineReady = enabledSources.length > 0 && llmConfig.apiKeyConfigured && llmSummary.available
-  const aiFailing = Boolean(latestAiFailure) && aiProcessed === 0 && Number(llmSummary.failures || 0) > 0
+  const databaseReady = llmSummary.available
+  const hasFullAiSuccess = aiProcessed > 0 || Boolean(latestAiSuccess)
+  const failureIsNewer = Boolean(latestAiFailure) && (!latestAiSuccess || new Date(latestAiFailure.created_at) > new Date(latestAiSuccess.created_at))
+  const aiFailing = llmConfig.apiKeyConfigured && !hasFullAiSuccess && failureIsNewer
+  const engineReady = enabledSources.length > 0 && llmConfig.apiKeyConfigured && databaseReady && hasFullAiSuccess
+
   const engineStatus = aiFailing
-    ? 'Gemini is connected, but full promo extraction is failing'
+    ? 'Gemini key is configured, but full promo extraction has not succeeded'
     : engineReady
-      ? 'Ready — full AI extraction is enabled'
+      ? 'Full Gemini promo extraction is active'
       : !enabledSources.length
         ? 'Add at least one source to start'
         : !llmConfig.apiKeyConfigured
           ? 'Running with rules only — Gemini key is missing'
-          : 'Database migration is required before full AI extraction'
+          : !databaseReady
+            ? 'Database migration is required before full AI extraction'
+            : 'Gemini key configured — run the promo engine to verify full extraction'
+
+  const engineBadge = aiFailing
+    ? 'AI ERROR'
+    : engineReady
+      ? 'AI ACTIVE'
+      : llmConfig.apiKeyConfigured && databaseReady
+        ? 'READY TO TEST'
+        : 'SETUP NEEDED'
 
   return (
     <main className="container" style={{paddingTop: 96, paddingBottom: 96}}>
@@ -121,18 +144,21 @@ export default async function PromoAdminPage() {
           <div>
             <strong>{engineStatus}</strong>
             <div style={{fontSize: 13, color: 'var(--muted)', marginTop: 4}}>
-              {enabledSources.length} active source(s) · Gemini {llmConfig.apiKeyConfigured ? 'connected' : 'not connected'} · {money(llmSummary.estimatedCostUsd)} used from the ${Number(llmConfig.monthlyBudgetUsd || 5).toFixed(2)} application cap
+              {enabledSources.length} active source(s) · Gemini API key {llmConfig.apiKeyConfigured ? 'configured' : 'missing'} · {money(llmSummary.estimatedCostUsd)} used from the ${Number(llmConfig.monthlyBudgetUsd || 5).toFixed(2)} application cap
             </div>
           </div>
-          <span style={{fontSize: 12, padding: '6px 9px', border: '1px solid var(--hair2)'}}>{aiFailing ? 'AI ERROR' : engineReady ? 'AUTOMATIC' : 'SETUP NEEDED'}</span>
+          <span style={{fontSize: 12, padding: '6px 9px', border: '1px solid var(--hair2)'}}>{engineBadge}</span>
         </div>
 
         {aiFailing ? (
           <div style={{border: '1px solid var(--hair)', padding: 14, marginTop: 12}}>
-            <strong>Latest Gemini extraction error</strong>
+            <strong>Latest full extraction error</strong>
             <div style={{fontSize: 13, marginTop: 6}}>{latestAiFailure.error_message || 'Unknown Gemini error'}</div>
             <div style={{fontSize: 12, color: 'var(--muted)', marginTop: 5}}>
-              {latestAiFailure.model || llmConfig.model} · {latestAiFailure.operation || 'full_promo_extraction'} · {formatJakarta(latestAiFailure.created_at)}
+              {latestAiFailure.model || llmConfig.model} · {formatJakarta(latestAiFailure.created_at)}
+            </div>
+            <div style={{fontSize: 12, color: 'var(--muted)', marginTop: 8}}>
+              Supabase rows stay on rules + needs_attention until a full Gemini extraction succeeds. The migration itself does not verify promotions.
             </div>
           </div>
         ) : null}
