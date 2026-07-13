@@ -28,7 +28,7 @@ export default function PromoAdminActions({sourceCount = 0, llmConfig = {}, llmS
   const [sourceForm, setSourceForm] = useState({name: '', baseUrl: ''})
 
   async function runAutomaticUpdate() {
-    setRunState({status: 'running', message: 'Checking every active source and retrying incomplete AI records…'})
+    setRunState({status: 'running', message: 'Reactivating delayed jobs and processing the active sources now…'})
 
     try {
       const data = await readJson(await fetch('/api/promo-admin/run', {
@@ -38,7 +38,7 @@ export default function PromoAdminActions({sourceCount = 0, llmConfig = {}, llmS
       }))
       const totals = totalCounters(data.processed)
       const parts = [
-        `${data.processed?.length || 0} source job(s) finished`,
+        `${data.processed?.length || 0} source job(s) actually finished`,
         `${totals.aiEnriched || 0} AI-processed`,
         `${totals.created || 0} new`,
         `${totals.updated || 0} updated`,
@@ -47,16 +47,24 @@ export default function PromoAdminActions({sourceCount = 0, llmConfig = {}, llmS
         `${totals.deleted || 0} expired removed`,
       ]
       if (data.retryUnlocked) parts.push(`${data.retryUnlocked} incomplete promo(s) unlocked for AI retry`)
+      if (data.reactivatedJobs) parts.push(`${data.reactivatedJobs} delayed source job(s) reactivated`)
+      if (data.queuedSources) parts.push(`${data.queuedSources} new source job(s) created`)
+      if (data.alreadyRunningJobs) parts.push(`${data.alreadyRunningJobs} source job(s) already running`)
+      if (totals.llmCalled) parts.push(`${totals.llmCalled} Gemini call(s)`)
+      if (totals.llmCached) parts.push(`${totals.llmCached} cache hit(s)`)
       if (totals.llmFailed) parts.push(`${totals.llmFailed} Gemini failure(s)`)
-      if (data.remainingJobs) parts.push(`${data.remainingJobs} queued for the scheduler`)
+      if (data.remainingJobs) parts.push(`${data.remainingJobs} job(s) still active`)
       if (data.latestAiFailure?.error_message) {
         parts.push(`Latest Gemini error: ${data.latestAiFailure.error_message}`)
+      }
+      if (!data.processed?.length && data.remainingJobs) {
+        parts.push('No job was claimable in this request; the active-job status above explains why')
       }
       setRunState({
         status: data.latestAiFailure ? 'error' : 'done',
         message: parts.join(' · '),
       })
-      window.setTimeout(() => window.location.reload(), data.latestAiFailure ? 4500 : 1600)
+      window.setTimeout(() => window.location.reload(), data.latestAiFailure ? 4500 : 2200)
     } catch (error) {
       setRunState({status: 'error', message: String(error?.message || error)})
     }
@@ -136,7 +144,7 @@ export default function PromoAdminActions({sourceCount = 0, llmConfig = {}, llmS
         <div>
           <strong style={{fontSize: 18}}>Run the promo engine</strong>
           <p style={{margin: '6px 0 0', color: 'var(--muted)', maxWidth: 720}}>
-            Checks all {sourceCount} active source(s), retries incomplete rule-fallback records, verifies terms with Gemini, blocks duplicates, and removes expired promos automatically.
+            Checks all {sourceCount} active source(s), immediately reactivates delayed retries, verifies terms with Gemini, blocks duplicates, and removes expired promos automatically.
           </p>
         </div>
         <div>
