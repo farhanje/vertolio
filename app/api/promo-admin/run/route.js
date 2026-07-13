@@ -6,6 +6,13 @@ export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
 
+function ensureFullExtractionOutputBudget() {
+  const configured = Number(process.env.PROMO_LLM_MAX_OUTPUT_TOKENS || 0)
+  if (!Number.isFinite(configured) || configured < 2600) {
+    process.env.PROMO_LLM_MAX_OUTPUT_TOKENS = '2600'
+  }
+}
+
 async function queueSource(sb, sourceId) {
   const existing = await sb
     .from('promo_ingestion_jobs')
@@ -29,6 +36,8 @@ async function queueSource(sb, sourceId) {
 
 export async function POST(request) {
   try {
+    ensureFullExtractionOutputBudget()
+    const runStartedAt = new Date().toISOString()
     const body = await request.json().catch(() => ({}))
     const sourceId = String(body.sourceId || '').trim()
     const sb = supabaseServer()
@@ -54,10 +63,20 @@ export async function POST(request) {
     }
 
     const processed = await processQueuedPromoJobs(Math.min(Math.max(sourceIds.length, 1), 3))
-    const remaining = await sb
-      .from('promo_ingestion_jobs')
-      .select('id', {count: 'exact', head: true})
-      .in('status', ['queued','running','retrying'])
+    const [remaining, latestFailure] = await Promise.all([
+      sb
+        .from('promo_ingestion_jobs')
+        .select('id', {count: 'exact', head: true})
+        .in('status', ['queued','running','retrying']),
+      sb
+        .from('promo_llm_usage')
+        .select('error_message,operation,model,created_at')
+        .eq('status', 'failed')
+        .gte('created_at', runStartedAt)
+        .order('created_at', {ascending: false})
+        .limit(1)
+        .maybeSingle(),
+    ])
 
     if (remaining.error) throw remaining.error
 
@@ -67,6 +86,8 @@ export async function POST(request) {
       totalSources: sourceIds.length,
       processed,
       remainingJobs: remaining.count || 0,
+      outputTokenLimit: Number(process.env.PROMO_LLM_MAX_OUTPUT_TOKENS || 2600),
+      latestAiFailure: latestFailure.error ? null : latestFailure.data,
     })
   } catch (error) {
     return NextResponse.json({

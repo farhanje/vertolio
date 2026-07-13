@@ -46,9 +46,16 @@ export default function PromoAdminActions({sourceCount = 0, llmConfig = {}, llmS
         `${totals.duplicates || 0} duplicates blocked`,
         `${totals.deleted || 0} expired removed`,
       ]
+      if (totals.llmFailed) parts.push(`${totals.llmFailed} Gemini failure(s)`)
       if (data.remainingJobs) parts.push(`${data.remainingJobs} queued for the scheduler`)
-      setRunState({status: 'done', message: parts.join(' · ')})
-      window.setTimeout(() => window.location.reload(), 1200)
+      if (data.latestAiFailure?.error_message) {
+        parts.push(`Latest Gemini error: ${data.latestAiFailure.error_message}`)
+      }
+      setRunState({
+        status: data.latestAiFailure ? 'error' : 'done',
+        message: parts.join(' · '),
+      })
+      window.setTimeout(() => window.location.reload(), data.latestAiFailure ? 4500 : 1600)
     } catch (error) {
       setRunState({status: 'error', message: String(error?.message || error)})
     }
@@ -104,7 +111,7 @@ export default function PromoAdminActions({sourceCount = 0, llmConfig = {}, llmS
       const data = await readJson(await fetch('/api/promo-admin/llm/test', {method: 'POST'}))
       setDiagnosticState({
         status: 'done',
-        message: `Gemini connected in ${data.latencyMs} ms · ${data.inputTokens || 0} input / ${data.outputTokens || 0} output tokens · ${money(data.estimatedCostUsd)} paid-equivalent cost.`,
+        message: `Gemini connected in ${data.latencyMs} ms · ${data.inputTokens || 0} input / ${data.outputTokens || 0} output tokens · ${money(data.estimatedCostUsd)} paid-equivalent cost. This is only a small connection check; use Run automatic update for full promo extraction.`,
       })
     } catch (error) {
       setDiagnosticState({status: 'error', message: String(error?.message || error)})
