@@ -1,5 +1,6 @@
 import { supabaseServer } from '@/lib/supabase.server'
 import { listPromotionSourceAdapters } from '@/lib/promo-sources/registry'
+import { getPromoLlmConfig, getPromoLlmUsageSummary } from '@/lib/promo/llm'
 import PromoAdminActions from './PromoAdminActions'
 
 export const dynamic = 'force-dynamic'
@@ -36,6 +37,10 @@ function titleCase(value) {
   return String(value || '').split('_').map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(' ')
 }
 
+function money(value) {
+  return `$${Number(value || 0).toFixed(4)}`
+}
+
 export default async function PromoAdminPage() {
   const sb = supabaseServer()
 
@@ -43,9 +48,11 @@ export default async function PromoAdminPage() {
     sb.from('promo_sources').select('*').order('name'),
     sb.from('promo_ingestion_jobs').select('*').order('created_at', {ascending: false}).limit(20),
     sb.from('promo_review_queue').select('id', {count: 'exact', head: true}).in('status', ['pending','in_review']),
-    sb.from('promotions').select('id,publication_status,status,created_at,primary_category,cities,outlet_count,segmentation_method'),
+    sb.from('promotions').select('id,publication_status,status,created_at,primary_category,cities,outlet_count,segmentation_method,segmentation_provider'),
     sb.from('promo_outlets').select('id', {count: 'exact', head: true}),
   ])
+  const llmSummary = await getPromoLlmUsageSummary(sb)
+  const llmConfig = getPromoLlmConfig()
 
   const sources = sourcesResult.data || []
   const jobs = jobsResult.data || []
@@ -57,7 +64,7 @@ export default async function PromoAdminPage() {
   const autoPublished = promotions.filter((promo) => promo.publication_status === 'published').length
   const categorized = promotions.filter((promo) => promo.primary_category && promo.primary_category !== 'other').length
   const cityTagged = promotions.filter((promo) => (promo.cities || []).length > 0).length
-  const llmSorted = promotions.filter((promo) => promo.segmentation_method === 'llm_hybrid').length
+  const geminiSorted = promotions.filter((promo) => promo.segmentation_method === 'llm_hybrid' && promo.segmentation_provider === 'gemini').length
   const openReviews = reviewResult.count || 0
   const outletRows = outletsResult.count || 0
 
@@ -74,12 +81,14 @@ export default async function PromoAdminPage() {
         <div className="kicker"><span className="dot" /> Promo intelligence admin</div>
         <h1 style={{maxWidth: 900}}>Automated sources, segmentation, and location coverage</h1>
         <p className="lead" style={{maxWidth: 800}}>
-          The ingestion worker now sorts promos automatically by category and geographic scope. Expired promos are removed automatically; review remains available only as a fallback.
+          New or changed promo pages can be sorted by Gemini, while unchanged pages stop before the LLM call. A database-enforced monthly budget protects the crawler as more sources are added.
         </p>
 
         <PromoAdminActions
           sources={sources.map(({id, name}) => ({id, name}))}
           adapters={adapters}
+          llmConfig={llmConfig}
+          llmSummary={llmSummary}
         />
 
         <div className="grid12" style={{marginTop: 36}}>
@@ -90,7 +99,11 @@ export default async function PromoAdminPage() {
           <div style={{gridColumn: 'span 3'}}><Metric label="Categorized" value={categorized} /></div>
           <div style={{gridColumn: 'span 3'}}><Metric label="City-tagged" value={cityTagged} /></div>
           <div style={{gridColumn: 'span 3'}}><Metric label="Atomic outlets" value={outletRows} /></div>
-          <div style={{gridColumn: 'span 3'}}><Metric label="LLM-sorted" value={llmSorted} /></div>
+          <div style={{gridColumn: 'span 3'}}><Metric label="Gemini-sorted" value={geminiSorted} /></div>
+          <div style={{gridColumn: 'span 3'}}><Metric label="LLM calls this month" value={llmSummary.calls || 0} /></div>
+          <div style={{gridColumn: 'span 3'}}><Metric label="LLM cache hits" value={llmSummary.cacheHits || 0} /></div>
+          <div style={{gridColumn: 'span 3'}}><Metric label="Budget skips" value={llmSummary.budgetSkips || 0} /></div>
+          <div style={{gridColumn: 'span 3'}}><Metric label="Paid-equivalent usage" value={`${money(llmSummary.estimatedCostUsd)} / $${Number(llmConfig.monthlyBudgetUsd || 5).toFixed(2)}`} /></div>
         </div>
 
         {topCategories.length ? (
@@ -165,6 +178,9 @@ export default async function PromoAdminPage() {
                 <div style={{fontSize: 13, color: 'var(--muted)', marginTop: 8}}>
                   Discovered {job.records_discovered || 0} · Created {job.records_created || 0} · Updated {job.records_updated || 0} ·
                   Unchanged {job.records_unchanged || 0} · Deleted expired {job.records_deleted || 0} · Skipped expired {job.records_expired_skipped || 0}
+                </div>
+                <div style={{fontSize: 13, color: 'var(--muted)', marginTop: 5}}>
+                  LLM calls {job.records_llm_called || 0} · Cache {job.records_llm_cached || 0} · Unchanged skipped {job.records_llm_skipped_unchanged || 0} · Budget skipped {job.records_llm_budget_skipped || 0} · Failed {job.records_llm_failed || 0} · Rules-only {job.records_rules_only || 0}
                 </div>
                 {job.error_message ? <div style={{fontSize: 13, marginTop: 8}}>{job.error_message}</div> : null}
               </div>

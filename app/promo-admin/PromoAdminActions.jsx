@@ -17,14 +17,34 @@ async function readJson(response) {
   return data
 }
 
-export default function PromoAdminActions({sources = [], adapters = []}) {
+function money(value) {
+  return `$${Number(value || 0).toFixed(4)}`
+}
+
+export default function PromoAdminActions({sources = [], adapters = [], llmConfig = {}, llmSummary = {}}) {
   const [runState, setRunState] = useState({status: 'idle', message: ''})
   const [addState, setAddState] = useState({status: 'idle', message: ''})
+  const [llmState, setLlmState] = useState({status: 'idle', message: ''})
   const [sourceId, setSourceId] = useState('')
   const [form, setForm] = useState(initialForm)
 
   function updateField(key, value) {
     setForm((current) => ({...current, [key]: value}))
+  }
+
+  async function testLlm() {
+    setLlmState({status: 'running', message: 'Testing Gemini connection…'})
+    try {
+      const data = await readJson(await fetch('/api/promo-admin/llm/test', {method: 'POST'}))
+      const category = data.result?.category || 'unknown'
+      const city = data.result?.city || 'unknown'
+      setLlmState({
+        status: 'done',
+        message: `Connected in ${data.latencyMs} ms · ${category} · ${city} · ${data.inputTokens || 0} input / ${data.outputTokens || 0} output tokens · ${money(data.estimatedCostUsd)} paid-equivalent cost.`,
+      })
+    } catch (error) {
+      setLlmState({status: 'error', message: String(error?.message || error)})
+    }
   }
 
   async function runCheck() {
@@ -39,7 +59,7 @@ export default function PromoAdminActions({sources = [], adapters = []}) {
 
       setRunState({
         status: 'done',
-        message: `Finished. ${data.processed?.length || 0} job(s) processed. Refresh to see categories, cities, and outlet records.`,
+        message: `Finished. ${data.processed?.length || 0} job(s) processed. Refresh to see categories, cities, outlet records, and LLM usage.`,
       })
     } catch (error) {
       setRunState({status: 'error', message: String(error?.message || error)})
@@ -95,12 +115,34 @@ export default function PromoAdminActions({sources = [], adapters = []}) {
   }
 
   return (
-    <div style={{display: 'grid', gap: 22, marginTop: 24, maxWidth: 860}}>
+    <div style={{display: 'grid', gap: 22, marginTop: 24, maxWidth: 900}}>
+      <div style={{border: '1px solid var(--hair)', padding: 16, display: 'grid', gap: 12}}>
+        <div>
+          <strong>Gemini promo sorter</strong>
+          <p style={{margin: '4px 0 0', color: 'var(--muted)', fontSize: 14}}>
+            {llmConfig.provider || 'gemini'} · {llmConfig.model || 'gemini-3.1-flash-lite'} · {llmConfig.mode || 'new_changed'} mode · hard cap ${Number(llmConfig.monthlyBudgetUsd || 5).toFixed(2)}/month.
+            {' '}{llmConfig.apiKeyConfigured ? 'API key detected.' : 'GEMINI_API_KEY is missing, so rules are used.'}
+          </p>
+          <p style={{margin: '6px 0 0', color: 'var(--muted)', fontSize: 13}}>
+            This month: {llmSummary.calls || 0} model call(s), {llmSummary.cacheHits || 0} cache hit(s), {llmSummary.budgetSkips || 0} budget skip(s), {money(llmSummary.estimatedCostUsd)} paid-equivalent usage.
+          </p>
+        </div>
+        <div>
+          <button className="btn" type="button" onClick={testLlm} disabled={llmState.status === 'running' || !llmConfig.apiKeyConfigured}>
+            {llmState.status === 'running' ? 'Testing…' : 'Test Gemini connection'}
+          </button>
+        </div>
+        {llmState.message ? <span style={{fontSize: 14, color: llmState.status === 'error' ? 'var(--fg)' : 'var(--muted)'}}>{llmState.message}</span> : null}
+        {!llmSummary.available && llmSummary.error ? (
+          <span style={{fontSize: 13, color: 'var(--muted)'}}>Run the promo LLM budget migration before testing: {llmSummary.error}</span>
+        ) : null}
+      </div>
+
       <div style={{border: '1px solid var(--hair)', padding: 16, display: 'grid', gap: 10}}>
         <div>
           <strong>Recommended starting sources</strong>
           <p style={{margin: '4px 0 0', color: 'var(--muted)', fontSize: 14}}>
-            Install BCA and Ultra Voucher with automatic high-confidence publishing. Every result is categorized and location-tagged before storage, while expired offers are skipped.
+            Install BCA and Ultra Voucher with automatic high-confidence publishing. New or changed results are categorized and location-tagged; unchanged pages skip the LLM entirely.
           </p>
         </div>
         <div>
