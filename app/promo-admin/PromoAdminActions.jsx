@@ -2,50 +2,191 @@
 
 import { useState } from 'react'
 
-export default function PromoAdminActions({sources = []}) {
-  const [state, setState] = useState({ status: 'idle', message: '' })
+const initialForm = {
+  name: '',
+  baseUrl: '',
+  adapterKey: 'generic-html',
+  frequency: 'every_6_hours',
+  minimumConfidence: '0.90',
+  maxPagesPerRun: '25',
+}
+
+async function readJson(response) {
+  const data = await response.json().catch(() => ({}))
+  if (!response.ok) throw new Error(data.detail || data.error || 'Request failed')
+  return data
+}
+
+export default function PromoAdminActions({sources = [], adapters = []}) {
+  const [runState, setRunState] = useState({status: 'idle', message: ''})
+  const [addState, setAddState] = useState({status: 'idle', message: ''})
   const [sourceId, setSourceId] = useState('')
+  const [form, setForm] = useState(initialForm)
+
+  function updateField(key, value) {
+    setForm((current) => ({...current, [key]: value}))
+  }
 
   async function runCheck() {
-    setState({ status: 'running', message: 'Running source check…' })
+    setRunState({status: 'running', message: 'Running source check…'})
 
     try {
-      const response = await fetch('/api/promo-admin/run', {
+      const data = await readJson(await fetch('/api/promo-admin/run', {
         method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ sourceId: sourceId || null }),
-      })
-      const data = await response.json()
+        headers: {'content-type': 'application/json'},
+        body: JSON.stringify({sourceId: sourceId || null}),
+      }))
 
-      if (!response.ok) throw new Error(data.detail || data.error || 'Request failed')
-      setState({
+      setRunState({
         status: 'done',
-        message: `Finished. ${data.processed?.length || 0} job(s) processed. Refresh to see the latest status.`,
+        message: `Finished. ${data.processed?.length || 0} job(s) processed. Refresh to see the latest records.`,
       })
     } catch (error) {
-      setState({ status: 'error', message: String(error?.message || error) })
+      setRunState({status: 'error', message: String(error?.message || error)})
     }
   }
 
+  async function installStarterSources() {
+    setAddState({status: 'running', message: 'Installing starter sources…'})
+    try {
+      const data = await readJson(await fetch('/api/promo-admin/sources', {
+        method: 'POST',
+        headers: {'content-type': 'application/json'},
+        body: JSON.stringify({preset: 'starter'}),
+      }))
+      const created = (data.results || []).filter((item) => item.created).length
+      setAddState({status: 'done', message: `${created} starter source(s) added. Reloading…`})
+      window.setTimeout(() => window.location.reload(), 700)
+    } catch (error) {
+      setAddState({status: 'error', message: String(error?.message || error)})
+    }
+  }
+
+  async function addSource(event) {
+    event.preventDefault()
+    setAddState({status: 'running', message: 'Adding source…'})
+
+    try {
+      const data = await readJson(await fetch('/api/promo-admin/sources', {
+        method: 'POST',
+        headers: {'content-type': 'application/json'},
+        body: JSON.stringify(form),
+      }))
+      setAddState({
+        status: 'done',
+        message: data.created ? 'Source added in review-only mode. Reloading…' : 'That source already exists. Reloading…',
+      })
+      setForm(initialForm)
+      window.setTimeout(() => window.location.reload(), 700)
+    } catch (error) {
+      setAddState({status: 'error', message: String(error?.message || error)})
+    }
+  }
+
+  const fieldStyle = {
+    width: '100%',
+    minHeight: 42,
+    border: '1px solid var(--hair)',
+    background: 'var(--bg)',
+    color: 'var(--fg)',
+    padding: '9px 10px',
+    font: 'inherit',
+  }
+
   return (
-    <div style={{display: 'grid', gap: 10, marginTop: 20, maxWidth: 720}}>
-      <div style={{display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap'}}>
-        <select
-          className="btn"
-          value={sourceId}
-          onChange={(event) => setSourceId(event.target.value)}
-          aria-label="Source to check"
-        >
-          <option value="">All due sources</option>
-          {sources.map((source) => (
-            <option key={source.id} value={source.id}>{source.name}</option>
-          ))}
-        </select>
-        <button className="btn primary" type="button" onClick={runCheck} disabled={state.status === 'running'}>
-          {state.status === 'running' ? 'Running…' : 'Run source check'}
-        </button>
+    <div style={{display: 'grid', gap: 22, marginTop: 24, maxWidth: 860}}>
+      <div style={{border: '1px solid var(--hair)', padding: 16, display: 'grid', gap: 10}}>
+        <div>
+          <strong>Recommended starting sources</strong>
+          <p style={{margin: '4px 0 0', color: 'var(--muted)', fontSize: 14}}>
+            Install BCA and Ultra Voucher with automatic publishing disabled. Review the first results before changing any threshold.
+          </p>
+        </div>
+        <div>
+          <button className="btn primary" type="button" onClick={installStarterSources} disabled={addState.status === 'running'}>
+            Install BCA + Ultra Voucher
+          </button>
+        </div>
       </div>
-      {state.message ? <span style={{fontSize: 14, color: 'var(--muted)'}}>{state.message}</span> : null}
+
+      <div style={{display: 'grid', gap: 10}}>
+        <strong>Run a source check</strong>
+        <div style={{display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap'}}>
+          <select
+            style={{...fieldStyle, width: 'auto', minWidth: 260}}
+            value={sourceId}
+            onChange={(event) => setSourceId(event.target.value)}
+            aria-label="Source to check"
+          >
+            <option value="">All due sources</option>
+            {sources.map((source) => (
+              <option key={source.id} value={source.id}>{source.name}</option>
+            ))}
+          </select>
+          <button className="btn" type="button" onClick={runCheck} disabled={runState.status === 'running'}>
+            {runState.status === 'running' ? 'Running…' : 'Run source check'}
+          </button>
+        </div>
+        {runState.message ? <span style={{fontSize: 14, color: 'var(--muted)'}}>{runState.message}</span> : null}
+      </div>
+
+      <details style={{border: '1px solid var(--hair)', padding: 16}}>
+        <summary style={{cursor: 'pointer', fontWeight: 800}}>Add another public source</summary>
+        <p style={{color: 'var(--muted)', fontSize: 14, maxWidth: 720}}>
+          Use the generic adapter for a new official public webpage. A dedicated adapter can be added later when the source needs special discovery or parsing rules.
+        </p>
+
+        <form onSubmit={addSource} style={{display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 14, marginTop: 16}}>
+          <label style={{display: 'grid', gap: 6}}>
+            <span style={{fontSize: 13, fontWeight: 700}}>Source name</span>
+            <input required value={form.name} onChange={(event) => updateField('name', event.target.value)} style={fieldStyle} placeholder="Qpon promotions" />
+          </label>
+
+          <label style={{display: 'grid', gap: 6}}>
+            <span style={{fontSize: 13, fontWeight: 700}}>Official public URL</span>
+            <input required type="url" value={form.baseUrl} onChange={(event) => updateField('baseUrl', event.target.value)} style={fieldStyle} placeholder="https://example.com/promos" />
+          </label>
+
+          <label style={{display: 'grid', gap: 6}}>
+            <span style={{fontSize: 13, fontWeight: 700}}>Adapter</span>
+            <select value={form.adapterKey} onChange={(event) => updateField('adapterKey', event.target.value)} style={fieldStyle}>
+              {adapters.map((adapter) => (
+                <option key={adapter.key} value={adapter.key}>{adapter.label}</option>
+              ))}
+            </select>
+          </label>
+
+          <label style={{display: 'grid', gap: 6}}>
+            <span style={{fontSize: 13, fontWeight: 700}}>Check frequency</span>
+            <select value={form.frequency} onChange={(event) => updateField('frequency', event.target.value)} style={fieldStyle}>
+              <option value="every_hour">Every hour</option>
+              <option value="every_3_hours">Every 3 hours</option>
+              <option value="every_6_hours">Every 6 hours</option>
+              <option value="every_12_hours">Every 12 hours</option>
+              <option value="daily">Daily</option>
+              <option value="weekly">Weekly</option>
+            </select>
+          </label>
+
+          <label style={{display: 'grid', gap: 6}}>
+            <span style={{fontSize: 13, fontWeight: 700}}>Review threshold</span>
+            <input type="number" min="0.5" max="1" step="0.01" value={form.minimumConfidence} onChange={(event) => updateField('minimumConfidence', event.target.value)} style={fieldStyle} />
+          </label>
+
+          <label style={{display: 'grid', gap: 6}}>
+            <span style={{fontSize: 13, fontWeight: 700}}>Maximum pages per run</span>
+            <input type="number" min="1" max="100" value={form.maxPagesPerRun} onChange={(event) => updateField('maxPagesPerRun', event.target.value)} style={fieldStyle} />
+          </label>
+
+          <div style={{gridColumn: '1 / -1'}}>
+            <button className="btn primary" type="submit" disabled={addState.status === 'running'}>
+              {addState.status === 'running' ? 'Adding…' : 'Add source in review-only mode'}
+            </button>
+          </div>
+        </form>
+      </details>
+
+      {addState.message ? <span style={{fontSize: 14, color: 'var(--muted)'}}>{addState.message}</span> : null}
     </div>
   )
 }

@@ -1,4 +1,5 @@
 import { supabaseServer } from '@/lib/supabase.server'
+import { listPromotionSourceAdapters } from '@/lib/promo-sources/registry'
 import PromoAdminActions from './PromoAdminActions'
 
 export const dynamic = 'force-dynamic'
@@ -44,6 +45,7 @@ export default async function PromoAdminPage() {
   const sources = sourcesResult.data || []
   const jobs = jobsResult.data || []
   const promotions = promotionsResult.data || []
+  const adapters = listPromotionSourceAdapters()
   const activeJobs = jobs.filter((job) => ['queued','running','retrying'].includes(job.status))
   const today = new Date().toISOString().slice(0, 10)
   const foundToday = promotions.filter((promo) => String(promo.created_at || '').startsWith(today)).length
@@ -55,11 +57,14 @@ export default async function PromoAdminPage() {
         <div className="kicker"><span className="dot" /> Promo automation admin</div>
         <h1 style={{maxWidth: 900}}>Source monitoring and review</h1>
         <p className="lead" style={{maxWidth: 760}}>
-          Automation is the primary workflow. Use this dashboard to monitor source health,
-          inspect jobs, and intervene only when extraction needs review.
+          Automation is the primary workflow. Register official public sources here, monitor source health,
+          and intervene only when extraction needs review.
         </p>
 
-        <PromoAdminActions sources={sources.map(({id, name}) => ({id, name}))} />
+        <PromoAdminActions
+          sources={sources.map(({id, name}) => ({id, name}))}
+          adapters={adapters}
+        />
 
         <div className="grid12" style={{marginTop: 36}}>
           <div style={{gridColumn: 'span 3'}}><Metric label="Healthy sources" value={sources.filter((s) => s.status === 'healthy').length} /></div>
@@ -101,7 +106,7 @@ export default async function PromoAdminPage() {
                 )) : (
                   <tr>
                     <td colSpan="7" style={{padding: '18px 8px', color: 'var(--muted)'}}>
-                      No sources registered yet. Apply the migration, then add tested official sources in Supabase.
+                      No sources yet. Use “Install BCA + Ultra Voucher” above, or add another official public source.
                     </td>
                   </tr>
                 )}
