@@ -1,0 +1,49 @@
+name: Promo scheduler
+
+on:
+  schedule:
+    - cron: '7 * * * *'
+    - cron: '17 17 * * *'
+  workflow_dispatch:
+
+jobs:
+  run-promo-scheduler:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enqueue due source checks
+        if: github.event.schedule != '17 17 * * *'
+        env:
+          SITE_URL: ${{ secrets.PROMO_SITE_URL }}
+          SCHEDULER_SECRET: ${{ secrets.PROMO_SCHEDULER_SECRET }}
+        run: |
+          test -n "$SITE_URL"
+          test -n "$SCHEDULER_SECRET"
+          curl --fail-with-body --silent --show-error \
+            -X POST "$SITE_URL/api/internal/scheduler/run" \
+            -H "Authorization: Bearer $SCHEDULER_SECRET" \
+            -H "Content-Type: application/json" \
+            --data '{"enqueueLimit":10}'
+
+      - name: Process queued source checks
+        if: github.event.schedule != '17 17 * * *'
+        env:
+          SITE_URL: ${{ secrets.PROMO_SITE_URL }}
+          SCHEDULER_SECRET: ${{ secrets.PROMO_SCHEDULER_SECRET }}
+        run: |
+          for attempt in 1 2 3; do
+            curl --fail-with-body --silent --show-error \
+              -X POST "$SITE_URL/api/internal/promo-worker/run" \
+              -H "Authorization: Bearer $SCHEDULER_SECRET"
+          done
+
+      - name: Recalculate expiry statuses
+        if: github.event.schedule == '17 17 * * *'
+        env:
+          SITE_URL: ${{ secrets.PROMO_SITE_URL }}
+          SCHEDULER_SECRET: ${{ secrets.PROMO_SCHEDULER_SECRET }}
+        run: |
+          test -n "$SITE_URL"
+          test -n "$SCHEDULER_SECRET"
+          curl --fail-with-body --silent --show-error \
+            -X POST "$SITE_URL/api/internal/promo-expiration/run" \
+            -H "Authorization: Bearer $SCHEDULER_SECRET"
