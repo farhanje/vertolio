@@ -23,6 +23,7 @@ const STARTER_SOURCES = [
     check_interval_minutes: 360,
     minimum_confidence: 0.9,
     max_pages_per_run: 25,
+    auto_publish_enabled: true,
   },
   {
     name: 'Ultra Voucher Catalog',
@@ -32,6 +33,7 @@ const STARTER_SOURCES = [
     check_interval_minutes: 360,
     minimum_confidence: 0.9,
     max_pages_per_run: 25,
+    auto_publish_enabled: true,
   },
 ]
 
@@ -66,7 +68,20 @@ async function createSourceIfMissing(sb, source) {
     .eq('base_url', source.base_url)
     .maybeSingle()
   if (existing.error) throw existing.error
-  if (existing.data) return {source: existing.data, created: false}
+
+  if (existing.data) {
+    if (source.auto_publish_enabled && !existing.data.auto_publish_enabled) {
+      const updated = await sb
+        .from('promo_sources')
+        .update({auto_publish_enabled: true})
+        .eq('id', existing.data.id)
+        .select('*')
+        .single()
+      if (updated.error) throw updated.error
+      return {source: updated.data, created: false, updated: true}
+    }
+    return {source: existing.data, created: false, updated: false}
+  }
 
   const result = await sb
     .from('promo_sources')
@@ -75,7 +90,7 @@ async function createSourceIfMissing(sb, source) {
       source_type: 'official_web',
       timezone: 'Asia/Jakarta',
       enabled: true,
-      auto_publish_enabled: false,
+      auto_publish_enabled: Boolean(source.auto_publish_enabled),
       status: 'healthy',
       next_run_at: new Date().toISOString(),
     })
@@ -83,7 +98,7 @@ async function createSourceIfMissing(sb, source) {
     .single()
 
   if (result.error) throw result.error
-  return {source: result.data, created: true}
+  return {source: result.data, created: true, updated: false}
 }
 
 export async function POST(request) {
@@ -120,6 +135,7 @@ export async function POST(request) {
       check_interval_minutes: FREQUENCIES[frequency],
       minimum_confidence: confidence,
       max_pages_per_run: Math.max(1, Math.min(Number(body.maxPagesPerRun || 25), 100)),
+      auto_publish_enabled: false,
     })
 
     return NextResponse.json({ok: true, ...result})
