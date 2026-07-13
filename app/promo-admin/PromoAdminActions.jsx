@@ -28,7 +28,7 @@ export default function PromoAdminActions({sourceCount = 0, llmConfig = {}, llmS
   const [sourceForm, setSourceForm] = useState({name: '', baseUrl: ''})
 
   async function runAutomaticUpdate() {
-    setRunState({status: 'running', message: 'Checking every active source…'})
+    setRunState({status: 'running', message: 'Checking every active source and retrying incomplete AI records…'})
 
     try {
       const data = await readJson(await fetch('/api/promo-admin/run', {
@@ -46,6 +46,7 @@ export default function PromoAdminActions({sourceCount = 0, llmConfig = {}, llmS
         `${totals.duplicates || 0} duplicates blocked`,
         `${totals.deleted || 0} expired removed`,
       ]
+      if (data.retryUnlocked) parts.push(`${data.retryUnlocked} incomplete promo(s) unlocked for AI retry`)
       if (totals.llmFailed) parts.push(`${totals.llmFailed} Gemini failure(s)`)
       if (data.remainingJobs) parts.push(`${data.remainingJobs} queued for the scheduler`)
       if (data.latestAiFailure?.error_message) {
@@ -106,12 +107,12 @@ export default function PromoAdminActions({sourceCount = 0, llmConfig = {}, llmS
   }
 
   async function testConnection() {
-    setDiagnosticState({status: 'running', message: 'Testing Gemini…'})
+    setDiagnosticState({status: 'running', message: 'Testing Gemini API access…'})
     try {
       const data = await readJson(await fetch('/api/promo-admin/llm/test', {method: 'POST'}))
       setDiagnosticState({
         status: 'done',
-        message: `Gemini connected in ${data.latencyMs} ms · ${data.inputTokens || 0} input / ${data.outputTokens || 0} output tokens · ${money(data.estimatedCostUsd)} paid-equivalent cost. This is only a small connection check; use Run automatic update for full promo extraction.`,
+        message: `Gemini API responded in ${data.latencyMs} ms · ${data.inputTokens || 0} input / ${data.outputTokens || 0} output tokens · ${money(data.estimatedCostUsd)} paid-equivalent cost. This confirms API access only; Run automatic update confirms full promo extraction.`,
       })
     } catch (error) {
       setDiagnosticState({status: 'error', message: String(error?.message || error)})
@@ -135,7 +136,7 @@ export default function PromoAdminActions({sourceCount = 0, llmConfig = {}, llmS
         <div>
           <strong style={{fontSize: 18}}>Run the promo engine</strong>
           <p style={{margin: '6px 0 0', color: 'var(--muted)', maxWidth: 720}}>
-            Checks all {sourceCount} active source(s), uses Gemini only for new or changed pages, verifies the terms, blocks duplicates, and removes expired promos automatically.
+            Checks all {sourceCount} active source(s), retries incomplete rule-fallback records, verifies terms with Gemini, blocks duplicates, and removes expired promos automatically.
           </p>
         </div>
         <div>
@@ -148,7 +149,7 @@ export default function PromoAdminActions({sourceCount = 0, llmConfig = {}, llmS
 
       {!llmConfig.apiKeyConfigured ? (
         <section style={{border: '1px solid var(--hair)', padding: 16}}>
-          <strong>Gemini is not connected</strong>
+          <strong>Gemini API key is missing</strong>
           <p style={{margin: '6px 0 0', color: 'var(--muted)', fontSize: 14}}>
             The engine will still run with rules, but full date, eligibility, quota, category, and location interpretation requires GEMINI_API_KEY in Vercel Production.
           </p>
@@ -178,11 +179,11 @@ export default function PromoAdminActions({sourceCount = 0, llmConfig = {}, llmS
         <summary style={{cursor: 'pointer', fontWeight: 800}}>Setup and diagnostics</summary>
         <div style={{display: 'grid', gap: 12, marginTop: 14}}>
           <div style={{fontSize: 14, color: 'var(--muted)'}}>
-            Gemini: {llmConfig.apiKeyConfigured ? 'connected' : 'not configured'} · Model: {llmConfig.model || 'gemini-3.1-flash-lite'} · This month: {llmSummary.calls || 0} calls, {llmSummary.failures || 0} failures, {money(llmSummary.estimatedCostUsd)} / ${Number(llmConfig.monthlyBudgetUsd || 5).toFixed(2)}.
+            Gemini API key: {llmConfig.apiKeyConfigured ? 'configured' : 'missing'} · Model: {llmConfig.model || 'gemini-3.1-flash-lite'} · This month: {llmSummary.calls || 0} calls, {llmSummary.failures || 0} failures, {money(llmSummary.estimatedCostUsd)} / ${Number(llmConfig.monthlyBudgetUsd || 5).toFixed(2)}.
           </div>
           <div style={{display: 'flex', gap: 10, flexWrap: 'wrap'}}>
             <button className="btn" type="button" onClick={testConnection} disabled={diagnosticState.status === 'running' || !llmConfig.apiKeyConfigured}>
-              {diagnosticState.status === 'running' ? 'Testing…' : 'Test Gemini connection'}
+              {diagnosticState.status === 'running' ? 'Testing…' : 'Test Gemini API access'}
             </button>
             <button className="btn" type="button" onClick={installStarterSources} disabled={setupState.status === 'running'}>
               Restore BCA + Ultra Voucher

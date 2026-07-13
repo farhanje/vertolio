@@ -34,6 +34,29 @@ async function queueSource(sb, sourceId) {
   return true
 }
 
+async function unlockIncompleteIntelligence(sb, sourceIds) {
+  if (!sourceIds.length) return 0
+
+  const reset = await sb
+    .from('promotions')
+    .update({
+      segmentation_provider: null,
+      segmentation_model: null,
+      segmentation_prompt_version: null,
+      segmentation_taxonomy_version: null,
+      segmentation_llm_status: null,
+      segmentation_last_attempt_at: null,
+      intelligence_method: 'rules',
+      verification_status: 'needs_attention',
+    })
+    .in('source_id', sourceIds)
+    .eq('intelligence_method', 'rules')
+    .select('id')
+
+  if (reset.error) throw reset.error
+  return reset.data?.length || 0
+}
+
 export async function POST(request) {
   try {
     ensureFullExtractionOutputBudget()
@@ -56,6 +79,8 @@ export async function POST(request) {
       if (sources.error) throw sources.error
       sourceIds = (sources.data || []).map((source) => source.id)
     }
+
+    const retryUnlocked = await unlockIncompleteIntelligence(sb, sourceIds)
 
     let queuedSources = 0
     for (const id of sourceIds) {
@@ -84,6 +109,7 @@ export async function POST(request) {
       ok: true,
       queuedSources,
       totalSources: sourceIds.length,
+      retryUnlocked,
       processed,
       remainingJobs: remaining.count || 0,
       outputTokenLimit: Number(process.env.PROMO_LLM_MAX_OUTPUT_TOKENS || 2600),
