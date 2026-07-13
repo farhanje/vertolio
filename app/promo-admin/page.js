@@ -50,6 +50,7 @@ export default async function PromoAdminPage() {
   const today = new Date().toISOString().slice(0, 10)
   const foundToday = promotions.filter((promo) => String(promo.created_at || '').startsWith(today)).length
   const autoPublished = promotions.filter((promo) => promo.publication_status === 'published').length
+  const openReviews = reviewResult.count || 0
 
   return (
     <main className="container" style={{paddingTop: 96, paddingBottom: 96}}>
@@ -61,6 +62,12 @@ export default async function PromoAdminPage() {
           and intervene only when extraction needs review.
         </p>
 
+        <div className="cta-row" style={{marginTop: 20}}>
+          <a className="btn primary" href="/promo-admin/review">
+            Open review queue{openReviews ? ` (${openReviews})` : ''}
+          </a>
+        </div>
+
         <PromoAdminActions
           sources={sources.map(({id, name}) => ({id, name}))}
           adapters={adapters}
@@ -70,7 +77,7 @@ export default async function PromoAdminPage() {
           <div style={{gridColumn: 'span 3'}}><Metric label="Healthy sources" value={sources.filter((s) => s.status === 'healthy').length} /></div>
           <div style={{gridColumn: 'span 3'}}><Metric label="Degraded or failing" value={sources.filter((s) => ['degraded','failing','delayed'].includes(s.status)).length} /></div>
           <div style={{gridColumn: 'span 3'}}><Metric label="Active jobs" value={activeJobs.length} /></div>
-          <div style={{gridColumn: 'span 3'}}><Metric label="Review queue" value={reviewResult.count || 0} /></div>
+          <div style={{gridColumn: 'span 3'}}><Metric label="Review queue" value={openReviews} /></div>
           <div style={{gridColumn: 'span 3'}}><Metric label="Promos found today" value={foundToday} /></div>
           <div style={{gridColumn: 'span 3'}}><Metric label="Auto-published" value={autoPublished} /></div>
         </div>
