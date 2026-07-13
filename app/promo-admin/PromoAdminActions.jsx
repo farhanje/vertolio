@@ -39,7 +39,7 @@ export default function PromoAdminActions({sources = [], adapters = []}) {
 
       setRunState({
         status: 'done',
-        message: `Finished. ${data.processed?.length || 0} job(s) processed. Refresh to see the latest records.`,
+        message: `Finished. ${data.processed?.length || 0} job(s) processed. Refresh to see categories, cities, and outlet records.`,
       })
     } catch (error) {
       setRunState({status: 'error', message: String(error?.message || error)})
@@ -55,7 +55,8 @@ export default function PromoAdminActions({sources = [], adapters = []}) {
         body: JSON.stringify({preset: 'starter'}),
       }))
       const created = (data.results || []).filter((item) => item.created).length
-      setAddState({status: 'done', message: `${created} starter source(s) added. Reloading…`})
+      const updated = (data.results || []).filter((item) => item.updated).length
+      setAddState({status: 'done', message: `${created} source(s) added and ${updated} source(s) updated for automatic publishing. Reloading…`})
       window.setTimeout(() => window.location.reload(), 700)
     } catch (error) {
       setAddState({status: 'error', message: String(error?.message || error)})
@@ -74,7 +75,7 @@ export default function PromoAdminActions({sources = [], adapters = []}) {
       }))
       setAddState({
         status: 'done',
-        message: data.created ? 'Source added in review-only mode. Reloading…' : 'That source already exists. Reloading…',
+        message: data.created ? 'Source added with a confidence gate. Reloading…' : 'That source already exists. Reloading…',
       })
       setForm(initialForm)
       window.setTimeout(() => window.location.reload(), 700)
@@ -99,12 +100,12 @@ export default function PromoAdminActions({sources = [], adapters = []}) {
         <div>
           <strong>Recommended starting sources</strong>
           <p style={{margin: '4px 0 0', color: 'var(--muted)', fontSize: 14}}>
-            Install BCA and Ultra Voucher with automatic publishing disabled. Review the first results before changing any threshold.
+            Install BCA and Ultra Voucher with automatic high-confidence publishing. Every result is categorized and location-tagged before storage, while expired offers are skipped.
           </p>
         </div>
         <div>
           <button className="btn primary" type="button" onClick={installStarterSources} disabled={addState.status === 'running'}>
-            Install BCA + Ultra Voucher
+            Install or update BCA + Ultra Voucher
           </button>
         </div>
       </div>
@@ -133,7 +134,7 @@ export default function PromoAdminActions({sources = [], adapters = []}) {
       <details style={{border: '1px solid var(--hair)', padding: 16}}>
         <summary style={{cursor: 'pointer', fontWeight: 800}}>Add another public source</summary>
         <p style={{color: 'var(--muted)', fontSize: 14, maxWidth: 720}}>
-          Use the generic adapter for a new official public webpage. A dedicated adapter can be added later when the source needs special discovery or parsing rules.
+          Use the generic adapter for a new official public webpage. It starts behind a confidence gate; a dedicated adapter can be added later for special discovery or parsing rules.
         </p>
 
         <form onSubmit={addSource} style={{display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 14, marginTop: 16}}>
@@ -169,7 +170,7 @@ export default function PromoAdminActions({sources = [], adapters = []}) {
           </label>
 
           <label style={{display: 'grid', gap: 6}}>
-            <span style={{fontSize: 13, fontWeight: 700}}>Review threshold</span>
+            <span style={{fontSize: 13, fontWeight: 700}}>Confidence threshold</span>
             <input type="number" min="0.5" max="1" step="0.01" value={form.minimumConfidence} onChange={(event) => updateField('minimumConfidence', event.target.value)} style={fieldStyle} />
           </label>
 
@@ -180,7 +181,7 @@ export default function PromoAdminActions({sources = [], adapters = []}) {
 
           <div style={{gridColumn: '1 / -1'}}>
             <button className="btn primary" type="submit" disabled={addState.status === 'running'}>
-              {addState.status === 'running' ? 'Adding…' : 'Add source in review-only mode'}
+              {addState.status === 'running' ? 'Adding…' : 'Add source with confidence gate'}
             </button>
           </div>
         </form>
