@@ -21,7 +21,7 @@ const STARTER_SOURCES = [
     adapter_key: 'bca',
     check_frequency: 'every_6_hours',
     check_interval_minutes: 360,
-    minimum_confidence: 0.9,
+    minimum_confidence: 0.85,
     max_pages_per_run: 25,
     auto_publish_enabled: true,
   },
@@ -31,7 +31,7 @@ const STARTER_SOURCES = [
     adapter_key: 'ultra-voucher',
     check_frequency: 'every_6_hours',
     check_interval_minutes: 360,
-    minimum_confidence: 0.9,
+    minimum_confidence: 0.85,
     max_pages_per_run: 25,
     auto_publish_enabled: true,
   },
@@ -70,17 +70,19 @@ async function createSourceIfMissing(sb, source) {
   if (existing.error) throw existing.error
 
   if (existing.data) {
-    if (source.auto_publish_enabled && !existing.data.auto_publish_enabled) {
-      const updated = await sb
-        .from('promo_sources')
-        .update({auto_publish_enabled: true})
-        .eq('id', existing.data.id)
-        .select('*')
-        .single()
-      if (updated.error) throw updated.error
-      return {source: updated.data, created: false, updated: true}
-    }
-    return {source: existing.data, created: false, updated: false}
+    const updated = await sb
+      .from('promo_sources')
+      .update({
+        auto_publish_enabled: Boolean(source.auto_publish_enabled),
+        minimum_confidence: source.minimum_confidence,
+        enabled: true,
+        status: 'healthy',
+      })
+      .eq('id', existing.data.id)
+      .select('*')
+      .single()
+    if (updated.error) throw updated.error
+    return {source: updated.data, created: false, updated: true}
   }
 
   const result = await sb
@@ -118,7 +120,7 @@ export async function POST(request) {
     const baseUrl = normalizePublicUrl(body.baseUrl)
     const adapterKey = String(body.adapterKey || 'generic-html').trim()
     const frequency = String(body.frequency || 'every_6_hours').trim()
-    const confidence = Number(body.minimumConfidence || 0.9)
+    const confidence = Number(body.minimumConfidence || 0.85)
 
     if (!name || name.length > 120) throw new Error('Source name is required and must be under 120 characters')
     if (!hasPromotionSourceAdapter(adapterKey)) throw new Error('Unknown source adapter')
@@ -135,7 +137,7 @@ export async function POST(request) {
       check_interval_minutes: FREQUENCIES[frequency],
       minimum_confidence: confidence,
       max_pages_per_run: Math.max(1, Math.min(Number(body.maxPagesPerRun || 25), 100)),
-      auto_publish_enabled: false,
+      auto_publish_enabled: true,
     })
 
     return NextResponse.json({ok: true, ...result})
