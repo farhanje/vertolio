@@ -1,0 +1,99 @@
+name: Fix promo intelligence fallback
+
+on:
+  push:
+    branches:
+      - agent/fix-full-intelligence-fallback
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/fix-full-intelligence-fallback
+          fetch-depth: 0
+
+      - name: Patch full intelligence runtime
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          def replace(path, old, new):
+              p = Path(path)
+              text = p.read_text()
+              if old not in text:
+                  raise SystemExit(f'Missing expected text in {path}: {old[:100]!r}')
+              p.write_text(text.replace(old, new, 1))
+
+          replace(
+              'lib/promo/llm.js',
+              "const DEFAULT_MAX_OUTPUT_TOKENS = 900",
+              "const DEFAULT_MAX_OUTPUT_TOKENS = 3000",
+          )
+          replace(
+              'lib/promo/llm.js',
+              "export const PROMO_LLM_PROMPT_VERSION = 'promo-segmentation-v2'",
+              "export const PROMO_LLM_PROMPT_VERSION = 'full-promo-intelligence-v1'",
+          )
+          replace(
+              'lib/promo/llm.js',
+              "export const PROMO_LLM_TAXONOMY_VERSION = 'promo-taxonomy-v1'",
+              "export const PROMO_LLM_TAXONOMY_VERSION = 'promo-taxonomy-v2'",
+          )
+          replace(
+              'lib/promo/intelligence.js',
+              "maxOutputTokens: 2000,",
+              "maxOutputTokens: 2600,",
+          )
+          replace(
+              'lib/promo/intelligence.js',
+              "      : `${text}T17:00:00.000Z`",
+              "      : new Date(`${text}T00:00:00+07:00`).toISOString()",
+          )
+
+          page = Path('app/promo-admin/page.js')
+          text = page.read_text()
+          text = text.replace(
+              "  const [sourcesResult, jobsResult, promotionsResult, outletsResult] = await Promise.all([\n    sb.from('promo_sources').select('*').order('name'),\n    sb.from('promo_ingestion_jobs').select('*').order('created_at', {ascending: false}).limit(12),\n    sb.from('promotions').select('*'),\n    sb.from('promo_outlets').select('id', {count: 'exact', head: true}),\n  ])",
+              "  const [sourcesResult, jobsResult, promotionsResult, outletsResult, llmFailureResult] = await Promise.all([\n    sb.from('promo_sources').select('*').order('name'),\n    sb.from('promo_ingestion_jobs').select('*').order('created_at', {ascending: false}).limit(12),\n    sb.from('promotions').select('*'),\n    sb.from('promo_outlets').select('id', {count: 'exact', head: true}),\n    sb.from('promo_llm_usage')\n      .select('error_message,operation,model,created_at')\n      .eq('status', 'failed')\n      .order('created_at', {ascending: false})\n      .limit(1)\n      .maybeSingle(),\n  ])",
+              1,
+          )
+          text = text.replace(
+              "  const llmConfig = getPromoLlmConfig()\n  const sources = sourcesResult.data || []",
+              "  const llmConfig = getPromoLlmConfig()\n  const latestAiFailure = llmFailureResult.data || null\n  const sources = sourcesResult.data || []",
+              1,
+          )
+          text = text.replace(
+              "  const engineReady = enabledSources.length > 0 && llmConfig.apiKeyConfigured && llmSummary.available\n  const engineStatus = engineReady\n    ? 'Ready — full AI extraction is enabled'",
+              "  const engineReady = enabledSources.length > 0 && llmConfig.apiKeyConfigured && llmSummary.available\n  const aiFailing = Boolean(latestAiFailure) && (llmSummary.failures || 0) > 0 && (llmSummary.calls || 0) === 0\n  const engineStatus = aiFailing\n    ? 'Gemini is connected, but full extraction is failing'\n    : engineReady\n      ? 'Ready — full AI extraction is enabled'",
+              1,
+          )
+          text = text.replace(
+              "          <span style={{fontSize: 12, padding: '6px 9px', border: '1px solid var(--hair2)'}}>{engineReady ? 'AUTOMATIC' : 'SETUP NEEDED'}</span>\n        </div>\n\n        <PromoAdminActions",
+              "          <span style={{fontSize: 12, padding: '6px 9px', border: '1px solid var(--hair2)'}}>{aiFailing ? 'AI ERROR' : engineReady ? 'AUTOMATIC' : 'SETUP NEEDED'}</span>\n        </div>\n\n        {aiFailing ? (\n          <div style={{border: '1px solid var(--hair)', padding: 14, marginTop: 12}}>\n            <strong>Latest Gemini extraction error</strong>\n            <div style={{fontSize: 13, marginTop: 6}}>{latestAiFailure.error_message || 'Unknown Gemini error'}</div>\n            <div style={{fontSize: 12, color: 'var(--muted)', marginTop: 5}}>\n              {latestAiFailure.model || llmConfig.model} · {latestAiFailure.operation || 'full_promo_extraction'} · {formatJakarta(latestAiFailure.created_at)}\n            </div>\n          </div>\n        ) : null}\n\n        <PromoAdminActions",
+              1,
+          )
+          if "latestAiFailure" not in text or "AI ERROR" not in text:
+              raise SystemExit('Dashboard diagnostics patch did not apply')
+          page.write_text(text)
+          PY
+
+      - name: Validate changed JavaScript
+        run: |
+          node --check lib/promo/llm.js
+          node --check lib/promo/intelligence.js
+          node --check app/promo-admin/page.js
+
+      - name: Remove temporary workflow and commit
+        run: |
+          rm .github/workflows/fix-promo-intelligence-fallback.yml
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add lib/promo/llm.js lib/promo/intelligence.js app/promo-admin/page.js .github/workflows/fix-promo-intelligence-fallback.yml
+          git commit -m "Fix full promo intelligence fallback"
+          git push origin HEAD:agent/fix-full-intelligence-fallback
