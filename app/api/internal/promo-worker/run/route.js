@@ -8,8 +8,8 @@ export const maxDuration = 60
 
 function ensureFullExtractionOutputBudget() {
   const configured = Number(process.env.PROMO_LLM_MAX_OUTPUT_TOKENS || 0)
-  if (!Number.isFinite(configured) || configured < 2600) {
-    process.env.PROMO_LLM_MAX_OUTPUT_TOKENS = '2600'
+  if (!Number.isFinite(configured) || configured < 4096) {
+    process.env.PROMO_LLM_MAX_OUTPUT_TOKENS = '4096'
   }
 }
 
@@ -25,7 +25,7 @@ export async function POST(request) {
       ok: true,
       processed,
       hadQueuedJob: Boolean(processed),
-      outputTokenLimit: Number(process.env.PROMO_LLM_MAX_OUTPUT_TOKENS || 2600),
+      outputTokenLimit: Number(process.env.PROMO_LLM_MAX_OUTPUT_TOKENS || 4096),
       ranAt: new Date().toISOString(),
     })
   } catch (error) {
