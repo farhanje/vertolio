@@ -6,6 +6,8 @@ export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
 
+const CURSOR_KEY = 'promo_ingestion_cursor'
+
 function ensureFullExtractionOutputBudget() {
   const configured = Number(process.env.PROMO_LLM_MAX_OUTPUT_TOKENS || 0)
   if (!Number.isFinite(configured) || configured < 2600) {
@@ -54,6 +56,37 @@ async function reactivateDelayedRetries(sb, sourceIds = []) {
   const reactivated = await query.select('id')
   if (reactivated.error) throw reactivated.error
   return reactivated.data?.length || 0
+}
+
+async function resetSourceCursors(sb, sourceIds = []) {
+  if (!sourceIds.length) return 0
+
+  const result = await sb
+    .from('promo_sources')
+    .select('id,adapter_config')
+    .in('id', sourceIds)
+
+  if (result.error) throw result.error
+
+  let resetCount = 0
+  for (const source of result.data || []) {
+    const adapterConfig = source.adapter_config && typeof source.adapter_config === 'object'
+      ? {...source.adapter_config}
+      : {}
+
+    if (!adapterConfig[CURSOR_KEY]) continue
+    delete adapterConfig[CURSOR_KEY]
+
+    const updated = await sb
+      .from('promo_sources')
+      .update({adapter_config: adapterConfig})
+      .eq('id', source.id)
+
+    if (updated.error) throw updated.error
+    resetCount += 1
+  }
+
+  return resetCount
 }
 
 async function makeSourceRunnableNow(sb, sourceId) {
@@ -146,6 +179,7 @@ export async function POST(request) {
       alreadyRunning: 0,
       staleRecovered: 0,
       delayedRetriesReactivated: 0,
+      cursorsReset: 0,
     }
     let retryUnlocked = 0
     let sourceIds = []
@@ -168,6 +202,12 @@ export async function POST(request) {
       queueActions.staleRecovered = await recoverStaleRunningJobs(sb, sourceIds)
       queueActions.delayedRetriesReactivated = await reactivateDelayedRetries(sb, sourceIds)
       retryUnlocked = await unlockIncompleteIntelligence(sb, sourceIds)
+
+      // A prior failed batch may have advanced past rule-fallback rows. Restarting
+      // the discovery cursor ensures an administrator retry revisits them now.
+      if (retryUnlocked > 0) {
+        queueActions.cursorsReset = await resetSourceCursors(sb, sourceIds)
+      }
 
       for (const id of sourceIds) {
         const queueAction = await makeSourceRunnableNow(sb, id)
@@ -203,6 +243,7 @@ export async function POST(request) {
       alreadyQueuedJobs: queueActions.alreadyQueued,
       alreadyRunningJobs: queueActions.alreadyRunning,
       staleRecoveredJobs: queueActions.staleRecovered,
+      cursorsReset: queueActions.cursorsReset,
       totalSources: sourceIds.length,
       retryUnlocked,
       processed,
