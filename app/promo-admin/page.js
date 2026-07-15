@@ -91,6 +91,7 @@ export default async function PromoAdminPage() {
   const aiProcessed = promotions.filter((promo) => ['gemini', 'cache'].includes(promo.intelligence_method)).length
   const verified = promotions.filter((promo) => promo.verification_status === 'verified').length
   const needsAttention = promotions.filter((promo) => promo.verification_status === 'needs_attention').length
+  const catalogListings = promotions.filter((promo) => promo.verification_status === 'catalog_listing').length
   const duplicates = promotions.filter((promo) => promo.verification_status === 'duplicate' || promo.duplicate_of).length
   const expiringSoon = promotions.filter((promo) => promo.status === 'expiring_soon').length
   const trusted = promotions.filter((promo) => ['official_source', 'trusted_aggregator'].includes(promo.source_trust_level)).length
@@ -173,7 +174,8 @@ export default async function PromoAdminPage() {
           <div style={{gridColumn: 'span 3'}}><Metric label="Live promos" value={livePromos.length} note="Published and currently usable" /></div>
           <div style={{gridColumn: 'span 3'}}><Metric label="AI processed" value={aiProcessed} note="Full Gemini extraction or cache" /></div>
           <div style={{gridColumn: 'span 3'}}><Metric label="Verified" value={verified} note={`${trusted} from trusted source domains`} /></div>
-          <div style={{gridColumn: 'span 3'}}><Metric label="Needs attention" value={needsAttention} note="Missing or conflicting critical terms" /></div>
+          <div style={{gridColumn: 'span 3'}}><Metric label="Catalog listings" value={catalogListings} note="Real aggregator offers; current validity must be checked" /></div>
+          <div style={{gridColumn: 'span 3'}}><Metric label="Needs attention" value={needsAttention} note="Contradictory, suspicious, or critically incomplete" /></div>
           <div style={{gridColumn: 'span 3'}}><Metric label="Duplicates blocked" value={duplicates} note="Hidden from the public list" /></div>
           <div style={{gridColumn: 'span 3'}}><Metric label="Expiring soon" value={expiringSoon} note="Seven days or less remaining" /></div>
           <div style={{gridColumn: 'span 3'}}><Metric label="Expired removed" value={totalDeleted} note="Across recorded runs" /></div>
