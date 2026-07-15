@@ -222,24 +222,40 @@ export async function POST(request) {
     }
 
     const processed = await processQueuedPromoJobs(1)
-    const remainingJobs = await activeJobCount(sb)
+    const [remainingJobs, latestFailure] = await Promise.all([
+      activeJobCount(sb),
+      sb
+        .from('promo_llm_usage')
+        .select('error_message,operation,model,created_at')
+        .eq('status', 'failed')
+        .gte('created_at', runStartedAt)
+        .order('created_at', {ascending: false})
+        .limit(1)
+        .maybeSingle(),
+    ])
 
     return NextResponse.json({
       ok: true,
-      processed,
+      action,
+      queuedSources: queueActions.created,
+      reactivatedJobs: queueActions.reactivated,
+      delayedRetriesReactivated: queueActions.delayedRetriesReactivated,
+      alreadyQueuedJobs: queueActions.alreadyQueued,
+      alreadyRunningJobs: queueActions.alreadyRunning,
+      staleRecoveredJobs: queueActions.staleRecovered,
+      cursorsReset: queueActions.cursorsReset,
+      totalSources: sourceIds.length,
       retryUnlocked,
-      queueActions,
+      processed,
       remainingJobs,
-      hasMore: remainingJobs > 0,
       outputTokenLimit: Number(process.env.PROMO_LLM_MAX_OUTPUT_TOKENS || 4096),
-      runStartedAt,
-      ranAt: new Date().toISOString(),
+      latestAiFailure: latestFailure.error ? null : latestFailure.data,
     })
   } catch (error) {
     return NextResponse.json({
       ok: false,
-      error: 'Admin source check failed',
+      error: 'Automatic promo update failed',
       detail: String(error?.message || error),
-    }, { status: 500 })
+    }, {status: 500})
   }
 }
