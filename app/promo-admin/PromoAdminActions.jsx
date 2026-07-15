@@ -27,28 +27,43 @@ function totalCounters(processed = []) {
   }, {})
 }
 
-function runSummary({processed, setup, remainingJobs, latestFailure, running = false}) {
+function aiTotals(batches = []) {
+  return batches.reduce((totals, batch) => {
+    if (!batch) return totals
+    totals.calls += ['success','cached'].includes(batch.status) ? 1 : 0
+    totals.cacheHits += batch.status === 'cached' ? 1 : 0
+    totals.claimed += Number(batch.claimed || 0)
+    totals.resolved += Number(batch.resolved || 0)
+    totals.unresolved += Number(batch.unresolved || 0)
+    totals.cost += Number(batch.estimatedCostUsd || 0)
+    return totals
+  }, {calls: 0, cacheHits: 0, claimed: 0, resolved: 0, unresolved: 0, cost: 0})
+}
+
+function runSummary({processed, aiBatches, setup, remainingJobs, latestFailure, running = false}) {
   const totals = totalCounters(processed)
+  const ai = aiTotals(aiBatches)
   const parts = [
-    `${processed.length} safe batch(es) finished`,
-    `${totals.aiEnriched || 0} AI-processed`,
-    `${totals.llmCalled || 0} Gemini call(s)`,
-    `${totals.llmCached || 0} cache hit(s)`,
+    `${processed.length} source batch(es) finished`,
+    `${totals.deterministic || 0} parsed without AI`,
+    `${totals.aiQueued || 0} queued for bulk AI`,
+    `${ai.calls} bulk AI call(s)`,
+    `${ai.resolved} AI-resolved`,
     `${totals.created || 0} new`,
     `${totals.updated || 0} updated`,
-    `${totals.notPromotion || 0} rejected as non-promos`,
+    `${totals.notPromotion || 0} non-promos rejected`,
     `${totals.duplicates || 0} duplicates blocked`,
     `${totals.deleted || 0} expired removed`,
   ]
 
-  if (setup?.retryUnlocked) parts.push(`${setup.retryUnlocked} incomplete promo(s) unlocked`)
+  if (ai.cacheHits) parts.push(`${ai.cacheHits} AI cache hit(s)`)
+  if (ai.cost) parts.push(`${money(ai.cost)} batch cost`)
   if (setup?.reactivatedJobs) parts.push(`${setup.reactivatedJobs} delayed job(s) reactivated`)
   if (setup?.staleRecoveredJobs) parts.push(`${setup.staleRecoveredJobs} timed-out job(s) recovered`)
   if (setup?.queuedSources) parts.push(`${setup.queuedSources} source job(s) created`)
-  if (totals.llmFailed) parts.push(`${totals.llmFailed} Gemini failure(s)`)
-  if (remainingJobs) parts.push(`${remainingJobs} batch job(s) remaining`)
+  if (remainingJobs) parts.push(`${remainingJobs} automation step(s) remaining`)
   if (running && remainingJobs) parts.push('continuing automatically…')
-  if (latestFailure?.error_message) parts.push(`Latest Gemini error: ${latestFailure.error_message}`)
+  if (latestFailure?.error_message) parts.push(`Latest selective AI error: ${latestFailure.error_message}`)
 
   return parts.join(' · ')
 }
@@ -68,9 +83,10 @@ export default function PromoAdminActions({sourceCount = 0, llmConfig = {}, llmS
   const [sourceForm, setSourceForm] = useState({name: '', baseUrl: ''})
 
   async function runAutomaticUpdate() {
-    setRunState({status: 'running', message: 'Preparing short, resumable promo batches…'})
+    setRunState({status: 'running', message: 'Running deterministic source batches and selective AI only when needed…'})
 
     const processed = []
+    const aiBatches = []
     let setup = null
     let remainingJobs = 0
     let latestFailure = null
@@ -79,12 +95,13 @@ export default function PromoAdminActions({sourceCount = 0, llmConfig = {}, llmS
       let data = await postEngineAction('start')
       setup = data
       processed.push(...(data.processed || []))
+      if (data.aiBatch) aiBatches.push(data.aiBatch)
       remainingJobs = Number(data.remainingJobs || 0)
       latestFailure = data.latestAiFailure || null
 
       setRunState({
         status: latestFailure ? 'error' : 'running',
-        message: runSummary({processed, setup, remainingJobs, latestFailure, running: !latestFailure}),
+        message: runSummary({processed, aiBatches, setup, remainingJobs, latestFailure, running: !latestFailure}),
       })
 
       let batchNumber = 1
@@ -92,20 +109,21 @@ export default function PromoAdminActions({sourceCount = 0, llmConfig = {}, llmS
         await sleep(350)
         data = await postEngineAction('continue')
         processed.push(...(data.processed || []))
+        if (data.aiBatch) aiBatches.push(data.aiBatch)
         remainingJobs = Number(data.remainingJobs || 0)
         latestFailure = data.latestAiFailure || null
         batchNumber += 1
 
         setRunState({
           status: latestFailure ? 'error' : 'running',
-          message: runSummary({processed, setup, remainingJobs, latestFailure, running: !latestFailure}),
+          message: runSummary({processed, aiBatches, setup, remainingJobs, latestFailure, running: !latestFailure}),
         })
       }
 
       if (latestFailure) {
         setRunState({
           status: 'error',
-          message: runSummary({processed, setup, remainingJobs, latestFailure}),
+          message: runSummary({processed, aiBatches, setup, remainingJobs, latestFailure}),
         })
         return
       }
@@ -113,14 +131,14 @@ export default function PromoAdminActions({sourceCount = 0, llmConfig = {}, llmS
       if (remainingJobs > 0) {
         setRunState({
           status: 'done',
-          message: `${runSummary({processed, setup, remainingJobs, latestFailure})} · Safety pause reached; press Run automatic update again to continue.`,
+          message: `${runSummary({processed, aiBatches, setup, remainingJobs, latestFailure})} · Safety pause reached; the scheduled worker will continue automatically.`,
         })
         return
       }
 
       setRunState({
         status: 'done',
-        message: runSummary({processed, setup, remainingJobs: 0, latestFailure: null}),
+        message: runSummary({processed, aiBatches, setup, remainingJobs: 0, latestFailure: null}),
       })
       window.setTimeout(() => window.location.reload(), 1800)
     } catch (error) {
@@ -129,8 +147,8 @@ export default function PromoAdminActions({sourceCount = 0, llmConfig = {}, llmS
       setRunState({
         status: 'error',
         message: networkFailure
-          ? `${runSummary({processed, setup, remainingJobs, latestFailure})} · One batch lost its server connection. Completed batches are already saved; press Run automatic update again to resume.`
-          : `${runSummary({processed, setup, remainingJobs, latestFailure})} · ${message}`,
+          ? `${runSummary({processed, aiBatches, setup, remainingJobs, latestFailure})} · One request lost its connection. Saved work is safe and the scheduled worker will resume it.`
+          : `${runSummary({processed, aiBatches, setup, remainingJobs, latestFailure})} · ${message}`,
       })
     }
   }
@@ -153,7 +171,7 @@ export default function PromoAdminActions({sourceCount = 0, llmConfig = {}, llmS
       }))
       setSetupState({
         status: 'done',
-        message: data.created ? 'Source added. It will be included in the next automatic update.' : 'Source already existed and was re-enabled.',
+        message: data.created ? 'Source added. The scheduler will process it automatically.' : 'Source already existed and was re-enabled.',
       })
       setSourceForm({name: '', baseUrl: ''})
       window.setTimeout(() => window.location.reload(), 900)
@@ -185,7 +203,7 @@ export default function PromoAdminActions({sourceCount = 0, llmConfig = {}, llmS
       const data = await readJson(await fetch('/api/promo-admin/llm/test', {method: 'POST'}))
       setDiagnosticState({
         status: 'done',
-        message: `Gemini API responded in ${data.latencyMs} ms · ${data.inputTokens || 0} input / ${data.outputTokens || 0} output tokens · ${money(data.estimatedCostUsd)} paid-equivalent cost. This confirms API access only; Run automatic update confirms full promo extraction.`,
+        message: `Gemini API responded in ${data.latencyMs} ms · ${data.inputTokens || 0} input / ${data.outputTokens || 0} output tokens · ${money(data.estimatedCostUsd)} paid-equivalent cost. Production uses it only for unresolved fields in bulk.`,
       })
     } catch (error) {
       setDiagnosticState({status: 'error', message: String(error?.message || error)})
@@ -207,14 +225,14 @@ export default function PromoAdminActions({sourceCount = 0, llmConfig = {}, llmS
     <div style={{display: 'grid', gap: 18, marginTop: 28, maxWidth: 920}}>
       <section style={{border: '1px solid var(--hair)', padding: 20, display: 'grid', gap: 14}}>
         <div>
-          <strong style={{fontSize: 18}}>Run the promo engine</strong>
+          <strong style={{fontSize: 18}}>Automatic promo engine</strong>
           <p style={{margin: '6px 0 0', color: 'var(--muted)', maxWidth: 720}}>
-            Processes one promo page at a time, continues automatically, verifies terms with Gemini, blocks duplicates, and saves progress after every safe batch.
+            The scheduler discovers pages, isolates each promo section, parses usable fields without AI, and sends only unresolved records to a small bulk AI batch. The button below is an optional immediate run.
           </p>
         </div>
         <div>
           <button className="btn primary" type="button" onClick={runAutomaticUpdate} disabled={runState.status === 'running' || sourceCount === 0}>
-            {runState.status === 'running' ? 'Processing safe batches…' : 'Run automatic update'}
+            {runState.status === 'running' ? 'Processing automation steps…' : 'Run now (optional)'}
           </button>
         </div>
         {runState.message ? <div style={{fontSize: 14, color: statusColor}}>{runState.message}</div> : null}
@@ -222,9 +240,9 @@ export default function PromoAdminActions({sourceCount = 0, llmConfig = {}, llmS
 
       {!llmConfig.apiKeyConfigured ? (
         <section style={{border: '1px solid var(--hair)', padding: 16}}>
-          <strong>Gemini API key is missing</strong>
+          <strong>Selective AI is unavailable</strong>
           <p style={{margin: '6px 0 0', color: 'var(--muted)', fontSize: 14}}>
-            The engine will still run with rules, but full date, eligibility, quota, category, and location interpretation requires GEMINI_API_KEY in Vercel Production.
+            Complete deterministic promos still publish normally. Only genuinely unresolved records remain queued for review until a Gemini key is configured.
           </p>
         </section>
       ) : null}
@@ -232,7 +250,7 @@ export default function PromoAdminActions({sourceCount = 0, llmConfig = {}, llmS
       <details style={{border: '1px solid var(--hair)', padding: 16}}>
         <summary style={{cursor: 'pointer', fontWeight: 800}}>Add a source</summary>
         <p style={{color: 'var(--muted)', fontSize: 14, maxWidth: 720}}>
-          Add the official promotion listing URL from a bank, wallet, voucher platform, or merchant. The default crawler checks it every six hours.
+          Add an official public promotion listing. Generic sources use configurable boundaries; high-volume sources should receive a dedicated adapter before unrestricted auto-publishing.
         </p>
         <form onSubmit={addSource} style={{display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1.5fr) auto', gap: 10, alignItems: 'end', marginTop: 14}}>
           <label style={{display: 'grid', gap: 6}}>
@@ -252,7 +270,7 @@ export default function PromoAdminActions({sourceCount = 0, llmConfig = {}, llmS
         <summary style={{cursor: 'pointer', fontWeight: 800}}>Setup and diagnostics</summary>
         <div style={{display: 'grid', gap: 12, marginTop: 14}}>
           <div style={{fontSize: 14, color: 'var(--muted)'}}>
-            Gemini API key: {llmConfig.apiKeyConfigured ? 'configured' : 'missing'} · Model: {llmConfig.model || 'gemini-3.1-flash-lite'} · This month: {llmSummary.calls || 0} calls, {llmSummary.failures || 0} failures, {money(llmSummary.estimatedCostUsd)} / ${Number(llmConfig.monthlyBudgetUsd || 5).toFixed(2)}.
+            Selective Gemini: {llmConfig.apiKeyConfigured ? 'configured' : 'missing'} · Model: {llmConfig.model || 'gemini-3.1-flash-lite'} · This month: {llmSummary.calls || 0} calls, {llmSummary.failures || 0} failures, {money(llmSummary.estimatedCostUsd)} / ${Number(llmConfig.monthlyBudgetUsd || 5).toFixed(2)}.
           </div>
           <div style={{display: 'flex', gap: 10, flexWrap: 'wrap'}}>
             <button className="btn" type="button" onClick={testConnection} disabled={diagnosticState.status === 'running' || !llmConfig.apiKeyConfigured}>
