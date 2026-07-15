@@ -13,7 +13,7 @@ alter table public.promotions
   drop constraint if exists promotions_publishability_status_check;
 alter table public.promotions
   add constraint promotions_publishability_status_check
-  check (publishability_status in ('publishable','catalog_listing','unresolved'));
+  check (publishability_status in ('publishable','catalog_listing','unresolved','pending_ai','review_required'));
 
 alter table public.promotions
   drop constraint if exists promotions_intelligence_method_check;
@@ -52,12 +52,40 @@ create index if not exists promo_ai_resolution_queue_claim_idx
   on public.promo_ai_resolution_queue(status, next_attempt_at, created_at)
   where status in ('queued','running');
 
+create or replace function public.normalize_promo_publishability_state()
+returns trigger
+language plpgsql
+set search_path = public
+as $$
+begin
+  if new.publishability_status = 'unresolved'
+    and not ('legacy_reassessment_required' = any(coalesce(new.publishability_missing, '{}'::text[])))
+  then
+    if new.segmentation_method = 'llm_hybrid' then
+      new.publishability_status := 'review_required';
+    elsif coalesce(new.publishability_missing, '{}'::text[])
+      && array['merchant','offerSummary','validity','availability']::text[]
+    then
+      new.publishability_status := 'pending_ai';
+    else
+      new.publishability_status := 'review_required';
+    end if;
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists promotions_010_publishability_state_before_write on public.promotions;
+create trigger promotions_010_publishability_state_before_write
+before insert or update on public.promotions
+for each row execute function public.normalize_promo_publishability_state();
+
 create or replace function public.claim_promo_ai_resolution_batch(p_limit integer default 6)
 returns setof public.promo_ai_resolution_queue
 language plpgsql
 security definer
 set search_path = public
-as $$
+as $$;
 begin
   update public.promo_ai_resolution_queue
   set status = 'queued',
