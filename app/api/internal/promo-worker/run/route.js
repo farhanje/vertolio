@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { isValidSchedulerRequest } from '@/lib/promo/auth'
+import { supabaseServer } from '@/lib/supabase.server'
 import { processNextPromoJob } from '@/lib/promo/ingestion'
 import { processNextPromoAiResolutionBatch } from '@/lib/promo/ai-resolver'
 
@@ -7,15 +8,30 @@ export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
 
+async function pipelineReady() {
+  const result = await supabaseServer()
+    .from('promo_ai_resolution_queue')
+    .select('id', {count: 'exact', head: true})
+  return !result.error
+}
+
 export async function POST(request) {
   if (!isValidSchedulerRequest(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   try {
-    // An unresolved batch older than 30 minutes gets priority so AI work cannot
-    // starve behind a long source backfill. Otherwise deterministic ingestion
-    // remains the default task for each worker run.
+    if (!await pipelineReady()) {
+      return NextResponse.json({
+        ok: true,
+        processed: null,
+        aiBatch: null,
+        hadWork: false,
+        strategy: 'schema_not_ready',
+        ranAt: new Date().toISOString(),
+      })
+    }
+
     let aiBatch = await processNextPromoAiResolutionBatch({minimumAgeMinutes: 30})
     let processed = null
 
