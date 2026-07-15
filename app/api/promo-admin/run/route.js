@@ -10,8 +10,8 @@ const CURSOR_KEY = 'promo_ingestion_cursor'
 
 function ensureFullExtractionOutputBudget() {
   const configured = Number(process.env.PROMO_LLM_MAX_OUTPUT_TOKENS || 0)
-  if (!Number.isFinite(configured) || configured < 2600) {
-    process.env.PROMO_LLM_MAX_OUTPUT_TOKENS = '2600'
+  if (!Number.isFinite(configured) || configured < 4096) {
+    process.env.PROMO_LLM_MAX_OUTPUT_TOKENS = '4096'
   }
 }
 
@@ -222,40 +222,24 @@ export async function POST(request) {
     }
 
     const processed = await processQueuedPromoJobs(1)
-    const [remainingJobs, latestFailure] = await Promise.all([
-      activeJobCount(sb),
-      sb
-        .from('promo_llm_usage')
-        .select('error_message,operation,model,created_at')
-        .eq('status', 'failed')
-        .gte('created_at', runStartedAt)
-        .order('created_at', {ascending: false})
-        .limit(1)
-        .maybeSingle(),
-    ])
+    const remainingJobs = await activeJobCount(sb)
 
     return NextResponse.json({
       ok: true,
-      action,
-      queuedSources: queueActions.created,
-      reactivatedJobs: queueActions.reactivated,
-      delayedRetriesReactivated: queueActions.delayedRetriesReactivated,
-      alreadyQueuedJobs: queueActions.alreadyQueued,
-      alreadyRunningJobs: queueActions.alreadyRunning,
-      staleRecoveredJobs: queueActions.staleRecovered,
-      cursorsReset: queueActions.cursorsReset,
-      totalSources: sourceIds.length,
-      retryUnlocked,
       processed,
+      retryUnlocked,
+      queueActions,
       remainingJobs,
-      outputTokenLimit: Number(process.env.PROMO_LLM_MAX_OUTPUT_TOKENS || 2600),
-      latestAiFailure: latestFailure.error ? null : latestFailure.data,
+      hasMore: remainingJobs > 0,
+      outputTokenLimit: Number(process.env.PROMO_LLM_MAX_OUTPUT_TOKENS || 4096),
+      runStartedAt,
+      ranAt: new Date().toISOString(),
     })
   } catch (error) {
     return NextResponse.json({
       ok: false,
-      error: 'Automatic promo update failed',
+      error: 'Admin source check failed',
       detail: String(error?.message || error),
-    }, {status: 500})
+    }, { status: 500 })
   }
 }
