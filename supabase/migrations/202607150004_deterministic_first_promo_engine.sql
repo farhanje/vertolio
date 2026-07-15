@@ -19,6 +19,10 @@ alter table public.promo_documents
   add column if not exists boundary_status text not null default 'unknown',
   add column if not exists boundary_diagnostics jsonb not null default '{}'::jsonb;
 
+alter table public.promo_ingestion_jobs
+  add column if not exists records_deterministic integer not null default 0,
+  add column if not exists records_ai_queued integer not null default 0;
+
 create table if not exists public.promo_ai_resolution_queue (
   id uuid primary key default gen_random_uuid(),
   promotion_id uuid not null references public.promotions(id) on delete cascade,
