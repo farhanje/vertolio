@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict'
 import {applyTextBoundary} from '../lib/promo-sources/boundary.js'
 import {findDateRange} from '../lib/promo-sources/date-parser.js'
+import {findFixedMonetaryBenefit, findMaximumMonetaryBenefit, findMinimumSpend} from '../lib/promo-sources/money-parser.js'
+import {mapBcaPromotionFields} from '../lib/promo-sources/bca-source-mapper.js'
 
 const toastBoxPage = `
 Home
@@ -61,6 +63,71 @@ assert.equal(impossibleRange.startsAt, null)
 assert.equal(impossibleRange.expiresAt?.slice(0, 10), '2026-07-23')
 assert.deepEqual(impossibleRange.anomalies, ['start_after_expiry_cleared'])
 
+const sourceTypoRange = findDateRange(`
+Periode 31 Jul 2025 - 09 Agu 2026
+Week 1 : 31 Juli - 2 Agustus 2026
+Week 2 : 7 - 9 Agustus 2026
+`)
+assert.equal(sourceTypoRange.startsAt?.slice(0, 10), '2026-07-31')
+assert.equal(sourceTypoRange.expiresAt?.slice(0, 10), '2026-08-09')
+assert.equal(sourceTypoRange.strategy, 'detailed_ranges_repaired')
+
+const vcGamersText = `
+VCGamers - Cashback Hingga Rp50 Ribu Saldo Point
+Minimum Pembelian
+Rp25.000
+Kuota Harian
+100 Transaksi
+`
+assert.equal(findMinimumSpend(vcGamersText), 25000)
+assert.equal(findMaximumMonetaryBenefit(vcGamersText), 50000)
+
+const im3Text = `
+IM3 - Potongan Harga Paket Roaming IM3 di myBCA
+Tanggal
+Paket Data
+Harga Promo
+Rp90.000
+Harga Normal
+Rp100.000
+`
+assert.equal(findFixedMonetaryBenefit(im3Text), null)
+
+const optikText = `
+Optik Seis - Tambahan Diskon 5%
+Diskon hingga 30% + 5% untuk pembelian sunglasses atau frame
+`
+assert.equal(findMaximumMonetaryBenefit(optikText), null)
+
+const mappedBca = mapBcaPromotionFields({
+  contentHash: 'fixture',
+  rawRelevantText: `
+Zam Zam Sraten - Dapatkan Minyak Goreng 1 Liter
+Home
+Promo BCA
+Groceries
+Zam Zam Sraten
+Zam Zam Sraten - Dapatkan Minyak Goreng 1 Liter
+Periode 14 Jul 2026 - 30 Sep 2026
+Bagi Pengguna
+myBCA BCA mobile QRIS Sakuku Kartu Kredit BCA
+Dapatkan Minyak Goreng 1 Liter
+Syarat & Ketentuan:
+Minimum transaksi Rp500 ribu
+Lokasi :
+Jl. Raya Sraten 001/001
+`,
+  extractedFields: {
+    title: 'Zam Zam Sraten - Dapatkan Minyak Goreng 1 Liter',
+    termsText: '',
+  },
+})
+assert.equal(mappedBca.fields.primaryCategory, 'groceries')
+assert.equal(mappedBca.fields.minimumSpend, 500000)
+assert.equal(mappedBca.fields.benefitType, null)
+assert.equal(mappedBca.fields.locationScope, 'outlet')
+assert.deepEqual(mappedBca.fields.paymentMethods, ['QRIS', 'myBCA', 'BCA mobile', 'Kartu Kredit BCA', 'Sakuku'])
+
 const missingEnd = applyTextBoundary('Promo A\nDiskon 20%', {
   startMarkers: ['Promo A'],
   endMarkers: ['Related offers'],
@@ -74,4 +141,4 @@ const generic = applyTextBoundary('Merchant\nDiskon 10%\nOnline')
 assert.equal(generic.diagnostics.status, 'generic')
 assert.match(generic.text, /Diskon 10%/)
 
-console.log('Promo boundary and date smoke checks passed.')
+console.log('Promo boundary, date, money, and source mapping smoke checks passed.')
