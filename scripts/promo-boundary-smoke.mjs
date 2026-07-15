@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import {applyTextBoundary} from '../lib/promo-sources/boundary.js'
+import {findDateRange} from '../lib/promo-sources/date-parser.js'
 
 const toastBoxPage = `
 Home
@@ -37,6 +38,29 @@ assert.doesNotMatch(bounded.text, /Starbucks/)
 assert.doesNotMatch(bounded.text, /31 Jul 2026/)
 assert.doesNotMatch(bounded.text, /Promo Serupa/)
 
+const toastBoxDates = findDateRange(bounded.text)
+assert.equal(toastBoxDates.startsAt, null)
+assert.equal(toastBoxDates.expiresAt?.slice(0, 10), '2026-07-23')
+assert.equal(toastBoxDates.strategy, 'labeled_dates')
+
+const explicitRange = findDateRange('Periode promo 15 Jul 2026 - 31 Jul 2026')
+assert.equal(explicitRange.startsAt?.slice(0, 10), '2026-07-15')
+assert.equal(explicitRange.expiresAt?.slice(0, 10), '2026-07-31')
+assert.equal(explicitRange.strategy, 'explicit_range')
+
+const sharedMonthRange = findDateRange('Periode promo 15-31 Jul 2026')
+assert.equal(sharedMonthRange.startsAt?.slice(0, 10), '2026-07-15')
+assert.equal(sharedMonthRange.expiresAt?.slice(0, 10), '2026-07-31')
+
+const publicationOnly = findDateRange('Diterbitkan 13 Jul 2026')
+assert.equal(publicationOnly.startsAt, null)
+assert.equal(publicationOnly.expiresAt, null)
+
+const impossibleRange = findDateRange('Mulai 31 Jul 2026\nBerlaku Hingga 23 Jul 2026')
+assert.equal(impossibleRange.startsAt, null)
+assert.equal(impossibleRange.expiresAt?.slice(0, 10), '2026-07-23')
+assert.deepEqual(impossibleRange.anomalies, ['start_after_expiry_cleared'])
+
 const missingEnd = applyTextBoundary('Promo A\nDiskon 20%', {
   startMarkers: ['Promo A'],
   endMarkers: ['Related offers'],
@@ -50,4 +74,4 @@ const generic = applyTextBoundary('Merchant\nDiskon 10%\nOnline')
 assert.equal(generic.diagnostics.status, 'generic')
 assert.match(generic.text, /Diskon 10%/)
 
-console.log('Promo boundary smoke checks passed.')
+console.log('Promo boundary and date smoke checks passed.')
