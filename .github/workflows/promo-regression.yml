@@ -28,4 +28,15 @@ jobs:
         with:
           node-version: 24
       - run: npm install --no-audit --no-fund
-      - run: npm run check:promo-boundaries
+      - name: Run promo parser regressions
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run check:promo-boundaries 2>&1 | tee promo-regression.log
+      - name: Upload regression log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: promo-regression-log
+          path: promo-regression.log
+          if-no-files-found: error
