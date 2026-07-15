@@ -1,0 +1,32 @@
+name: Promo regression checks
+
+on:
+  pull_request:
+    paths:
+      - 'lib/promo-sources/**'
+      - 'lib/promo/**'
+      - 'scripts/promo-boundary-smoke.mjs'
+      - 'package.json'
+      - '.github/workflows/promo-regression.yml'
+  push:
+    branches:
+      - 'agent/repair-promo-source-mapping'
+    paths:
+      - 'lib/promo-sources/**'
+      - 'lib/promo/**'
+      - 'scripts/promo-boundary-smoke.mjs'
+      - 'package.json'
+      - '.github/workflows/promo-regression.yml'
+
+jobs:
+  promo-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run check:promo-boundaries
