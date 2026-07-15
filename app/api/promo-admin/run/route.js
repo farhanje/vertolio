@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { supabaseServer } from '@/lib/supabase.server'
 import { processQueuedPromoJobs } from '@/lib/promo/ingestion'
 import { processNextPromoAiResolutionBatch } from '@/lib/promo/ai-resolver'
+import { ensureSelectiveAiLimits } from '@/lib/promo/selective-ai-config'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -155,6 +156,7 @@ export async function POST(request) {
       }, {status: 409})
     }
 
+    ensureSelectiveAiLimits()
     const queueActions = {
       created: 0,
       reactivated: 0,
