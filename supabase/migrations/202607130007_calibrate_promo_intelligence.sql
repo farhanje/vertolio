@@ -9,7 +9,8 @@ declare
   start_evidence text := lower(coalesce(new.field_evidence ->> 'startsAt', ''));
   expiry_evidence text := lower(coalesce(new.field_evidence ->> 'expiresAt', ''));
   benefit_evidence text := lower(coalesce(new.field_evidence ->> 'benefit', ''));
-  maximum_evidence text := lower(coalesce(new.field_evidence ->> 'maximumBenefit', ''));
+  maximum_evidence_raw text := coalesce(new.field_evidence ->> 'maximumBenefit', '');
+  maximum_evidence text := lower(maximum_evidence_raw);
   minimum_evidence text := lower(coalesce(new.field_evidence ->> 'minimumSpend', ''));
   location_evidence text := lower(concat_ws(' ',
     coalesce(new.field_evidence ->> 'locations', ''),
@@ -23,6 +24,14 @@ declare
   filtered_provinces text[] := '{}'::text[];
   source_auto_publish boolean := false;
   source_minimum_confidence numeric := 0.85;
+  benefit_at_minimum numeric := null;
+  transaction_to_maximize numeric := null;
+  effective_at_minimum numeric := null;
+  effective_at_cap numeric := null;
+  expected_final_cost numeric := null;
+  days_remaining integer := null;
+  expiry_status text := 'unknown';
+  deal_classification text := 'unknown';
 begin
   -- Decode the most common entities left by HTML-only catalog sources.
   new.title := replace(replace(replace(replace(coalesce(new.title, ''), '&#x27;', ''''), '&#39;', ''''), '&quot;', '"'), '&amp;', '&');
@@ -87,7 +96,7 @@ begin
           else 'discount_fixed'
         end;
         new.benefit_value := new.maximum_benefit;
-        new.field_evidence := jsonb_set(coalesce(new.field_evidence, '{}'::jsonb), '{benefit}', to_jsonb(maximum_evidence), true);
+        new.field_evidence := jsonb_set(coalesce(new.field_evidence, '{}'::jsonb), '{benefit}', to_jsonb(maximum_evidence_raw), true);
         new.field_confidence := jsonb_set(coalesce(new.field_confidence, '{}'::jsonb), '{benefit}', to_jsonb(maximum_confidence), true);
         benefit_evidence := maximum_evidence;
         benefit_confidence := maximum_confidence;
@@ -106,10 +115,82 @@ begin
       new.minimum_spend := null;
     end if;
 
-    -- Recalculate the simple status after discarding an unsupported start date.
+    -- Recalculate all derived values after the evidence-based corrections.
+    if new.minimum_spend is not null then
+      transaction_to_maximize := new.minimum_spend;
+    end if;
+
+    if new.minimum_spend is not null
+      and new.minimum_spend > 0
+      and new.benefit_value is not null
+    then
+      if new.benefit_type = 'percentage' then
+        benefit_at_minimum := new.minimum_spend * (new.benefit_value / 100);
+        if new.maximum_benefit is not null then
+          benefit_at_minimum := least(benefit_at_minimum, new.maximum_benefit);
+          if new.benefit_value > 0 then
+            transaction_to_maximize := greatest(new.minimum_spend, new.maximum_benefit / (new.benefit_value / 100));
+          end if;
+        end if;
+        effective_at_minimum := (benefit_at_minimum / new.minimum_spend) * 100;
+      elsif new.benefit_type in ('cashback_fixed', 'discount_fixed') then
+        benefit_at_minimum := case
+          when new.maximum_benefit is null then new.benefit_value
+          else least(new.benefit_value, new.maximum_benefit)
+        end;
+        benefit_at_minimum := least(benefit_at_minimum, new.minimum_spend);
+        effective_at_minimum := (benefit_at_minimum / new.minimum_spend) * 100;
+      end if;
+    end if;
+
+    if new.minimum_spend is not null and benefit_at_minimum is not null then
+      expected_final_cost := greatest(0, new.minimum_spend - benefit_at_minimum);
+    end if;
+
+    if transaction_to_maximize is not null and new.maximum_benefit is not null then
+      effective_at_cap := (new.maximum_benefit / transaction_to_maximize) * 100;
+    else
+      effective_at_cap := effective_at_minimum;
+    end if;
+
+    if new.expires_at is not null then
+      days_remaining := ceil(extract(epoch from (new.expires_at - now())) / 86400)::integer;
+      expiry_status := case
+        when days_remaining < 0 then 'expired'
+        when days_remaining <= 7 then 'expiring_soon'
+        else 'active'
+      end;
+    end if;
+
+    deal_classification := case
+      when effective_at_minimum is null then 'unknown'
+      when effective_at_minimum >= 25 then 'excellent'
+      when effective_at_minimum >= 15 then 'strong'
+      when effective_at_minimum >= 8 then 'moderate'
+      else 'low'
+    end;
+
+    new.calculated_values := jsonb_build_object(
+      'effectiveDiscountAtMinimum', case when effective_at_minimum is null then null else round(effective_at_minimum, 2) end,
+      'benefitAtMinimum', case when benefit_at_minimum is null then null else round(benefit_at_minimum, 2) end,
+      'transactionAmountToMaximizeBenefit', case when transaction_to_maximize is null then null else round(transaction_to_maximize, 2) end,
+      'effectiveDiscountAtBenefitCap', case when effective_at_cap is null then null else round(effective_at_cap, 2) end,
+      'recommendedTransactionRange', case
+        when new.minimum_spend is null then null
+        else jsonb_build_object(
+          'minimum', round(new.minimum_spend, 2),
+          'maximumRecommended', round(coalesce(transaction_to_maximize, new.minimum_spend), 2)
+        )
+      end,
+      'expectedFinalCost', case when expected_final_cost is null then null else round(expected_final_cost, 2) end,
+      'dealValueClassification', deal_classification,
+      'daysRemaining', days_remaining,
+      'expiryStatus', expiry_status
+    );
+
     if new.starts_at is not null and new.starts_at > now() then
       new.status := 'upcoming';
-    elsif coalesce(new.calculated_values ->> 'expiryStatus', '') = 'expiring_soon' then
+    elsif expiry_status = 'expiring_soon' then
       new.status := 'expiring_soon';
     else
       new.status := 'active';
