@@ -89,6 +89,7 @@ begin
         new.benefit_value := new.maximum_benefit;
         new.field_evidence := jsonb_set(coalesce(new.field_evidence, '{}'::jsonb), '{benefit}', to_jsonb(maximum_evidence), true);
         new.field_confidence := jsonb_set(coalesce(new.field_confidence, '{}'::jsonb), '{benefit}', to_jsonb(maximum_confidence), true);
+        benefit_evidence := maximum_evidence;
         benefit_confidence := maximum_confidence;
       else
         new.benefit_type := 'other';
@@ -125,7 +126,7 @@ begin
       or new.benefit_value is null
       or benefit_evidence = ''
       or benefit_confidence < 0.6
-      or cardinality(coalesce(new.contradictions, '{}'::text[])) > 0
+      or jsonb_array_length(coalesce(new.contradictions, '[]'::jsonb)) > 0
       or (new.starts_at is not null and new.expires_at is not null and new.starts_at > new.expires_at)
     then
       new.verification_status := 'needs_attention';
@@ -137,6 +138,9 @@ begin
     into source_auto_publish, source_minimum_confidence
     from public.promo_sources
     where id = new.source_id;
+
+    source_auto_publish := coalesce(source_auto_publish, false);
+    source_minimum_confidence := coalesce(source_minimum_confidence, 0.85);
 
     if new.verification_status = 'verified'
       and source_auto_publish
