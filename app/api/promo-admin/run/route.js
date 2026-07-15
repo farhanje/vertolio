@@ -1,148 +1,16 @@
 import { NextResponse } from 'next/server'
 import { supabaseServer } from '@/lib/supabase.server'
 import { processQueuedPromoJobs } from '@/lib/promo/ingestion'
-import { incrementLlmCounter, processExtractedPromotion } from '@/lib/promo/ingestion/core'
-import { getPromotionSourceAdapter } from '@/lib/promo-sources/registry'
+import { processNextPromoAiResolutionBatch } from '@/lib/promo/ai-resolver'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
 
 const CURSOR_KEY = 'promo_ingestion_cursor'
-const DIRECT_RETRY_COOLDOWN_MS = 10 * 60 * 1000
-
-function ensureFullExtractionOutputBudget() {
-  const configured = Number(process.env.PROMO_LLM_MAX_OUTPUT_TOKENS || 0)
-  if (!Number.isFinite(configured) || configured < 4096) {
-    process.env.PROMO_LLM_MAX_OUTPUT_TOKENS = '4096'
-  }
-}
 
 function staleRunningCutoff() {
   return new Date(Date.now() - 90 * 1000).toISOString()
-}
-
-function emptyCounters() {
-  return {
-    discovered: 0,
-    created: 0,
-    updated: 0,
-    unchanged: 0,
-    deleted: 0,
-    expiredSkipped: 0,
-    notPromotion: 0,
-    review: 0,
-    warnings: 0,
-    materialChanges: 0,
-    llmCalled: 0,
-    llmCached: 0,
-    llmBudgetSkipped: 0,
-    llmFailed: 0,
-    llmSkippedUnchanged: 0,
-    rulesOnly: 0,
-    duplicates: 0,
-    aiEnriched: 0,
-    needsAttention: 0,
-  }
-}
-
-function directRetryEligible(promotion) {
-  if (!promotion?.segmentation_last_attempt_at) return true
-  const attemptedAt = new Date(promotion.segmentation_last_attempt_at).getTime()
-  return !Number.isFinite(attemptedAt) || Date.now() - attemptedAt >= DIRECT_RETRY_COOLDOWN_MS
-}
-
-async function incompletePromotions(sb) {
-  const result = await sb
-    .from('promotions')
-    .select('id,source_id,canonical_url,title,intelligence_warnings,segmentation_last_attempt_at,updated_at')
-    .eq('intelligence_method', 'rules')
-    .eq('verification_status', 'needs_attention')
-    .order('segmentation_last_attempt_at', {ascending: true, nullsFirst: true})
-    .order('updated_at', {ascending: true})
-    .limit(100)
-
-  if (result.error) throw result.error
-  return (result.data || []).filter(directRetryEligible)
-}
-
-async function processOneIncompletePromotion(sb) {
-  const candidates = await incompletePromotions(sb)
-  const promotion = candidates[0]
-  if (!promotion) return null
-
-  const sourceResult = await sb
-    .from('promo_sources')
-    .select('*')
-    .eq('id', promotion.source_id)
-    .single()
-
-  if (sourceResult.error) throw sourceResult.error
-  const source = sourceResult.data
-  const counters = emptyCounters()
-  counters.discovered = 1
-
-  try {
-    const adapter = getPromotionSourceAdapter(source)
-    const document = await adapter.fetchPromotion(promotion.canonical_url)
-    const extracted = await adapter.extractPromotion(document)
-    const outcome = await processExtractedPromotion(sb, source, {
-      id: null,
-      trigger_type: 'administrator_retry',
-    }, extracted)
-
-    if (Object.prototype.hasOwnProperty.call(counters, outcome.result)) {
-      counters[outcome.result] += 1
-    }
-    incrementLlmCounter(counters, outcome.llmStatus)
-    if (outcome.review) counters.review += 1
-    if (outcome.materialChange) counters.materialChanges += 1
-    if (outcome.duplicate) counters.duplicates += 1
-    if (outcome.aiEnriched) counters.aiEnriched += 1
-    if (outcome.needsAttention) counters.needsAttention += 1
-
-    return {
-      jobId: null,
-      sourceId: source.id,
-      sourceName: source.name,
-      status: 'completed',
-      directRetry: true,
-      promotionId: promotion.id,
-      promotionTitle: promotion.title,
-      counters,
-      batch: {start: 0, end: 1, total: 1, hasMore: candidates.length > 1},
-    }
-  } catch (error) {
-    const message = String(error?.message || error)
-    const warnings = [...new Set([
-      ...(Array.isArray(promotion.intelligence_warnings) ? promotion.intelligence_warnings : []),
-      `Direct retry failed: ${message}`,
-    ])]
-
-    await sb
-      .from('promotions')
-      .update({
-        segmentation_last_attempt_at: new Date().toISOString(),
-        intelligence_warnings: warnings,
-      })
-      .eq('id', promotion.id)
-
-    counters.warnings = 1
-    counters.rulesOnly = 1
-
-    return {
-      jobId: null,
-      sourceId: source.id,
-      sourceName: source.name,
-      status: 'completed_with_warnings',
-      directRetry: true,
-      promotionId: promotion.id,
-      promotionTitle: promotion.title,
-      error: message,
-      counters,
-      batch: {start: 0, end: 1, total: 1, hasMore: candidates.length > 1},
-    }
-  }
 }
 
 async function recoverStaleRunningJobs(sb, sourceIds = []) {
@@ -186,12 +54,10 @@ async function reactivateDelayedRetries(sb, sourceIds = []) {
 
 async function resetSourceCursors(sb, sourceIds = []) {
   if (!sourceIds.length) return 0
-
   const result = await sb
     .from('promo_sources')
     .select('id,adapter_config')
     .in('id', sourceIds)
-
   if (result.error) throw result.error
 
   let resetCount = 0
@@ -199,34 +65,28 @@ async function resetSourceCursors(sb, sourceIds = []) {
     const adapterConfig = source.adapter_config && typeof source.adapter_config === 'object'
       ? {...source.adapter_config}
       : {}
-
     if (!adapterConfig[CURSOR_KEY]) continue
     delete adapterConfig[CURSOR_KEY]
-
     const updated = await sb
       .from('promo_sources')
       .update({adapter_config: adapterConfig})
       .eq('id', source.id)
-
     if (updated.error) throw updated.error
     resetCount += 1
   }
-
   return resetCount
 }
 
 async function makeSourceRunnableNow(sb, sourceId) {
   const existing = await sb
     .from('promo_ingestion_jobs')
-    .select('id,status,started_at,retry_at')
+    .select('id,status')
     .eq('source_id', sourceId)
     .in('status', ['queued','running','retrying'])
     .maybeSingle()
-
   if (existing.error) throw existing.error
 
   const nowIso = new Date().toISOString()
-
   if (!existing.data) {
     const created = await sb.from('promo_ingestion_jobs').insert({
       source_id: sourceId,
@@ -237,7 +97,6 @@ async function makeSourceRunnableNow(sb, sourceId) {
     if (created.error) throw created.error
     return 'created'
   }
-
   if (existing.data.status === 'running') return 'already_running'
 
   const reactivated = await sb
@@ -252,32 +111,8 @@ async function makeSourceRunnableNow(sb, sourceId) {
       error_message: null,
     })
     .eq('id', existing.data.id)
-
   if (reactivated.error) throw reactivated.error
   return existing.data.status === 'queued' ? 'already_queued' : 'reactivated'
-}
-
-async function unlockIncompleteIntelligence(sb, sourceIds) {
-  if (!sourceIds.length) return 0
-
-  const reset = await sb
-    .from('promotions')
-    .update({
-      segmentation_provider: null,
-      segmentation_model: null,
-      segmentation_prompt_version: null,
-      segmentation_taxonomy_version: null,
-      segmentation_llm_status: null,
-      segmentation_last_attempt_at: null,
-      intelligence_method: 'rules',
-    })
-    .in('source_id', sourceIds)
-    .eq('intelligence_method', 'rules')
-    .eq('verification_status', 'needs_attention')
-    .select('id')
-
-  if (reset.error) throw reset.error
-  return reset.data?.length || 0
 }
 
 async function activeJobCount(sb) {
@@ -285,14 +120,21 @@ async function activeJobCount(sb) {
     .from('promo_ingestion_jobs')
     .select('id', {count: 'exact', head: true})
     .in('status', ['queued','running','retrying'])
-
   if (result.error) throw result.error
+  return result.count || 0
+}
+
+async function queuedAiCount(sb) {
+  const result = await sb
+    .from('promo_ai_resolution_queue')
+    .select('id', {count: 'exact', head: true})
+    .eq('status', 'queued')
+  if (result.error) return 0
   return result.count || 0
 }
 
 export async function POST(request) {
   try {
-    ensureFullExtractionOutputBudget()
     const runStartedAt = new Date().toISOString()
     const body = await request.json().catch(() => ({}))
     const action = body.action === 'continue' ? 'continue' : 'start'
@@ -307,7 +149,6 @@ export async function POST(request) {
       delayedRetriesReactivated: 0,
       cursorsReset: 0,
     }
-    let retryUnlocked = 0
     let sourceIds = []
 
     if (action === 'start') {
@@ -320,18 +161,13 @@ export async function POST(request) {
           .eq('enabled', true)
           .not('status', 'in', '(paused,unsupported)')
           .order('name')
-
         if (sources.error) throw sources.error
         sourceIds = (sources.data || []).map((source) => source.id)
       }
 
       queueActions.staleRecovered = await recoverStaleRunningJobs(sb, sourceIds)
       queueActions.delayedRetriesReactivated = await reactivateDelayedRetries(sb, sourceIds)
-      retryUnlocked = await unlockIncompleteIntelligence(sb, sourceIds)
-
-      if (retryUnlocked > 0) {
-        queueActions.cursorsReset = await resetSourceCursors(sb, sourceIds)
-      }
+      queueActions.cursorsReset = await resetSourceCursors(sb, sourceIds)
 
       for (const id of sourceIds) {
         const queueAction = await makeSourceRunnableNow(sb, id)
@@ -345,21 +181,22 @@ export async function POST(request) {
       queueActions.delayedRetriesReactivated = await reactivateDelayedRetries(sb)
     }
 
-    const directRetry = await processOneIncompletePromotion(sb)
-    const processed = directRetry ? [directRetry] : await processQueuedPromoJobs(1)
-    const [activeJobs, remainingDirectRetries, latestFailure] = await Promise.all([
-      activeJobCount(sb),
-      incompletePromotions(sb),
+    const processed = await processQueuedPromoJobs(1)
+    const sourceJobsRemaining = await activeJobCount(sb)
+    const aiBatch = sourceJobsRemaining === 0 ? await processNextPromoAiResolutionBatch() : null
+    const [remainingAiItems, latestFailure] = await Promise.all([
+      queuedAiCount(sb),
       sb
         .from('promo_llm_usage')
         .select('error_message,operation,model,created_at')
         .eq('status', 'failed')
+        .eq('operation', 'promo_ambiguity_batch')
         .gte('created_at', runStartedAt)
         .order('created_at', {ascending: false})
         .limit(1)
         .maybeSingle(),
     ])
-    const remainingJobs = activeJobs + remainingDirectRetries.length
+    const remainingJobs = sourceJobsRemaining + (remainingAiItems > 0 ? 1 : 0)
 
     return NextResponse.json({
       ok: true,
@@ -372,13 +209,13 @@ export async function POST(request) {
       staleRecoveredJobs: queueActions.staleRecovered,
       cursorsReset: queueActions.cursorsReset,
       totalSources: sourceIds.length,
-      retryUnlocked,
-      directRetryProcessed: Boolean(directRetry),
-      remainingDirectRetries: remainingDirectRetries.length,
       processed,
+      aiBatch,
+      remainingSourceJobs: sourceJobsRemaining,
+      remainingAiItems,
       remainingJobs,
-      outputTokenLimit: Number(process.env.PROMO_LLM_MAX_OUTPUT_TOKENS || 4096),
       latestAiFailure: latestFailure.error ? null : latestFailure.data,
+      strategy: 'deterministic_first_selective_ai',
     })
   } catch (error) {
     return NextResponse.json({
