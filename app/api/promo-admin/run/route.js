@@ -132,11 +132,12 @@ async function activeJobCount(sb) {
   return result.count || 0
 }
 
-async function queuedAiCount(sb) {
+async function dueAiCount(sb) {
   const result = await sb
     .from('promo_ai_resolution_queue')
     .select('id', {count: 'exact', head: true})
     .eq('status', 'queued')
+    .lte('next_attempt_at', new Date().toISOString())
   if (result.error) return 0
   return result.count || 0
 }
@@ -202,7 +203,7 @@ export async function POST(request) {
     const sourceJobsRemaining = await activeJobCount(sb)
     const aiBatch = sourceJobsRemaining === 0 ? await processNextPromoAiResolutionBatch() : null
     const [remainingAiItems, latestFailure] = await Promise.all([
-      queuedAiCount(sb),
+      dueAiCount(sb),
       sb
         .from('promo_llm_usage')
         .select('error_message,operation,model,created_at')
