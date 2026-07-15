@@ -85,7 +85,7 @@ returns setof public.promo_ai_resolution_queue
 language plpgsql
 security definer
 set search_path = public
-as $$;
+as $$
 begin
   update public.promo_ai_resolution_queue
   set status = 'queued',
