@@ -3,6 +3,7 @@ import { isValidSchedulerRequest } from '@/lib/promo/auth'
 import { supabaseServer } from '@/lib/supabase.server'
 import { processNextPromoJob } from '@/lib/promo/ingestion'
 import { processNextPromoAiResolutionBatch } from '@/lib/promo/ai-resolver'
+import { ensureSelectiveAiLimits } from '@/lib/promo/selective-ai-config'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -32,6 +33,7 @@ export async function POST(request) {
       })
     }
 
+    ensureSelectiveAiLimits()
     let aiBatch = await processNextPromoAiResolutionBatch({minimumAgeMinutes: 30})
     let processed = null
 
