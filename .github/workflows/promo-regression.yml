@@ -1,0 +1,42 @@
+name: Promo regression checks
+
+on:
+  pull_request:
+    paths:
+      - 'lib/promo-sources/**'
+      - 'lib/promo/**'
+      - 'scripts/promo-boundary-smoke.mjs'
+      - 'package.json'
+      - '.github/workflows/promo-regression.yml'
+  push:
+    branches:
+      - 'agent/repair-promo-source-mapping'
+    paths:
+      - 'lib/promo-sources/**'
+      - 'lib/promo/**'
+      - 'scripts/promo-boundary-smoke.mjs'
+      - 'package.json'
+      - '.github/workflows/promo-regression.yml'
+
+jobs:
+  promo-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm install --no-audit --no-fund
+      - name: Run promo parser regressions
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run check:promo-boundaries 2>&1 | tee promo-regression.log
+      - name: Upload regression log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: promo-regression-log
+          path: promo-regression.log
+          if-no-files-found: error
