@@ -59,6 +59,14 @@ security definer
 set search_path = public
 as $$
 begin
+  update public.promo_ai_resolution_queue
+  set status = 'queued',
+      next_attempt_at = now(),
+      last_error = coalesce(last_error, 'Recovered abandoned running batch'),
+      updated_at = now()
+  where status = 'running'
+    and updated_at < now() - interval '15 minutes';
+
   return query
   with candidates as (
     select q.id
