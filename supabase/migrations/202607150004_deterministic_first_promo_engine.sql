@@ -15,6 +15,12 @@ alter table public.promotions
   add constraint promotions_publishability_status_check
   check (publishability_status in ('publishable','catalog_listing','unresolved'));
 
+alter table public.promotions
+  drop constraint if exists promotions_intelligence_method_check;
+alter table public.promotions
+  add constraint promotions_intelligence_method_check
+  check (intelligence_method in ('gemini','cache','rules','hybrid'));
+
 alter table public.promo_documents
   add column if not exists boundary_status text not null default 'unknown',
   add column if not exists boundary_diagnostics jsonb not null default '{}'::jsonb;
