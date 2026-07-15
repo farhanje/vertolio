@@ -1,17 +1,11 @@
 import { NextResponse } from 'next/server'
 import { isValidSchedulerRequest } from '@/lib/promo/auth'
 import { processNextPromoJob } from '@/lib/promo/ingestion'
+import { processNextPromoAiResolutionBatch } from '@/lib/promo/ai-resolver'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
-
-function ensureFullExtractionOutputBudget() {
-  const configured = Number(process.env.PROMO_LLM_MAX_OUTPUT_TOKENS || 0)
-  if (!Number.isFinite(configured) || configured < 4096) {
-    process.env.PROMO_LLM_MAX_OUTPUT_TOKENS = '4096'
-  }
-}
 
 export async function POST(request) {
   if (!isValidSchedulerRequest(request)) {
@@ -19,13 +13,21 @@ export async function POST(request) {
   }
 
   try {
-    ensureFullExtractionOutputBudget()
-    const processed = await processNextPromoJob()
+    // An unresolved batch older than 30 minutes gets priority so AI work cannot
+    // starve behind a long source backfill. Otherwise deterministic ingestion
+    // remains the default task for each worker run.
+    let aiBatch = await processNextPromoAiResolutionBatch({minimumAgeMinutes: 30})
+    let processed = null
+
+    if (!aiBatch) processed = await processNextPromoJob()
+    if (!processed && !aiBatch) aiBatch = await processNextPromoAiResolutionBatch()
+
     return NextResponse.json({
       ok: true,
       processed,
-      hadQueuedJob: Boolean(processed),
-      outputTokenLimit: Number(process.env.PROMO_LLM_MAX_OUTPUT_TOKENS || 4096),
+      aiBatch,
+      hadWork: Boolean(processed || aiBatch),
+      strategy: aiBatch ? 'bulk_ai_resolution' : processed ? 'deterministic_ingestion' : 'idle',
       ranAt: new Date().toISOString(),
     })
   } catch (error) {
