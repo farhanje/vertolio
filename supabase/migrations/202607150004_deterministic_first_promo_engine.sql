@@ -16,6 +16,12 @@ alter table public.promotions
   check (publishability_status in ('publishable','catalog_listing','unresolved','pending_ai','review_required'));
 
 alter table public.promotions
+  drop constraint if exists promotions_verification_status_check;
+alter table public.promotions
+  add constraint promotions_verification_status_check
+  check (verification_status in ('verified','needs_attention','catalog_listing','duplicate','not_promotion'));
+
+alter table public.promotions
   drop constraint if exists promotions_intelligence_method_check;
 alter table public.promotions
   add constraint promotions_intelligence_method_check
