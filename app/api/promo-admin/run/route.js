@@ -13,6 +13,13 @@ function staleRunningCutoff() {
   return new Date(Date.now() - 90 * 1000).toISOString()
 }
 
+async function pipelineReady(sb) {
+  const result = await sb
+    .from('promo_ai_resolution_queue')
+    .select('id', {count: 'exact', head: true})
+  return !result.error
+}
+
 async function recoverStaleRunningJobs(sb, sourceIds = []) {
   let query = sb
     .from('promo_ingestion_jobs')
@@ -140,6 +147,14 @@ export async function POST(request) {
     const action = body.action === 'continue' ? 'continue' : 'start'
     const sourceId = String(body.sourceId || '').trim()
     const sb = supabaseServer()
+
+    if (!await pipelineReady(sb)) {
+      return NextResponse.json({
+        ok: false,
+        error: 'Deterministic-first database migration is required before running the engine',
+      }, {status: 409})
+    }
+
     const queueActions = {
       created: 0,
       reactivated: 0,
