@@ -27,6 +27,17 @@ const STARTER_SOURCES = [
     adapter_config: {page_batch_size: 1},
   },
   {
+    name: 'DANA Promotions',
+    base_url: 'https://www.dana.id/promo?lng=id',
+    adapter_key: 'dana',
+    check_frequency: 'every_6_hours',
+    check_interval_minutes: 360,
+    minimum_confidence: 0.88,
+    max_pages_per_run: 100,
+    auto_publish_enabled: true,
+    adapter_config: {page_batch_size: 1, listing_page_limit: 5},
+  },
+  {
     name: 'Ultra Voucher Catalog',
     base_url: 'https://ultravoucher.co.id/',
     adapter_key: 'ultra-voucher',
@@ -166,9 +177,6 @@ export async function POST(request) {
       throw new Error('Confidence threshold must be between 0.5 and 1')
     }
 
-    // Dedicated adapters have tested boundaries and may publish automatically.
-    // A new generic source is collected and evaluated automatically but remains
-    // review-only until a boundary contract or dedicated adapter is shipped.
     const dedicatedAdapter = adapterKey !== 'generic-html'
     const adapterConfig = {page_batch_size: 1}
     if (boundaryConfig) adapterConfig.boundaries = boundaryConfig
