@@ -7,7 +7,6 @@ import TranslateToggle from './TranslateToggle'
 const LINKS = [
   {href: '/', label: 'Home'},
   {href: '/work', label: 'Work'},
-  {href: '/promos', label: 'Promos'},
   {href: '/blog', label: 'Blog'},
   {href: '/resume', label: 'Resume'},
   {href: '/about', label: 'About'},
@@ -55,7 +54,6 @@ export default function SiteNav({brand = 'Farhan', brandLogoUrl = null, brandLog
       <div className="nav-mobilebar" role="navigation" aria-label="Primary">
         <a href="/" className={active['/'] ? 'mnav active' : 'mnav'}>Home</a>
         <a href="/work" className={active['/work'] ? 'mnav active' : 'mnav'}>Work</a>
-        <a href="/promos" className={active['/promos'] ? 'mnav active' : 'mnav'}>Promos</a>
         <a href="/blog" className={active['/blog'] ? 'mnav active' : 'mnav'}>Blog</a>
         <button
           className="mnav mnav-btn"
