@@ -4,8 +4,8 @@ import {useEffect, useMemo, useState} from 'react'
 import {normalizeLanguage} from '../lib/i18n'
 
 const FLAG_ICONS = {
-  en: 'https://cdn-icons-png.flaticon.com/512/19014/19014731.png',
-  id: 'https://cdn-icons-png.flaticon.com/512/18338/18338421.png',
+  en: '/flags/gb.svg',
+  id: '/flags/id.svg',
 }
 
 function setCookie(name, value, opts = {}) {
