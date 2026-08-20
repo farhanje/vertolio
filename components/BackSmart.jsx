@@ -2,10 +2,13 @@
 
 import {useEffect, useState} from 'react'
 import {useRouter} from 'next/navigation'
+import {normalizeLanguage, uiCopy} from '../lib/i18n'
 
-export default function BackSmart({fallback = '/'}) {
+export default function BackSmart({fallback = '/', lang = 'en'}) {
   const router = useRouter()
   const [canBack, setCanBack] = useState(false)
+  const language = normalizeLanguage(lang)
+  const copy = uiCopy(language)
 
   useEffect(() => {
     setCanBack(typeof window !== 'undefined' && window.history.length > 1)
@@ -17,8 +20,13 @@ export default function BackSmart({fallback = '/'}) {
   }
 
   return (
-    <button className="btn primary" type="button" onClick={onClick} aria-label="Back">
-      ← Back
+    <button
+      className={language === 'en' ? 'btn primary notranslate' : 'btn primary'}
+      type="button"
+      onClick={onClick}
+      aria-label={copy.back}
+    >
+      ← {copy.back}
     </button>
   )
 }

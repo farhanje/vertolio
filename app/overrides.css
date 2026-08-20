@@ -32,7 +32,45 @@
   border-radius: 0 !important;
 }
 
-/* 3) TOC: prevent duplicated sidebar on mobile/tablet */
+/* 3) Language switch: flags only. Active = full color, inactive = greyscale. */
+.lang-inline {
+  gap: 6px !important;
+}
+
+.lang-flag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  line-height: 1;
+  opacity: .3;
+  filter: grayscale(1);
+  transform: translateY(0);
+  transition: opacity .12s ease, filter .12s ease, transform .12s ease;
+}
+
+.lang-flag-glyph {
+  font-size: 19px;
+  line-height: 1;
+}
+
+.lang-flag:hover {
+  opacity: .7;
+  transform: translateY(-1px);
+}
+
+.lang-flag.active,
+.lang-flag.active:hover {
+  opacity: 1;
+  filter: grayscale(0);
+}
+
+/* 4) TOC: prevent duplicated sidebar on mobile/tablet */
 @media (max-width: 980px) {
   .toc-desktop { display: none !important; }
   .toc-fab { display: block !important; }

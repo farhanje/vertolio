@@ -4,6 +4,8 @@ import {placeholderOrganizations, placeholderProjects, placeholderSiteSettings} 
 import CardMedia from '../../components/CardMedia'
 import MarqueeText from '../../components/MarqueeText'
 import {urlFor} from '../../lib/sanity.image'
+import {getLanguage} from '../../lib/i18n.server'
+import {pickLocalized, uiCopy} from '../../lib/i18n'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
@@ -52,6 +54,9 @@ function buildTagSet(tags = [], cap = 4) {
 }
 
 export default async function Work() {
+  const lang = getLanguage()
+  const copy = uiCopy(lang)
+
   let settings = null
   let orgs = []
   let projects = []
@@ -101,11 +106,11 @@ export default async function Work() {
       <section className="section tight">
         <div className="grid12">
           <div style={{ gridColumn: '1 / span 8' }}>
-            <div className="kicker"><span className="dot" /> Farhan Fauzan Jamaludin</div>
-            <h1 className="h1-tight">Work</h1>
+            <div className="kicker"><span className="dot" /> <span className="notranslate">Farhan Fauzan Jamaludin</span></div>
+            <h1 className={lang === 'en' ? 'h1-tight notranslate' : 'h1-tight'}>{copy.nav.work}</h1>
           </div>
           <div style={{ gridColumn: '9 / span 4', paddingTop: 10 }}>
-            <p className="lead">Selected case studies and experiments.</p>
+            <p className={lang === 'en' ? 'lead notranslate' : 'lead'}>{copy.workIntro}</p>
           </div>
         </div>
       </section>
@@ -136,7 +141,7 @@ export default async function Work() {
                   ) : (
                     <span className="tab-mark" aria-hidden="true" />
                   )}
-                  <span className="tab-text">{g.key}</span>
+                  <span className="tab-text notranslate">{g.key}</span>
                 </label>
               ))}
             </div>
@@ -149,9 +154,13 @@ export default async function Work() {
                 <div key={g.id} className="work-panel" data-panel={g.id}>
                   <div className="grid12 work-grid" style={{ alignItems: 'stretch' }}>
                     {list.map((p) => {
-                      const tags = [p.organization?.name, ...(p.tags || [])].filter(Boolean)
+                      const titlePick = pickLocalized(p?.title, p?.titleEn, lang)
+                      const summaryPick = pickLocalized(p?.summary, p?.summaryEn, lang)
+                      const tagsPick = pickLocalized(p?.tags, p?.tagsEn, lang)
+                      const altPick = pickLocalized(p?.cardImage?.alt, p?.cardImage?.altEn, lang)
+                      const tags = [p.organization?.name, ...(tagsPick.value || [])].filter(Boolean)
                       const { visible, extra } = buildTagSet(tags, 4)
-                      const desc = trunc(p.summary || '', 320)
+                      const desc = trunc(summaryPick.value || '', 320)
 
                       return (
                         <a
@@ -160,12 +169,12 @@ export default async function Work() {
                           style={{ gridColumn: 'span 6' }}
                           href={`/work/${p.slug?.current}`}
                         >
-                          <CardMedia image={p.cardImage} alt={p.cardImage?.alt} logo={p.organization?.logo} />
+                          <CardMedia image={p.cardImage} alt={altPick.value} logo={p.organization?.logo} />
                           <div className="card-body">
-                            <h3>{p.title}</h3>
-                            <p>{desc}<span className="more"> …</span></p>
+                            <h3 className={titlePick.nativeEnglish ? 'notranslate' : undefined}>{titlePick.value}</h3>
+                            <p className={summaryPick.nativeEnglish ? 'notranslate' : undefined}>{desc}<span className="more"> …</span></p>
                           </div>
-                          <div className="meta tags card-meta">
+                          <div className={tagsPick.nativeEnglish ? 'meta tags card-meta notranslate' : 'meta tags card-meta'}>
                             {visible.map((t) => <TagPill key={t} text={t} />)}
                             {extra ? <span className="pill morepill">+{extra}</span> : null}
                           </div>

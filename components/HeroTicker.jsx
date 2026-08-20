@@ -2,7 +2,7 @@
 
 import {useEffect, useMemo, useRef, useState} from 'react'
 
-export default function HeroTicker({words = []}) {
+export default function HeroTicker({words = [], nativeEnglish = false}) {
   const ref = useRef(null)
   const [rows, setRows] = useState(6)
 
@@ -22,7 +22,6 @@ export default function HeroTicker({words = []}) {
 
     const calc = () => {
       const h = el.getBoundingClientRect().height || window.innerHeight || 600
-      // Approx row height (font + gap). Keep it generous so it fills the section.
       const rowH = window.innerWidth <= 820 ? 58 : 52
       const n = Math.max(6, Math.ceil(h / rowH) + 2)
       setRows(n)
@@ -41,7 +40,7 @@ export default function HeroTicker({words = []}) {
   }, [])
 
   return (
-    <div ref={ref} className="hero-ticker" aria-hidden="true">
+    <div ref={ref} className={nativeEnglish ? 'hero-ticker notranslate' : 'hero-ticker'} aria-hidden="true">
       <div className="ticker-track">
         {Array.from({length: rows}).map((_, idx) => {
           const rev = idx % 2 === 1

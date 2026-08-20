@@ -2,6 +2,8 @@ import {sanityFetch} from '../../lib/sanity.client'
 import {SITE_SETTINGS_QUERY, BLOG_INDEX_QUERY} from '../../lib/sanity.queries'
 import {placeholderSiteSettings} from '../../lib/placeholders'
 import CardMedia from '../../components/CardMedia'
+import {getLanguage} from '../../lib/i18n.server'
+import {pickLocalized, uiCopy} from '../../lib/i18n'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
@@ -21,6 +23,9 @@ function trunc(input, max = 320) {
 }
 
 export default async function BlogIndex() {
+  const lang = getLanguage()
+  const copy = uiCopy(lang)
+
   let settings = null
   let posts = []
 
@@ -41,11 +46,11 @@ export default async function BlogIndex() {
       <section className="section tight">
         <div className="grid12">
           <div style={{ gridColumn: '1 / span 8' }}>
-            <div className="kicker"><span className="dot" /> Farhan Fauzan Jamaludin</div>
-            <h1 className="h1-tight">Blog</h1>
+            <div className="kicker"><span className="dot" /> <span className="notranslate">Farhan Fauzan Jamaludin</span></div>
+            <h1 className={lang === 'en' ? 'h1-tight notranslate' : 'h1-tight'}>{copy.nav.blog}</h1>
           </div>
           <div style={{ gridColumn: '9 / span 4', paddingTop: 10 }}>
-            <p className="lead">Notes, write-ups, and small experiments.</p>
+            <p className={lang === 'en' ? 'lead notranslate' : 'lead'}>{copy.blogIntro}</p>
           </div>
         </div>
       </section>
@@ -58,7 +63,11 @@ export default async function BlogIndex() {
             const slug = p?.slug?.current
             if (!slug) return null
             const date = safeDate(p.publishedAt)
-            const desc = trunc(p.excerpt || '', 320)
+            const titlePick = pickLocalized(p?.title, p?.titleEn, lang)
+            const excerptPick = pickLocalized(p?.excerpt, p?.excerptEn, lang)
+            const tagsPick = pickLocalized(p?.tags, p?.tagsEn, lang)
+            const altPick = pickLocalized(p?.cardImage?.alt, p?.cardImage?.altEn, lang)
+            const desc = trunc(excerptPick.value || '', 320)
 
             return (
               <a
@@ -67,13 +76,13 @@ export default async function BlogIndex() {
                 style={{ gridColumn: 'span 6' }}
                 href={`/blog/${slug}`}
               >
-                <CardMedia image={p.cardImage} alt={p.cardImage?.alt} badge={date} />
+                <CardMedia image={p.cardImage} alt={altPick.value} badge={date} />
                 <div className="card-body">
-                  <h3>{p.title}</h3>
-                  <p>{desc}<span className="more"> …</span></p>
+                  <h3 className={titlePick.nativeEnglish ? 'notranslate' : undefined}>{titlePick.value}</h3>
+                  <p className={excerptPick.nativeEnglish ? 'notranslate' : undefined}>{desc}<span className="more"> …</span></p>
                 </div>
-                <div className="meta tags card-meta">
-                  {(p.tags || []).slice(0, 4).map((t) => <span key={t} className="pill">{t}</span>)}
+                <div className={tagsPick.nativeEnglish ? 'meta tags card-meta notranslate' : 'meta tags card-meta'}>
+                  {(tagsPick.value || []).slice(0, 4).map((t) => <span key={t} className="pill">{t}</span>)}
                 </div>
               </a>
             )
@@ -81,7 +90,7 @@ export default async function BlogIndex() {
 
           {(!posts || posts.length === 0) && (
             <div className="card" style={{ gridColumn: '1 / span 12' }}>
-              <h3 style={{ margin: 0 }}>No posts yet</h3>
+              <h3 className={lang === 'en' ? 'notranslate' : undefined} style={{ margin: 0 }}>{copy.noPosts}</h3>
             </div>
           )}
         </div>

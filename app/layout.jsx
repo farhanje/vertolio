@@ -8,8 +8,11 @@ import {SITE_SETTINGS_QUERY} from '../lib/sanity.queries';
 import {placeholderSiteSettings} from '../lib/placeholders';
 import GoogleTranslateCleanup from '../components/GoogleTranslateCleanup';
 import { Analytics } from '@vercel/analytics/next';
+import {getLanguage} from '../lib/i18n.server';
+import {pickLocalized} from '../lib/i18n';
 
 export async function generateMetadata() {
+  const lang = getLanguage();
   let settings = null;
   try {
     settings = await sanityFetch(SITE_SETTINGS_QUERY);
@@ -17,10 +20,14 @@ export async function generateMetadata() {
     settings = placeholderSiteSettings;
   }
 
-  const title = settings?.seo?.siteTitle || settings?.name || 'Portfolio';
-  const description = settings?.seo?.siteDescription || settings?.heroSubtitle || 'Portfolio';
+  const titlePick = pickLocalized(settings?.seo?.siteTitle, settings?.seo?.siteTitleEn, lang);
+  const descriptionPick = pickLocalized(settings?.seo?.siteDescription, settings?.seo?.siteDescriptionEn, lang);
+  const ogAltPick = pickLocalized(settings?.seo?.ogImage?.alt, settings?.seo?.ogImage?.altEn, lang);
+
+  const title = titlePick.value || settings?.name || 'Portfolio';
+  const description = descriptionPick.value || settings?.heroSubtitle || 'Portfolio';
   const ogUrl = settings?.seo?.ogImage?.asset?.url || null;
-  const ogAlt = settings?.seo?.ogImage?.alt || title;
+  const ogAlt = ogAltPick.value || title;
 
   const faviconUrl = settings?.favicon?.asset?.url || null;
 
@@ -43,6 +50,7 @@ export async function generateMetadata() {
 }
 
 export default async function RootLayout({ children }) {
+  const lang = getLanguage();
   let settings = null;
   try {
     settings = await sanityFetch(SITE_SETTINGS_QUERY);
@@ -51,13 +59,14 @@ export default async function RootLayout({ children }) {
   }
 
   const brandLogoUrl = settings?.brandLogo?.asset?.url || null;
-  const brandLogoAlt = settings?.brandLogo?.alt || settings?.name || '';
+  const brandAltPick = pickLocalized(settings?.brandLogo?.alt, settings?.brandLogo?.altEn, lang);
+  const brandLogoAlt = brandAltPick.value || settings?.name || '';
   const brand = settings?.name ? settings.name : 'Farhan Fauzan Jamaludin';
 
   return (
-    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
+    <html lang={lang} className={`${GeistSans.variable} ${GeistMono.variable}`}>
       <head>
-        {/* Google Translate bootstrap */}
+        {/* Google Translate stays available as the fallback while native English fields are being filled in Sanity. */}
         <script
           dangerouslySetInnerHTML={{
             __html: `function googleTranslateElementInit(){try{new google.translate.TranslateElement({pageLanguage:'id',autoDisplay:false},'google_translate_element');}catch(e){}}`,
@@ -65,16 +74,14 @@ export default async function RootLayout({ children }) {
         />
         <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" async />
       </head>
-      <body className="app">
-        {/* hidden container (we only use cookie-based translate, not the UI) */}
+      <body className="app" data-language={lang}>
         <div id="google_translate_element" className="g-translate-hidden" />
         <GoogleTranslateCleanup />
 
-        <SiteNav brand={brand} brandLogoUrl={brandLogoUrl} brandLogoAlt={brandLogoAlt} />
+        <SiteNav brand={brand} brandLogoUrl={brandLogoUrl} brandLogoAlt={brandLogoAlt} lang={lang} />
         {children}
-        <SiteFooter />
+        <SiteFooter lang={lang} />
 
-        {/* Vercel Analytics */}
         <Analytics />
       </body>
     </html>

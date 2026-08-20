@@ -1,6 +1,7 @@
 'use client'
 
 import {useEffect, useRef, useState} from 'react'
+import {normalizeLanguage, uiCopy} from '../lib/i18n'
 
 function slugify(input) {
   return String(input || '')
@@ -26,11 +27,13 @@ function buildToc(root) {
   })
 }
 
-export default function Toc({ contentId = 'content' }) {
+export default function Toc({ contentId = 'content', lang = 'en' }) {
   const [items, setItems] = useState([])
   const [activeId, setActiveId] = useState('')
   const [open, setOpen] = useState(false)
   const deskRef = useRef(null)
+  const language = normalizeLanguage(lang)
+  const copy = uiCopy(language)
 
   useEffect(() => {
     const root = document.getElementById(contentId)
@@ -54,7 +57,6 @@ export default function Toc({ contentId = 'content' }) {
     return () => obs.disconnect()
   }, [contentId])
 
-  // Keep active item visible inside scrollable TOC — desktop only.
   useEffect(() => {
     if (!activeId) return
     if (typeof window !== 'undefined' && window.matchMedia('(max-width: 980px)').matches) return
@@ -78,12 +80,12 @@ export default function Toc({ contentId = 'content' }) {
   if (!hasItems) return null
 
   const onClickLink = () => setOpen(false)
+  const nativeLabelClass = language === 'en' ? 'notranslate' : undefined
 
   return (
     <>
-      {/* Desktop / large screens sidebar */}
       <div className="tocbox toc-desktop" ref={deskRef}>
-        <div className="toc-title">Contents</div>
+        <div className="toc-title"><span className={nativeLabelClass}>{copy.contents}</span></div>
         <nav className="toc">
           {items.map((it) => (
             <a
@@ -97,18 +99,17 @@ export default function Toc({ contentId = 'content' }) {
         </nav>
       </div>
 
-      {/* Mobile / tablet: fixed button + drawer */}
-      <button className="toc-fab" onClick={() => setOpen(true)} aria-label="Open contents">
+      <button className="toc-fab" onClick={() => setOpen(true)} aria-label={copy.openContents}>
         ☰
       </button>
 
       {open ? (
         <div className="toc-overlay" role="dialog" aria-modal="true">
-          <button className="toc-backdrop" onClick={() => setOpen(false)} aria-label="Close" />
+          <button className="toc-backdrop" onClick={() => setOpen(false)} aria-label={copy.close} />
           <div className="toc-drawer">
             <div className="toc-drawer-head">
-              <div className="toc-title">Contents</div>
-              <button className="toc-close" onClick={() => setOpen(false)} aria-label="Close">✕</button>
+              <div className="toc-title"><span className={nativeLabelClass}>{copy.contents}</span></div>
+              <button className="toc-close" onClick={() => setOpen(false)} aria-label={copy.close}>✕</button>
             </div>
             <nav className="toc">
               {items.map((it) => (
