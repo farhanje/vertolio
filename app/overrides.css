@@ -32,7 +32,7 @@
   border-radius: 0 !important;
 }
 
-/* 3) Language switch: EN | ID using Flaticon flag assets. */
+/* 3) Language switch: EN | ID using local flag assets. */
 .lang-inline {
   gap: 7px !important;
 }
@@ -59,6 +59,8 @@
   width: 20px;
   height: 20px;
   object-fit: contain;
+  box-sizing: border-box;
+  border: 1px solid rgba(11,11,11,.16);
 }
 
 .lang-sep {
