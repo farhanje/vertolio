@@ -1,16 +1,7 @@
 import { NextResponse } from 'next/server'
 
 export const config = {
-  matcher: [
-    '/studio/:path*',
-    '/research-admin/:path*',
-    '/api/research/export',
-    '/promo-admin/:path*',
-    '/api/promo-admin/:path*',
-    '/.env/:path*',
-    '/.git/:path*',
-    '/supabase/:path*',
-  ],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
 }
 
 function unauthorized(realm = 'Protected') {
@@ -56,6 +47,31 @@ function hasBasicAuth(req, user, pass) {
   }
 }
 
+function withLanguageCookies(req, response = NextResponse.next()) {
+  const raw = req.cookies.get('portfolio_lang')?.value
+  const lang = raw === 'id' || raw === 'en' ? raw : 'en'
+  const expectedGoogleCookie = lang === 'en' ? '/id/en' : '/id/id'
+
+  if (raw !== lang) {
+    response.cookies.set('portfolio_lang', lang, {
+      path: '/',
+      maxAge: 60 * 60 * 24 * 365,
+      sameSite: 'lax',
+    })
+  }
+
+  const googleCookie = req.cookies.get('googtrans')?.value
+  if (!googleCookie) {
+    response.cookies.set('googtrans', expectedGoogleCookie, {
+      path: '/',
+      maxAge: 60 * 60 * 24 * 365,
+      sameSite: 'lax',
+    })
+  }
+
+  return response
+}
+
 export function middleware(req) {
   const {pathname} = req.nextUrl
 
@@ -71,7 +87,7 @@ export function middleware(req) {
     const user = process.env.STUDIO_USER
     const pass = process.env.STUDIO_PASS
     if (!hasBasicAuth(req, user, pass)) return unauthorized('Studio')
-    return NextResponse.next()
+    return withLanguageCookies(req)
   }
 
   if (pathname.startsWith('/research-admin') || pathname === '/api/research/export') {
@@ -86,5 +102,5 @@ export function middleware(req) {
     if (!user || !pass || !hasBasicAuth(req, user, pass)) return unauthorized('Promo Admin')
   }
 
-  return NextResponse.next()
+  return withLanguageCookies(req)
 }

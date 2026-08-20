@@ -5,8 +5,11 @@ const ACCENT_OPTIONS = [
   { title: 'Blue', value: 'blue' },
 ]
 
+const EN_FALLBACK_NOTE = 'Optional native English. Leave empty to keep the current Google Translate fallback until the English portfolio copy is revised.'
+
 const LINK_FIELDSET = [
-  { name: 'label', title: 'Label', type: 'string' },
+  { name: 'label', title: 'Label — Indonesian', type: 'string' },
+  { name: 'labelEn', title: 'Label — English', type: 'string', description: EN_FALLBACK_NOTE },
   {
     name: 'url',
     title: 'URL',
@@ -32,8 +35,10 @@ export default {
   type: 'document',
   fields: [
     { name: 'name', title: 'Name', type: 'string' },
-    { name: 'tagline', title: 'Tagline', type: 'string' },
-    { name: 'heroSubtitle', title: 'Hero subtitle', type: 'text', rows: 2 },
+    { name: 'tagline', title: 'Tagline — Indonesian', type: 'string' },
+    { name: 'taglineEn', title: 'Tagline — English', type: 'string', description: EN_FALLBACK_NOTE },
+    { name: 'heroSubtitle', title: 'Hero subtitle — Indonesian', type: 'text', rows: 2 },
+    { name: 'heroSubtitleEn', title: 'Hero subtitle — English', type: 'text', rows: 2, description: EN_FALLBACK_NOTE },
 
     // Brand assets
     {
@@ -41,7 +46,10 @@ export default {
       title: 'Brand logo (navbar)',
       type: 'image',
       options: { hotspot: true },
-      fields: [{ name: 'alt', title: 'Alt text', type: 'string' }],
+      fields: [
+        { name: 'alt', title: 'Alt text — Indonesian', type: 'string' },
+        { name: 'altEn', title: 'Alt text — English', type: 'string', description: EN_FALLBACK_NOTE },
+      ],
       description: 'Shown in desktop navbar and mobile drawer. Recommended: simple mark/logo, transparent PNG or SVG, ~256×256.',
     },
     {
@@ -59,7 +67,10 @@ export default {
       title: 'Hero portrait (Desktop) — recommended 4:5 or 3:4',
       type: 'image',
       options: { hotspot: true },
-      fields: [{ name: 'alt', title: 'Alt text', type: 'string' }],
+      fields: [
+        { name: 'alt', title: 'Alt text — Indonesian', type: 'string' },
+        { name: 'altEn', title: 'Alt text — English', type: 'string', description: EN_FALLBACK_NOTE },
+      ],
       description: 'Used on desktop hero. Suggested: 1200×1500 (4:5) or 1200×1600 (3:4).',
     },
     {
@@ -67,7 +78,10 @@ export default {
       title: 'Hero portrait (Mobile/Tablet) — recommended 3:2 or 16:9',
       type: 'image',
       options: { hotspot: true },
-      fields: [{ name: 'alt', title: 'Alt text', type: 'string' }],
+      fields: [
+        { name: 'alt', title: 'Alt text — Indonesian', type: 'string' },
+        { name: 'altEn', title: 'Alt text — English', type: 'string', description: EN_FALLBACK_NOTE },
+      ],
       description: 'Used on mobile/tablet hero. Suggested: 1600×1067 (3:2) or 1600×900 (16:9).',
     },
 
@@ -77,9 +91,12 @@ export default {
       title: 'About page',
       type: 'object',
       fields: [
-        { name: 'kicker', title: 'Kicker', type: 'string', initialValue: 'Farhan Fauzan Jamaludin' },
-        { name: 'title', title: 'Title', type: 'string', initialValue: 'About' },
-        { name: 'lead', title: 'Lead text', type: 'text', rows: 3 },
+        { name: 'kicker', title: 'Kicker — Indonesian', type: 'string', initialValue: 'Farhan Fauzan Jamaludin' },
+        { name: 'kickerEn', title: 'Kicker — English', type: 'string', description: EN_FALLBACK_NOTE },
+        { name: 'title', title: 'Title — Indonesian', type: 'string', initialValue: 'About' },
+        { name: 'titleEn', title: 'Title — English', type: 'string', description: EN_FALLBACK_NOTE },
+        { name: 'lead', title: 'Lead text — Indonesian', type: 'text', rows: 3 },
+        { name: 'leadEn', title: 'Lead text — English', type: 'text', rows: 3, description: EN_FALLBACK_NOTE },
         {
           name: 'buttons',
           title: 'Buttons',
@@ -105,7 +122,8 @@ export default {
             },
           ],
         },
-        { name: 'body', title: 'Body', type: 'array', of: [{ type: 'block' }] },
+        { name: 'body', title: 'Body — Indonesian', type: 'array', of: [{ type: 'block' }] },
+        { name: 'bodyEn', title: 'Body — English', type: 'array', of: [{ type: 'block' }], description: EN_FALLBACK_NOTE },
         {
           name: 'images',
           title: 'Images (gallery)',
@@ -119,9 +137,13 @@ export default {
                   title: 'Image',
                   type: 'image',
                   options: { hotspot: true },
-                  fields: [{ name: 'alt', title: 'Alt text', type: 'string' }],
+                  fields: [
+                    { name: 'alt', title: 'Alt text — Indonesian', type: 'string' },
+                    { name: 'altEn', title: 'Alt text — English', type: 'string', description: EN_FALLBACK_NOTE },
+                  ],
                 },
-                { name: 'caption', title: 'Caption', type: 'string' },
+                { name: 'caption', title: 'Caption — Indonesian', type: 'string' },
+                { name: 'captionEn', title: 'Caption — English', type: 'string', description: EN_FALLBACK_NOTE },
               ],
             },
           ],
@@ -136,14 +158,19 @@ export default {
       title: 'SEO / Metadata',
       type: 'object',
       fields: [
-        { name: 'siteTitle', title: 'Site title', type: 'string', description: 'Shown in browser tab and search results.' },
-        { name: 'siteDescription', title: 'Site description', type: 'text', rows: 2 },
+        { name: 'siteTitle', title: 'Site title — Indonesian', type: 'string', description: 'Shown in browser tab and search results.' },
+        { name: 'siteTitleEn', title: 'Site title — English', type: 'string', description: EN_FALLBACK_NOTE },
+        { name: 'siteDescription', title: 'Site description — Indonesian', type: 'text', rows: 2 },
+        { name: 'siteDescriptionEn', title: 'Site description — English', type: 'text', rows: 2, description: EN_FALLBACK_NOTE },
         {
           name: 'ogImage',
           title: 'Open Graph image (share preview) — recommended 1200×630',
           type: 'image',
           options: { hotspot: true },
-          fields: [{ name: 'alt', title: 'Alt text', type: 'string' }],
+          fields: [
+            { name: 'alt', title: 'Alt text — Indonesian', type: 'string' },
+            { name: 'altEn', title: 'Alt text — English', type: 'string', description: EN_FALLBACK_NOTE },
+          ],
         },
         {
           name: 'commentsRepo',
@@ -156,10 +183,17 @@ export default {
 
     {
       name: 'heroTickerWords',
-      title: 'Hero ticker words (optional)',
+      title: 'Hero ticker words — Indonesian (optional)',
       type: 'array',
       of: [{ type: 'string' }],
       description: 'Words that loop subtly behind the hero. Keep it short and punchy.',
+    },
+    {
+      name: 'heroTickerWordsEn',
+      title: 'Hero ticker words — English (optional)',
+      type: 'array',
+      of: [{ type: 'string' }],
+      description: EN_FALLBACK_NOTE,
     },
 
     {
@@ -206,7 +240,8 @@ export default {
         {
           type: 'object',
           fields: [
-            { name: 'label', title: 'Label (tooltip)', type: 'string' },
+            { name: 'label', title: 'Label (tooltip) — Indonesian', type: 'string' },
+            { name: 'labelEn', title: 'Label (tooltip) — English', type: 'string', description: EN_FALLBACK_NOTE },
             {
               name: 'url',
               title: 'URL',
@@ -229,7 +264,10 @@ export default {
               title: 'Icon (square)',
               type: 'image',
               options: { hotspot: true },
-              fields: [{ name: 'alt', title: 'Alt text', type: 'string' }],
+              fields: [
+                { name: 'alt', title: 'Alt text — Indonesian', type: 'string' },
+                { name: 'altEn', title: 'Alt text — English', type: 'string', description: EN_FALLBACK_NOTE },
+              ],
             },
           ],
         },

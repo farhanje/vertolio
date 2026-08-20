@@ -3,6 +3,8 @@ import {SITE_SETTINGS_QUERY} from '../../lib/sanity.queries'
 import {placeholderSiteSettings} from '../../lib/placeholders'
 import {PortableText} from '@portabletext/react'
 import {urlFor} from '../../lib/sanity.image'
+import {getLanguage} from '../../lib/i18n.server'
+import {pickLocalized, uiCopy} from '../../lib/i18n'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
@@ -14,17 +16,25 @@ function resolveHref(raw) {
 }
 
 export default async function About() {
+  const lang = getLanguage()
+  const copy = uiCopy(lang)
+
   let settings = null
   try { settings = await sanityFetch(SITE_SETTINGS_QUERY) } catch (_) { settings = placeholderSiteSettings }
 
   const accent = settings?.pageAccents?.about || 'none'
   const about = settings?.about || {}
 
-  const kicker = about.kicker || 'Farhan Fauzan Jamaludin'
-  const title = about.title || 'About'
-  const lead = about.lead || ''
+  const kickerPick = pickLocalized(about.kicker, about.kickerEn, lang)
+  const titlePick = pickLocalized(about.title, about.titleEn, lang)
+  const leadPick = pickLocalized(about.lead, about.leadEn, lang)
+  const bodyPick = pickLocalized(about.body, about.bodyEn, lang)
+
+  const kicker = kickerPick.value || 'Farhan Fauzan Jamaludin'
+  const title = titlePick.value || copy.nav.about
+  const lead = leadPick.value || ''
   const buttons = about.buttons || []
-  const body = about.body || []
+  const body = bodyPick.value || []
   const images = about.images || []
 
   const components = {
@@ -55,32 +65,32 @@ export default async function About() {
       <section className="section tight">
         <div className="grid12">
           <div className="col-left sticky-title" style={{ gridColumn: '1 / span 5' }}>
-            <div className="kicker"><span className="dot" /> {kicker}</div>
-            <h1 className="h1-tight">{title}</h1>
+            <div className={kickerPick.nativeEnglish ? 'kicker notranslate' : 'kicker'}><span className="dot" /> {kicker}</div>
+            <h1 className={titlePick.nativeEnglish || (lang === 'en' && !about.title) ? 'h1-tight notranslate' : 'h1-tight'}>{title}</h1>
           </div>
 
           <div className="col-right" style={{ gridColumn: '6 / span 7', paddingTop: 10 }}>
-            {/* Gallery first */}
             {images?.length ? (
               <div className="about-gallery" style={{ marginTop: 0 }}>
                 {images.slice(0, 12).map((it, i) => {
                   const img = it?.image
                   if (!img) return null
                   const url = urlFor(img).width(1400).quality(85).auto('format').url()
-                  const alt = img?.alt || ''
+                  const altPick = pickLocalized(img?.alt, img?.altEn, lang)
+                  const captionPick = pickLocalized(it?.caption, it?.captionEn, lang)
+                  const alt = altPick.value || ''
                   return (
                     <figure key={i} className="about-fig">
                       <img src={url} alt={alt} loading="lazy" />
-                      {it?.caption ? <figcaption>{it.caption}</figcaption> : null}
+                      {captionPick.value ? <figcaption className={captionPick.nativeEnglish ? 'notranslate' : undefined}>{captionPick.value}</figcaption> : null}
                     </figure>
                   )
                 })}
               </div>
             ) : null}
 
-            {/* Lead as quote */}
             {lead ? (
-              <blockquote className="about-quote">{lead}</blockquote>
+              <blockquote className={leadPick.nativeEnglish ? 'about-quote notranslate' : 'about-quote'}>{lead}</blockquote>
             ) : null}
 
             {buttons?.length ? (
@@ -89,15 +99,16 @@ export default async function About() {
                   const href = resolveHref(b.url)
                   const cls = b.style === 'primary' || idx === 0 ? 'btn primary' : 'btn'
                   const external = href.startsWith('http')
+                  const labelPick = pickLocalized(b?.label, b?.labelEn, lang)
                   return (
                     <a
-                      key={b.label + href}
-                      className={cls}
+                      key={(labelPick.value || '') + href}
+                      className={`${cls}${labelPick.nativeEnglish ? ' notranslate' : ''}`}
                       href={href}
                       target={external ? '_blank' : undefined}
                       rel={external ? 'noreferrer' : undefined}
                     >
-                      {b.label}
+                      {labelPick.value}
                     </a>
                   )
                 })}
@@ -105,7 +116,7 @@ export default async function About() {
             ) : null}
 
             {body?.length ? (
-              <div style={{ marginTop: 18 }}>
+              <div className={bodyPick.nativeEnglish ? 'notranslate' : undefined} style={{ marginTop: 18 }}>
                 <PortableText value={body} components={components} />
               </div>
             ) : null}

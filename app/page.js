@@ -5,6 +5,8 @@ import CardMedia from '../components/CardMedia'
 import HeroTicker from '../components/HeroTicker'
 import MarqueeText from '../components/MarqueeText'
 import {urlFor} from '../lib/sanity.image'
+import {getLanguage} from '../lib/i18n.server'
+import {pickLocalized, uiCopy} from '../lib/i18n'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
@@ -36,11 +38,13 @@ function heroImageUrl(img, w, h) {
   if (!img) return null
   const b = urlFor(img)
   if (!b) return img?.asset?.url || null
-  // If h given, keep it art-directed; otherwise just width.
   return h ? b.width(w).height(h).fit('crop').quality(85).auto('format').url() : b.width(w).quality(85).auto('format').url()
 }
 
 export default async function Home() {
+  const lang = getLanguage()
+  const copy = uiCopy(lang)
+
   let settings = null
   try { settings = await sanityFetch(SITE_SETTINGS_QUERY) } catch (_) { settings = null }
 
@@ -48,21 +52,32 @@ export default async function Home() {
   const accent = s?.pageAccents?.home || 'none'
 
   const name = s?.name || 'Farhan'
-  const tagline = s?.tagline || ''
-  const subtitle = s?.heroSubtitle || ''
-  const links = s?.links || [
-    { label: 'Work →', url: '/work' },
-    { label: 'Blog →', url: '/blog' },
-    { label: 'Resume →', url: '/resume' },
+  const taglinePick = pickLocalized(s?.tagline, s?.taglineEn, lang)
+  const subtitlePick = pickLocalized(s?.heroSubtitle, s?.heroSubtitleEn, lang)
+  const tagline = taglinePick.value || ''
+  const subtitle = subtitlePick.value || ''
+
+  const defaultLinks = [
+    { label: `${copy.nav.work} →`, url: '/work', nativeEnglish: lang === 'en' },
+    { label: `${copy.nav.blog} →`, url: '/blog', nativeEnglish: lang === 'en' },
+    { label: `${copy.nav.resume} →`, url: '/resume', nativeEnglish: lang === 'en' },
   ]
+
+  const links = s?.links?.length
+    ? s.links.map((l) => {
+        const labelPick = pickLocalized(l?.label, l?.labelEn, lang)
+        return {...l, label: labelPick.value, nativeEnglish: labelPick.nativeEnglish}
+      })
+    : defaultLinks
 
   const heroDesk = s?.heroPortraitDesktop
   const heroMob = s?.heroPortraitMobile
 
-  const heroDeskUrl = heroImageUrl(heroDesk, 1200, 1500) // 4:5 default crop
-  const heroMobUrl = heroImageUrl(heroMob, 1600, 1067) // 3:2 default crop
-
-  const heroAlt = heroDesk?.alt || heroMob?.alt || 'Portrait'
+  const heroDeskUrl = heroImageUrl(heroDesk, 1200, 1500)
+  const heroMobUrl = heroImageUrl(heroMob, 1600, 1067)
+  const deskAltPick = pickLocalized(heroDesk?.alt, heroDesk?.altEn, lang)
+  const mobAltPick = pickLocalized(heroMob?.alt, heroMob?.altEn, lang)
+  const heroAlt = deskAltPick.value || mobAltPick.value || 'Portrait'
 
   let featuredWork = (s?.featuredWork || []).slice(0, 4)
   let featuredPosts = (s?.featuredPosts || []).slice(0, 4)
@@ -74,34 +89,39 @@ export default async function Home() {
     try { featuredPosts = await sanityFetch(HOME_FEATURED_POSTS_QUERY) } catch (_) {}
   }
 
-  const tickerWords = s?.heroTickerWords || []
+  const tickerPick = pickLocalized(s?.heroTickerWords, s?.heroTickerWordsEn, lang)
+  const tickerWords = tickerPick.value || []
 
   return (
     <main className="container page-home" data-accent={accent}>
       <section className="section tight hero-wrap">
-        <HeroTicker words={tickerWords} />
+        <HeroTicker words={tickerWords} nativeEnglish={tickerPick.nativeEnglish} />
 
         <div className="hero-grid" style={{ position: 'relative', zIndex: 1 }}>
           <div>
-            {tagline ? <div className="kicker"><span className="dot" /> {tagline}</div> : null}
-            <h1 className="h1-tight">{name}</h1>
-            {subtitle ? <p className="lead">{subtitle}</p> : null}
+            {tagline ? <div className={taglinePick.nativeEnglish ? 'kicker notranslate' : 'kicker'}><span className="dot" /> {tagline}</div> : null}
+            <h1 className="h1-tight notranslate">{name}</h1>
+            {subtitle ? <p className={subtitlePick.nativeEnglish ? 'lead notranslate' : 'lead'}>{subtitle}</p> : null}
             <div className="cta-row">
               {links.slice(0, 3).map((l, idx) => (
-                <a key={l.url} className={idx === 0 ? 'btn primary' : 'btn'} href={l.url}>{l.label}</a>
+                <a
+                  key={l.url}
+                  className={`${idx === 0 ? 'btn primary' : 'btn'}${l.nativeEnglish ? ' notranslate' : ''}`}
+                  href={l.url}
+                >
+                  {l.label}
+                </a>
               ))}
             </div>
           </div>
 
           <div className="hero-photo">
-            {/* Desktop portrait */}
             {heroDeskUrl ? (
               <img className="hero-img hero-img-desktop" src={heroDeskUrl} alt={heroAlt} />
             ) : (
               <img className="avatar hero-img hero-img-desktop" src="/avatar-placeholder.svg" alt="Portrait placeholder" />
             )}
 
-            {/* Mobile / tablet wide */}
             {heroMobUrl ? (
               <img className="hero-img hero-img-mobile" src={heroMobUrl} alt={heroAlt} />
             ) : null}
@@ -113,20 +133,24 @@ export default async function Home() {
 
       <section className="section">
         <div className="grid12" style={{ alignItems: 'stretch' }}>
-          <div style={{ gridColumn: '1 / span 12' }}><h2>Featured work</h2></div>
+          <div style={{ gridColumn: '1 / span 12' }}><h2 className={lang === 'en' ? 'notranslate' : undefined}>{copy.featuredWork}</h2></div>
           {featuredWork.map((p) => {
-            const tags = [p.organization?.name, ...(p.tags || [])].filter(Boolean)
+            const titlePick = pickLocalized(p?.title, p?.titleEn, lang)
+            const summaryPick = pickLocalized(p?.summary, p?.summaryEn, lang)
+            const tagsPick = pickLocalized(p?.tags, p?.tagsEn, lang)
+            const altPick = pickLocalized(p?.cardImage?.alt, p?.cardImage?.altEn, lang)
+            const tags = [p.organization?.name, ...(tagsPick.value || [])].filter(Boolean)
             const { visible, extra } = buildTagSet(tags, 4)
-            const desc = trunc(p.summary || '', 300)
+            const desc = trunc(summaryPick.value || '', 300)
 
             return (
               <a key={p.slug?.current} className="card card-link" style={{ gridColumn: 'span 6' }} href={`/work/${p.slug?.current}`}>
-                <CardMedia image={p.cardImage} alt={p.cardImage?.alt} logo={p.organization?.logo} />
+                <CardMedia image={p.cardImage} alt={altPick.value} logo={p.organization?.logo} />
                 <div className="card-body">
-                  <h3>{p.title}</h3>
-                  <p>{desc}<span className="more"> …</span></p>
+                  <h3 className={titlePick.nativeEnglish ? 'notranslate' : undefined}>{titlePick.value}</h3>
+                  <p className={summaryPick.nativeEnglish ? 'notranslate' : undefined}>{desc}<span className="more"> …</span></p>
                 </div>
-                <div className="meta tags card-meta">
+                <div className={tagsPick.nativeEnglish ? 'meta tags card-meta notranslate' : 'meta tags card-meta'}>
                   {visible.map((t) => <TagPill key={t} text={t} />)}
                   {extra ? <span className="pill morepill">+{extra}</span> : null}
                 </div>
@@ -138,20 +162,24 @@ export default async function Home() {
             <div className="hr" />
           </div>
 
-          <div style={{ gridColumn: '1 / span 12', marginTop: 10 }}><h2>Featured posts</h2></div>
+          <div style={{ gridColumn: '1 / span 12', marginTop: 10 }}><h2 className={lang === 'en' ? 'notranslate' : undefined}>{copy.featuredPosts}</h2></div>
           {featuredPosts.map((p) => {
-            const tags = (p.tags || [])
+            const titlePick = pickLocalized(p?.title, p?.titleEn, lang)
+            const excerptPick = pickLocalized(p?.excerpt, p?.excerptEn, lang)
+            const tagsPick = pickLocalized(p?.tags, p?.tagsEn, lang)
+            const altPick = pickLocalized(p?.cardImage?.alt, p?.cardImage?.altEn, lang)
+            const tags = tagsPick.value || []
             const { visible, extra } = buildTagSet(tags, 4)
-            const desc = trunc(p.excerpt || '', 300)
+            const desc = trunc(excerptPick.value || '', 300)
 
             return (
               <a key={p.slug?.current} className="card card-link" style={{ gridColumn: 'span 6' }} href={`/blog/${p.slug?.current}`}>
-                <CardMedia image={p.cardImage} alt={p.cardImage?.alt} badge={p.publishedAt ? new Date(p.publishedAt).toISOString().slice(0,10) : ''} />
+                <CardMedia image={p.cardImage} alt={altPick.value} badge={p.publishedAt ? new Date(p.publishedAt).toISOString().slice(0,10) : ''} />
                 <div className="card-body">
-                  <h3>{p.title}</h3>
-                  <p>{desc}<span className="more"> …</span></p>
+                  <h3 className={titlePick.nativeEnglish ? 'notranslate' : undefined}>{titlePick.value}</h3>
+                  <p className={excerptPick.nativeEnglish ? 'notranslate' : undefined}>{desc}<span className="more"> …</span></p>
                 </div>
-                <div className="meta tags card-meta">
+                <div className={tagsPick.nativeEnglish ? 'meta tags card-meta notranslate' : 'meta tags card-meta'}>
                   {visible.map((t) => <TagPill key={t} text={t} />)}
                   {extra ? <span className="pill morepill">+{extra}</span> : null}
                 </div>

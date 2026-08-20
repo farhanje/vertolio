@@ -18,16 +18,71 @@ const MEDIA_WIDTH = [
   { title: 'Wide', value: 'wide' },
 ]
 
+const EN_FALLBACK_NOTE = 'Optional native English. Leave empty to keep the current Google Translate fallback until the English copy is revised.'
+
+function bodyBlocks() {
+  return [
+    { type: 'block' },
+    {
+      type: 'image',
+      options: { hotspot: true },
+      fields: [
+        { name: 'caption', title: 'Caption', type: 'string' },
+        { name: 'alt', title: 'Alt text', type: 'string' },
+        { name: 'width', title: 'Layout', type: 'string', options: { list: MEDIA_WIDTH }, initialValue: 'text' },
+        { name: 'ratio', title: 'Aspect ratio (optional)', type: 'string', options: { list: CARD_RATIO }, initialValue: 'auto' },
+      ],
+    },
+    {
+      name: 'youtube',
+      title: 'YouTube',
+      type: 'object',
+      fields: [
+        { name: 'url', title: 'YouTube URL or ID', type: 'string', validation: (Rule) => Rule.required() },
+        { name: 'title', title: 'Caption', type: 'string' },
+      ],
+    },
+    {
+      name: 'carousel',
+      title: 'Carousel',
+      type: 'object',
+      fields: [
+        { name: 'title', title: 'Title', type: 'string' },
+        { name: 'ratio', title: 'Carousel ratio', type: 'string', options: { list: CARD_RATIO }, initialValue: '16:9' },
+        {
+          name: 'slides',
+          title: 'Slides',
+          type: 'array',
+          of: [
+            {
+              type: 'object',
+              fields: [
+                { name: 'image', title: 'Image', type: 'image', options: { hotspot: true } },
+                { name: 'caption', title: 'Caption', type: 'string' },
+                { name: 'alt', title: 'Alt text', type: 'string' },
+              ],
+            },
+          ],
+          validation: (Rule) => Rule.min(2).max(10),
+        },
+      ],
+    },
+  ]
+}
+
 export default {
   name: 'post',
   title: 'Post',
   type: 'document',
   fields: [
-    { name: 'title', title: 'Title', type: 'string', validation: (Rule) => Rule.required() },
+    { name: 'title', title: 'Title — Indonesian', type: 'string', validation: (Rule) => Rule.required() },
+    { name: 'titleEn', title: 'Title — English', type: 'string', description: EN_FALLBACK_NOTE },
     { name: 'slug', title: 'Slug', type: 'slug', options: { source: 'title', maxLength: 96 }, validation: (Rule) => Rule.required() },
     { name: 'publishedAt', title: 'Published at', type: 'datetime' },
-    { name: 'excerpt', title: 'Excerpt', type: 'text', rows: 3 },
-    { name: 'tags', title: 'Tags', type: 'array', of: [{ type: 'string' }] },
+    { name: 'excerpt', title: 'Excerpt — Indonesian', type: 'text', rows: 3 },
+    { name: 'excerptEn', title: 'Excerpt — English', type: 'text', rows: 3, description: EN_FALLBACK_NOTE },
+    { name: 'tags', title: 'Tags — Indonesian', type: 'array', of: [{ type: 'string' }] },
+    { name: 'tagsEn', title: 'Tags — English', type: 'array', of: [{ type: 'string' }], description: EN_FALLBACK_NOTE },
 
     // Featured toggle (used on Home).
     { name: 'featured', title: 'Show on Home (Featured)', type: 'boolean', initialValue: false },
@@ -47,7 +102,8 @@ export default {
       type: 'image',
       options: { hotspot: true },
       fields: [
-        { name: 'alt', title: 'Alt text', type: 'string' },
+        { name: 'alt', title: 'Alt text — Indonesian', type: 'string' },
+        { name: 'altEn', title: 'Alt text — English', type: 'string', description: EN_FALLBACK_NOTE },
         { name: 'ratio', title: 'Card ratio', type: 'string', options: { list: CARD_RATIO }, initialValue: '16:9' },
       ],
       description: 'Shown on blog cards. Leave empty to keep text-only cards.',
@@ -55,55 +111,16 @@ export default {
 
     {
       name: 'body',
-      title: 'Body',
+      title: 'Body — Indonesian',
       type: 'array',
-      of: [
-        { type: 'block' },
-        {
-          type: 'image',
-          options: { hotspot: true },
-          fields: [
-            { name: 'caption', title: 'Caption', type: 'string' },
-            { name: 'alt', title: 'Alt text', type: 'string' },
-            { name: 'width', title: 'Layout', type: 'string', options: { list: MEDIA_WIDTH }, initialValue: 'text' },
-            { name: 'ratio', title: 'Aspect ratio (optional)', type: 'string', options: { list: CARD_RATIO }, initialValue: 'auto' },
-          ],
-        },
-        {
-          name: 'youtube',
-          title: 'YouTube',
-          type: 'object',
-          fields: [
-            { name: 'url', title: 'YouTube URL or ID', type: 'string', validation: (Rule) => Rule.required() },
-            { name: 'title', title: 'Caption', type: 'string' },
-          ],
-        },
-        {
-          name: 'carousel',
-          title: 'Carousel',
-          type: 'object',
-          fields: [
-            { name: 'title', title: 'Title', type: 'string' },
-            { name: 'ratio', title: 'Carousel ratio', type: 'string', options: { list: CARD_RATIO }, initialValue: '16:9' },
-            {
-              name: 'slides',
-              title: 'Slides',
-              type: 'array',
-              of: [
-                {
-                  type: 'object',
-                  fields: [
-                    { name: 'image', title: 'Image', type: 'image', options: { hotspot: true } },
-                    { name: 'caption', title: 'Caption', type: 'string' },
-                    { name: 'alt', title: 'Alt text', type: 'string' },
-                  ],
-                },
-              ],
-              validation: (Rule) => Rule.min(2).max(10),
-            },
-          ],
-        },
-      ],
+      of: bodyBlocks(),
+    },
+    {
+      name: 'bodyEn',
+      title: 'Body — English',
+      type: 'array',
+      of: bodyBlocks(),
+      description: EN_FALLBACK_NOTE,
     },
   ],
   preview: {

@@ -1,9 +1,10 @@
 'use client'
 
 import {useEffect, useMemo, useState} from 'react'
+import {normalizeLanguage} from '../lib/i18n'
 
 function setCookie(name, value, opts = {}) {
-  const days = opts.days ?? 7
+  const days = opts.days ?? 365
   const d = new Date()
   d.setTime(d.getTime() + days * 24 * 60 * 60 * 1000)
   const base = `${name}=${value};expires=${d.toUTCString()};path=/;SameSite=Lax`
@@ -16,13 +17,8 @@ function getCookie(name) {
   return m ? decodeURIComponent(m[1]) : ''
 }
 
-function normalizeLang(v) {
-  if (!v) return 'id'
-  return String(v).toLowerCase() === 'en' ? 'en' : 'id'
-}
-
-export default function TranslateToggle({className = ''}) {
-  const [lang, setLang] = useState('id')
+export default function TranslateToggle({className = '', initialLang = 'en'}) {
+  const [lang, setLang] = useState(normalizeLanguage(initialLang))
 
   const domain = useMemo(() => {
     if (typeof window === 'undefined') return null
@@ -34,38 +30,49 @@ export default function TranslateToggle({className = ''}) {
   }, [])
 
   useEffect(() => {
-    const storedRaw = localStorage.getItem('lang')
-    if (storedRaw) {
-      setLang(normalizeLang(storedRaw))
-      return
-    }
-    const gt = getCookie('googtrans')
-    setLang(gt === '/id/en' ? 'en' : 'id')
+    const cookieLang = getCookie('portfolio_lang')
+    if (cookieLang) setLang(normalizeLanguage(cookieLang))
   }, [])
 
   const apply = (next) => {
-    const target = normalizeLang(next)
+    const target = normalizeLanguage(next)
     if (target === lang) return
 
     setLang(target)
     localStorage.setItem('lang', target)
 
-    const cookieVal = target === 'en' ? '/id/en' : '/id/id'
-    setCookie('googtrans', cookieVal, {domain})
+    setCookie('portfolio_lang', target, {domain})
+    setCookie('lang', target, {domain})
 
-    const url = new URL(window.location.href)
-    url.searchParams.set('lang', target)
-    window.location.href = url.toString()
+    const googleCookie = target === 'en' ? '/id/en' : '/id/id'
+    setCookie('googtrans', googleCookie, {domain})
+
+    window.location.reload()
   }
 
   return (
     <div className={className ? `lang-inline ${className}` : 'lang-inline'} role="group" aria-label="Language">
-      <button type="button" className={lang === 'id' ? 'lang-link active' : 'lang-link'} onClick={() => apply('id')} aria-pressed={lang === 'id'}>
-        ID
+      <button
+        type="button"
+        className={lang === 'id' ? 'lang-flag active' : 'lang-flag'}
+        onClick={() => apply('id')}
+        aria-pressed={lang === 'id'}
+        aria-label="Bahasa Indonesia"
+        title="Bahasa Indonesia"
+      >
+        <span className="lang-flag-glyph" aria-hidden="true">🇮🇩</span>
+        <span className="sr-only">Bahasa Indonesia</span>
       </button>
-      <span className="lang-sep" aria-hidden="true">|</span>
-      <button type="button" className={lang === 'en' ? 'lang-link active' : 'lang-link'} onClick={() => apply('en')} aria-pressed={lang === 'en'}>
-        EN
+      <button
+        type="button"
+        className={lang === 'en' ? 'lang-flag active' : 'lang-flag'}
+        onClick={() => apply('en')}
+        aria-pressed={lang === 'en'}
+        aria-label="English"
+        title="English"
+      >
+        <span className="lang-flag-glyph" aria-hidden="true">🇬🇧</span>
+        <span className="sr-only">English</span>
       </button>
     </div>
   )
