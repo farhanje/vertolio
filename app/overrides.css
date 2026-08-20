@@ -32,7 +32,7 @@
   border-radius: 0 !important;
 }
 
-/* 3) Language switch: EN | ID using local flag assets. */
+/* 3) Language switch: EN | ID using local rectangular flag assets. */
 .lang-inline {
   gap: 7px !important;
 }
@@ -56,9 +56,9 @@
 
 .lang-flag-img {
   display: block;
-  width: 20px;
-  height: 20px;
-  object-fit: contain;
+  width: 21px;
+  height: 14px;
+  object-fit: fill;
   box-sizing: border-box;
   border: 1px solid rgba(11,11,11,.16);
 }
