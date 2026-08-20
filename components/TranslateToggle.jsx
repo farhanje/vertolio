@@ -3,6 +3,11 @@
 import {useEffect, useMemo, useState} from 'react'
 import {normalizeLanguage} from '../lib/i18n'
 
+const FLAG_ICONS = {
+  en: 'https://cdn-icons-png.flaticon.com/512/19014/19014731.png',
+  id: 'https://cdn-icons-png.flaticon.com/512/18338/18338421.png',
+}
+
 function setCookie(name, value, opts = {}) {
   const days = opts.days ?? 365
   const d = new Date()
@@ -54,25 +59,28 @@ export default function TranslateToggle({className = '', initialLang = 'en'}) {
     <div className={className ? `lang-inline ${className}` : 'lang-inline'} role="group" aria-label="Language">
       <button
         type="button"
-        className={lang === 'id' ? 'lang-flag active' : 'lang-flag'}
-        onClick={() => apply('id')}
-        aria-pressed={lang === 'id'}
-        aria-label="Bahasa Indonesia"
-        title="Bahasa Indonesia"
-      >
-        <span className="lang-flag-glyph" aria-hidden="true">🇮🇩</span>
-        <span className="sr-only">Bahasa Indonesia</span>
-      </button>
-      <button
-        type="button"
         className={lang === 'en' ? 'lang-flag active' : 'lang-flag'}
         onClick={() => apply('en')}
         aria-pressed={lang === 'en'}
         aria-label="English"
         title="English"
       >
-        <span className="lang-flag-glyph" aria-hidden="true">🇬🇧</span>
+        <img className="lang-flag-img" src={FLAG_ICONS.en} alt="" aria-hidden="true" />
         <span className="sr-only">English</span>
+      </button>
+
+      <span className="lang-sep" aria-hidden="true">|</span>
+
+      <button
+        type="button"
+        className={lang === 'id' ? 'lang-flag active' : 'lang-flag'}
+        onClick={() => apply('id')}
+        aria-pressed={lang === 'id'}
+        aria-label="Bahasa Indonesia"
+        title="Bahasa Indonesia"
+      >
+        <img className="lang-flag-img" src={FLAG_ICONS.id} alt="" aria-hidden="true" />
+        <span className="sr-only">Bahasa Indonesia</span>
       </button>
     </div>
   )
