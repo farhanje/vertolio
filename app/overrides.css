@@ -32,35 +32,44 @@
   border-radius: 0 !important;
 }
 
-/* 3) Language switch: flags only. Active = full color, inactive = greyscale. */
+/* 3) Language switch: EN | ID using Flaticon flag assets. */
 .lang-inline {
-  gap: 6px !important;
+  gap: 7px !important;
 }
 
 .lang-flag {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
+  width: 27px;
+  height: 27px;
   padding: 0;
   border: 0;
   background: transparent;
   cursor: pointer;
   line-height: 1;
-  opacity: .3;
+  opacity: .32;
   filter: grayscale(1);
   transform: translateY(0);
   transition: opacity .12s ease, filter .12s ease, transform .12s ease;
 }
 
-.lang-flag-glyph {
-  font-size: 19px;
+.lang-flag-img {
+  display: block;
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.lang-sep {
+  opacity: .48;
+  font-size: 12px;
   line-height: 1;
+  transform: translateY(-.5px);
 }
 
 .lang-flag:hover {
-  opacity: .7;
+  opacity: .72;
   transform: translateY(-1px);
 }
 

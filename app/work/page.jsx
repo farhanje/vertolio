@@ -83,7 +83,13 @@ export default async function Work() {
     ...Array.from(grouped.keys()).filter((k) => !orgOrder.includes(k)),
   ]
 
-  const groups = orderedKeys
+  // Keep AstraPay first and selected by default regardless of Sanity organization ordering.
+  const astraPayKey = orderedKeys.find((name) => String(name).toLowerCase() === 'astrapay')
+  const prioritizedKeys = astraPayKey
+    ? [astraPayKey, ...orderedKeys.filter((name) => name !== astraPayKey)]
+    : orderedKeys
+
+  const groups = prioritizedKeys
     .map((name) => {
       const o = (orgs || []).find((x) => x.name === name)
       const logoBuilder = o?.logo ? urlFor(o.logo) : null
@@ -92,6 +98,8 @@ export default async function Work() {
       return { key: name, id, logoUrl }
     })
     .filter((g) => grouped.get(g.key)?.length)
+
+  const defaultGroupId = groups.find((g) => String(g.key).toLowerCase() === 'astrapay')?.id || groups[0]?.id
 
   const tabCss = (groups || [])
     .map((g) => {
@@ -121,14 +129,14 @@ export default async function Work() {
         <div className="work-tabs-wrap" role="tablist" aria-label="Organizations">
           <style>{tabCss}</style>
 
-          {groups.map((g, idx) => (
+          {groups.map((g) => (
             <input
               key={g.id}
               className="work-tab-radio"
               type="radio"
               name="orgtab"
               id={`tab-${g.id}`}
-              defaultChecked={idx === 0}
+              defaultChecked={g.id === defaultGroupId}
             />
           ))}
 
