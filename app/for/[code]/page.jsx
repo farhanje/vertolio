@@ -84,6 +84,9 @@ export default async function RecruiterPortfolio({params}) {
   const resumeLabel = lang === 'en' ? 'View resume' : 'Lihat resume'
   const allWorkLabel = lang === 'en' ? 'View all work' : 'Lihat semua karya'
   const projectsLabel = lang === 'en' ? 'Selected work' : 'Karya pilihan'
+  const projectCountLabel = lang === 'en'
+    ? (projects.length === 1 ? 'project' : 'projects')
+    : 'proyek'
 
   return (
     <main className="container page-work recruiter-page" data-accent="none">
@@ -144,7 +147,7 @@ export default async function RecruiterPortfolio({params}) {
       <section className="section">
         <div className="recruiter-section-head">
           <div className={lang === 'en' ? 'kicker notranslate' : 'kicker'}><span className="dot" /> {projectsLabel}</div>
-          <div className="recruiter-count">{projects.length} {projects.length === 1 ? 'project' : 'projects'}</div>
+          <div className="recruiter-count">{projects.length} {projectCountLabel}</div>
         </div>
 
         <div className="grid12 work-grid" style={{alignItems: 'stretch'}}>
