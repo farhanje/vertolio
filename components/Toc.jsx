@@ -72,7 +72,11 @@ export default function Toc({ contentId = 'content', lang = 'en' }) {
     const bottomLimit = box.bottom - 24
 
     if (eb.top < topLimit || eb.bottom > bottomLimit) {
-      el.scrollIntoView({ block: 'center', behavior: 'smooth' })
+      // Scroll only the TOC container. scrollIntoView() can also move the page
+      // viewport, which makes normal reading feel like it is snapping/jumping.
+      const elCenterInScrollArea = (eb.top - box.top) + root.scrollTop + (eb.height / 2)
+      const nextTop = Math.max(0, elCenterInScrollArea - (root.clientHeight / 2))
+      root.scrollTo({ top: nextTop, behavior: 'smooth' })
     }
   }, [activeId])
 
