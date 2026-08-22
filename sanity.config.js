@@ -10,11 +10,36 @@ const structure = (S) =>
   S.list()
     .title('Content')
     .items([
-      S.documentTypeListItem('siteSettings').title('Site Settings'),
-      S.documentTypeListItem('organization').title('Organizations'),
-      S.documentTypeListItem('project').title('Projects'),
-      S.documentTypeListItem('post').title('Post'),
-      S.documentTypeListItem('researchStudy').title('Research Studies'),
+      S.listItem()
+        .title('Site')
+        .child(
+          S.list()
+            .title('Site')
+            .items([
+              S.documentTypeListItem('siteSettings').title('Site Settings'),
+              S.documentTypeListItem('organization').title('Organizations'),
+              S.documentTypeListItem('project').title('Projects'),
+              S.documentTypeListItem('post').title('Posts'),
+            ])
+        ),
+      S.listItem()
+        .title('Recruiting')
+        .child(
+          S.list()
+            .title('Recruiting')
+            .items([
+              S.documentTypeListItem('recruiterLink').title('Recruiter Links'),
+            ])
+        ),
+      S.listItem()
+        .title('Research')
+        .child(
+          S.list()
+            .title('Research')
+            .items([
+              S.documentTypeListItem('researchStudy').title('Research Studies'),
+            ])
+        ),
     ]);
 
 export default defineConfig({
