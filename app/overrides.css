@@ -81,8 +81,46 @@
   filter: grayscale(0);
 }
 
-/* 4) TOC: prevent duplicated sidebar on mobile/tablet */
+/* 4) Recruiter links: intentionally subtle so the page still feels like the normal portfolio. */
+.recruiter-role {
+  margin-top: 10px;
+  font-size: 13px;
+  line-height: 1.45;
+  letter-spacing: .02em;
+  opacity: .62;
+}
+
+.recruiter-cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.recruiter-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.recruiter-count {
+  font-size: 12px;
+  opacity: .48;
+}
+
+.recruiter-page .card-body p {
+  margin-bottom: 0;
+}
+
+/* 5) TOC: prevent duplicated sidebar on mobile/tablet */
 @media (max-width: 980px) {
   .toc-desktop { display: none !important; }
   .toc-fab { display: block !important; }
+
+  .recruiter-section-head {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 6px;
+  }
 }
