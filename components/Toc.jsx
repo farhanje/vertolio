@@ -2,6 +2,7 @@
 
 import {useEffect, useRef, useState} from 'react'
 import {normalizeLanguage, uiCopy} from '../lib/i18n'
+import {trackAnalytics} from '../lib/analytics.client'
 
 function slugify(input) {
   return String(input || '')
@@ -72,8 +73,6 @@ export default function Toc({ contentId = 'content', lang = 'en' }) {
     const bottomLimit = box.bottom - 24
 
     if (eb.top < topLimit || eb.bottom > bottomLimit) {
-      // Scroll only the TOC container. scrollIntoView() can also move the page
-      // viewport, which makes normal reading feel like it is snapping/jumping.
       const elCenterInScrollArea = (eb.top - box.top) + root.scrollTop + (eb.height / 2)
       const nextTop = Math.max(0, elCenterInScrollArea - (root.clientHeight / 2))
       root.scrollTo({ top: nextTop, behavior: 'smooth' })
@@ -83,7 +82,14 @@ export default function Toc({ contentId = 'content', lang = 'en' }) {
   const hasItems = items && items.length > 0
   if (!hasItems) return null
 
-  const onClickLink = () => setOpen(false)
+  const onClickLink = (item, closeDrawer = false) => {
+    trackAnalytics('toc_click', {
+      section: item?.id || '',
+      section_title: item?.text || '',
+      content_path: typeof window !== 'undefined' ? window.location.pathname : '',
+    })
+    if (closeDrawer) setOpen(false)
+  }
   const nativeLabelClass = language === 'en' ? 'notranslate' : undefined
 
   return (
@@ -95,6 +101,7 @@ export default function Toc({ contentId = 'content', lang = 'en' }) {
             <a
               key={it.id}
               href={`#${it.id}`}
+              onClick={() => onClickLink(it)}
               className={`toc-link ${activeId === it.id ? 'active' : ''} ${it.level === 3 ? 'lvl3' : ''}`}
             >
               {it.text}
@@ -120,7 +127,7 @@ export default function Toc({ contentId = 'content', lang = 'en' }) {
                 <a
                   key={it.id}
                   href={`#${it.id}`}
-                  onClick={onClickLink}
+                  onClick={() => onClickLink(it, true)}
                   className={`toc-link ${activeId === it.id ? 'active' : ''} ${it.level === 3 ? 'lvl3' : ''}`}
                 >
                   {it.text}
