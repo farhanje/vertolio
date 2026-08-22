@@ -1,13 +1,7 @@
 'use client'
 
 import {useEffect} from 'react'
-import {track} from '@vercel/analytics'
-
-function safeTrack(name, payload) {
-  try {
-    track(name, payload)
-  } catch (_) {}
-}
+import {trackAnalytics} from '../lib/analytics.client'
 
 export function RecruiterOpenTracker({code, company, role}) {
   useEffect(() => {
@@ -22,7 +16,7 @@ export function RecruiterOpenTracker({code, company, role}) {
     } catch (_) {}
 
     if (!alreadyTracked) {
-      safeTrack('recruiter_portfolio_open', {
+      trackAnalytics('recruiter_portfolio_open', {
         code,
         company: company || 'Unknown',
         role: role || 'Unspecified',
@@ -48,7 +42,7 @@ export function RecruiterTrackedLink({
       href={href}
       className={className}
       onClick={() => {
-        safeTrack(eventName, {
+        trackAnalytics(eventName, {
           code: code || 'unknown',
           company: company || 'Unknown',
           target: target || href,

@@ -5,6 +5,7 @@ import {RichText} from '../../../lib/portableText'
 import Toc from '../../../components/Toc'
 import BackSmart from '../../../components/BackSmart'
 import Comments from '../../../components/Comments'
+import ContentEngagementTracker from '../../../components/ContentEngagementTracker'
 import {getLanguage} from '../../../lib/i18n.server'
 import {pickLocalized, uiCopy} from '../../../lib/i18n'
 
@@ -50,6 +51,8 @@ export default async function BlogPost({ params }) {
 
   return (
     <main className="container" data-accent={accent}>
+      <ContentEngagementTracker contentType="blog" slug={params.slug} contentId="content" />
+
       <section className="section tight">
         <div className="grid12">
           <div style={{ gridColumn: '1 / span 8' }}>
