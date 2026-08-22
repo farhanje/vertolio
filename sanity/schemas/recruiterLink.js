@@ -93,7 +93,7 @@ export default {
       type: 'array',
       description: 'Drag to control the order shown to this recruiter.',
       of: [{type: 'reference', to: [{type: 'project'}]}],
-      validation: (Rule) => Rule.unique().max(8),
+      validation: (Rule) => Rule.required().unique().min(1).max(8),
     },
     {
       name: 'showResume',
