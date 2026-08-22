@@ -2,6 +2,7 @@ import './globals.css';
 import './overrides.css';
 import SiteNav from '../components/SiteNav';
 import SiteFooter from '../components/SiteFooter';
+import AnalyticsBridge from '../components/AnalyticsBridge';
 import { GeistSans, GeistMono } from 'geist/font';
 import {sanityFetch} from '../lib/sanity.client';
 import {SITE_SETTINGS_QUERY} from '../lib/sanity.queries';
@@ -63,6 +64,9 @@ export default async function RootLayout({ children }) {
   const brandLogoAlt = brandAltPick.value || settings?.name || '';
   const brand = settings?.name ? settings.name : 'Farhan Fauzan Jamaludin';
 
+  const umamiWebsiteId = process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID || '';
+  const umamiScriptUrl = process.env.NEXT_PUBLIC_UMAMI_SCRIPT_URL || '';
+
   return (
     <html lang={lang} className={`${GeistSans.variable} ${GeistMono.variable}`}>
       <head>
@@ -73,15 +77,26 @@ export default async function RootLayout({ children }) {
           }}
         />
         <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" async />
+
+        {umamiWebsiteId && umamiScriptUrl ? (
+          <script
+            defer
+            src={umamiScriptUrl}
+            data-website-id={umamiWebsiteId}
+            data-exclude-search="false"
+          />
+        ) : null}
       </head>
       <body className="app" data-language={lang}>
         <div id="google_translate_element" className="g-translate-hidden" />
         <GoogleTranslateCleanup />
+        <AnalyticsBridge />
 
         <SiteNav brand={brand} brandLogoUrl={brandLogoUrl} brandLogoAlt={brandLogoAlt} lang={lang} />
         {children}
         <SiteFooter lang={lang} />
 
+        {/* Keep Vercel Analytics during the Umami rollout as an independent baseline. */}
         <Analytics />
       </body>
     </html>
