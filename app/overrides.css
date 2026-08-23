@@ -101,22 +101,410 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 18px;
+  margin-bottom: 28px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--hair);
 }
 
 .recruiter-count {
-  font-size: 12px;
+  font-size: 11px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
   opacity: .48;
 }
 
-.recruiter-page .card-body p {
-  margin-bottom: 0;
+.recruiter-hero-title { grid-column: 1 / span 7; }
+.recruiter-hero-copy { grid-column: 8 / span 5; padding-top: 10px; }
+.recruiter-work-section { padding-top: 36px; }
+
+/* 5) Editorial index system: one strict frame, varied project artwork. */
+.work-hero-title,
+.blog-hero-title { grid-column: 1 / span 8; }
+
+.work-hero-intro,
+.blog-hero-intro { grid-column: 9 / span 4; padding-top: 10px; }
+
+.work-hero,
+.blog-hero { padding-bottom: 40px !important; }
+
+.work-index-section,
+.editorial-index-section { padding-top: 30px !important; }
+
+.editorial-card {
+  display: block;
+  min-width: 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--hair);
+  color: var(--fg);
+  background: transparent;
+  text-decoration: none !important;
 }
 
-/* 5) TOC: prevent duplicated sidebar on mobile/tablet */
+.editorial-card:hover {
+  background: transparent;
+  text-decoration: none !important;
+}
+
+.editorial-card-inner {
+  min-width: 0;
+  height: 100%;
+}
+
+.editorial-card .card-media {
+  width: 100%;
+  max-height: none !important;
+  margin: 0 0 16px !important;
+  overflow: hidden;
+  background: rgba(11,11,11,.035);
+}
+
+.editorial-card .card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1);
+  transition: transform .28s cubic-bezier(.2,.65,.3,1), filter .28s ease;
+}
+
+.editorial-card:hover .card-img {
+  transform: scale(1.012);
+  filter: saturate(1) contrast(1.025);
+}
+
+.editorial-card .card-logo {
+  left: 12px;
+  top: 12px;
+  width: 32px;
+  height: 32px;
+  padding: 6px;
+  border: 1px solid rgba(11,11,11,.08);
+  background: rgba(255,255,255,.94);
+}
+
+.editorial-copy {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  height: 100%;
+}
+
+.editorial-overline {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  margin-bottom: 11px;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.3;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+
+.editorial-index { white-space: nowrap; }
+.editorial-eyebrow {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-align: right;
+}
+
+.editorial-card h3 {
+  margin: 0;
+  font-size: 21px;
+  line-height: 1.08;
+  letter-spacing: -.035em;
+  text-wrap: balance;
+}
+
+.editorial-card:hover h3 {
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 4px;
+}
+
+.editorial-card .editorial-copy > p {
+  display: -webkit-box;
+  margin: 10px 0 0;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.48;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.editorial-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 20px;
+  margin-top: auto;
+  padding-top: 22px;
+}
+
+.editorial-meta {
+  min-width: 0;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.4;
+  letter-spacing: .055em;
+  text-transform: uppercase;
+}
+
+.editorial-meta-sep { opacity: .42; }
+
+.editorial-stat {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  align-items: flex-end;
+  max-width: 150px;
+  text-align: right;
+}
+
+.editorial-stat strong {
+  font-size: 21px;
+  line-height: 1;
+  letter-spacing: -.04em;
+}
+
+.editorial-stat span {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 9px;
+  line-height: 1.25;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.editorial-card-featured {
+  margin-bottom: 64px;
+  padding-top: 16px;
+}
+
+.editorial-card-featured-grid {
+  display: grid;
+  grid-template-columns: minmax(0,7fr) minmax(0,5fr);
+  gap: 34px;
+  align-items: stretch;
+}
+
+.editorial-card-featured .card-media {
+  margin: 0 !important;
+}
+
+.editorial-card-featured .editorial-copy {
+  padding: 4px 0 2px;
+}
+
+.editorial-card-featured h3 {
+  font-size: clamp(28px,3.2vw,42px);
+  line-height: 1.02;
+  letter-spacing: -.05em;
+}
+
+.editorial-card-featured .editorial-copy > p {
+  margin-top: 15px;
+  font-size: 15px;
+  line-height: 1.52;
+  -webkit-line-clamp: 5;
+}
+
+.editorial-card-featured .editorial-stat strong {
+  font-size: 28px;
+}
+
+.editorial-support-grid {
+  align-items: stretch;
+  row-gap: 56px;
+}
+
+.work-support-card,
+.blog-support-card,
+.recruiter-support-card,
+.home-post-card {
+  grid-column: span 6;
+}
+
+/* Work tabs behave like editorial section navigation, not dashboard buttons. */
+.work-tabs {
+  justify-content: flex-start !important;
+  margin: 0 0 38px !important;
+  border-bottom: 1px solid var(--hair);
+}
+
+.tabs-row {
+  width: 100%;
+  justify-content: flex-start !important;
+  gap: 24px !important;
+}
+
+.tab {
+  gap: 8px !important;
+  margin-bottom: -1px;
+  padding: 10px 0 11px !important;
+  border: 0 !important;
+  border-bottom: 2px solid transparent !important;
+  background: transparent !important;
+  color: var(--muted);
+  opacity: .58;
+  transition: color .14s ease, opacity .14s ease, border-color .14s ease;
+}
+
+.tab:hover {
+  color: var(--fg);
+  background: transparent !important;
+  opacity: .9;
+}
+
+.tab-logo { width: 16px !important; height: 16px !important; }
+.tab-mark { width: 8px !important; height: 8px !important; }
+.tab-text { font-size: 12px; letter-spacing: -.01em; }
+.work-panels { margin-top: 0 !important; }
+
+/* Home: keep existing Sanity curation, but turn it into a clear editorial sequence. */
+.home-editorial-section { padding-top: 48px !important; }
+
+.home-section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 26px;
+}
+
+.home-section-head h2 { font-size: 22px; }
+
+.editorial-section-link {
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: .045em;
+  text-transform: uppercase;
+}
+
+.editorial-section-link:hover { color: var(--fg); }
+
+.home-featured-card { margin-bottom: 54px; }
+
+.home-work-support {
+  align-items: stretch;
+  row-gap: 48px;
+}
+
+.home-support-card { grid-column: span 4; }
+.home-work-support-count-1 .home-support-card,
+.home-work-support-count-2 .home-support-card { grid-column: span 6; }
+
+.home-support-card h3 { font-size: 19px; }
+.home-support-card .editorial-copy > p { -webkit-line-clamp: 3; }
+
+.home-section-divider { margin: 64px 0 38px; }
+.home-posts-head { margin-bottom: 24px; }
+.home-post-grid { row-gap: 50px; }
+
+/* Blog index uses the same visual grammar, but date replaces organization. */
+.blog-list .editorial-card-featured { margin-bottom: 62px; }
+.editorial-empty { padding: 24px 0; border-top: 1px solid var(--hair); }
+.editorial-empty h3 { margin: 0; }
+
+/* 6) TOC: prevent duplicated sidebar on mobile/tablet */
 @media (max-width: 980px) {
   .toc-desktop { display: none !important; }
   .toc-fab { display: block !important; }
+
+  .work-hero-title,
+  .blog-hero-title,
+  .recruiter-hero-title { grid-column: 1 / span 7; }
+
+  .work-hero-intro,
+  .blog-hero-intro,
+  .recruiter-hero-copy { grid-column: 8 / span 5; }
+
+  .editorial-card-featured-grid {
+    grid-template-columns: minmax(0,1.2fr) minmax(0,.8fr);
+    gap: 24px;
+  }
+
+  .editorial-card-featured h3 {
+    font-size: clamp(26px,4vw,36px);
+  }
+}
+
+@media (max-width: 760px) {
+  .work-hero-title,
+  .work-hero-intro,
+  .blog-hero-title,
+  .blog-hero-intro,
+  .recruiter-hero-title,
+  .recruiter-hero-copy {
+    grid-column: 1 / -1;
+  }
+
+  .work-hero-intro,
+  .blog-hero-intro,
+  .recruiter-hero-copy {
+    padding-top: 4px;
+    margin-top: 14px;
+  }
+
+  .work-hero,
+  .blog-hero,
+  .recruiter-hero { padding-bottom: 30px !important; }
+
+  .tabs-row {
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .tabs-row::-webkit-scrollbar { display: none; }
+  .tab { flex: 0 0 auto; }
+
+  .editorial-card-featured {
+    margin-bottom: 48px;
+  }
+
+  .editorial-card-featured-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .editorial-card-featured .card-media {
+    margin-bottom: 0 !important;
+  }
+
+  .editorial-card-featured .editorial-copy { padding-top: 0; }
+  .editorial-card-featured h3 { font-size: clamp(28px,9vw,38px); }
+
+  .work-support-card,
+  .blog-support-card,
+  .recruiter-support-card,
+  .home-post-card,
+  .home-support-card,
+  .home-work-support-count-1 .home-support-card,
+  .home-work-support-count-2 .home-support-card {
+    grid-column: 1 / -1;
+  }
+
+  .editorial-support-grid,
+  .home-work-support,
+  .home-post-grid { row-gap: 42px; }
+
+  .home-section-head {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .home-section-divider { margin: 52px 0 34px; }
+
+  .editorial-foot {
+    gap: 14px;
+    padding-top: 18px;
+  }
+
+  .editorial-stat { max-width: 125px; }
 
   .recruiter-section-head {
     align-items: flex-start;
