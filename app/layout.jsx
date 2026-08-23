@@ -3,6 +3,7 @@ import './overrides.css';
 import SiteNav from '../components/SiteNav';
 import SiteFooter from '../components/SiteFooter';
 import AnalyticsBridge from '../components/AnalyticsBridge';
+import UmamiRecorder from '../components/UmamiRecorder';
 import { GeistSans, GeistMono } from 'geist/font';
 import {sanityFetch} from '../lib/sanity.client';
 import {SITE_SETTINGS_QUERY} from '../lib/sanity.queries';
@@ -91,6 +92,7 @@ export default async function RootLayout({ children }) {
         <div id="google_translate_element" className="g-translate-hidden" />
         <GoogleTranslateCleanup />
         <AnalyticsBridge />
+        <UmamiRecorder trackerUrl={umamiScriptUrl} websiteId={umamiWebsiteId} />
 
         <SiteNav brand={brand} brandLogoUrl={brandLogoUrl} brandLogoAlt={brandLogoAlt} lang={lang} />
         {children}
