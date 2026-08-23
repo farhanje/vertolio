@@ -9,6 +9,8 @@ const ACCENT_OPTIONS = [
 const CARD_RATIO = [
   { title: 'Auto', value: 'auto' },
   { title: '16:9', value: '16:9' },
+  { title: '16:10', value: '16:10' },
+  { title: '3:2', value: '3:2' },
   { title: '4:3', value: '4:3' },
   { title: '1:1', value: '1:1' },
 ]
@@ -104,9 +106,9 @@ export default {
       fields: [
         { name: 'alt', title: 'Alt text — Indonesian', type: 'string' },
         { name: 'altEn', title: 'Alt text — English', type: 'string', description: EN_FALLBACK_NOTE },
-        { name: 'ratio', title: 'Card ratio', type: 'string', options: { list: CARD_RATIO }, initialValue: '16:9' },
+        { name: 'ratio', title: 'Card ratio', type: 'string', options: { list: CARD_RATIO }, initialValue: '3:2' },
       ],
-      description: 'Shown on blog cards. Leave empty to keep text-only cards.',
+      description: 'Shown on blog cards. New editorial listings use a consistent 3:2 frame; the stored ratio remains useful elsewhere.',
     },
 
     {
