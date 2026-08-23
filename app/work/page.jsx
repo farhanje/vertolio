@@ -1,14 +1,25 @@
 import {sanityFetch} from '../../lib/sanity.client'
 import {SITE_SETTINGS_QUERY, ORGANIZATIONS_QUERY, WORK_INDEX_QUERY} from '../../lib/sanity.queries'
 import {placeholderOrganizations, placeholderProjects, placeholderSiteSettings} from '../../lib/placeholders'
-import CardMedia from '../../components/CardMedia'
-import MarqueeText from '../../components/MarqueeText'
+import EditorialCard from '../../components/EditorialCard'
 import {urlFor} from '../../lib/sanity.image'
 import {getLanguage} from '../../lib/i18n.server'
 import {pickLocalized, uiCopy} from '../../lib/i18n'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
+
+function sortProjects(items = []) {
+  return [...items].sort((a, b) => {
+    const aOrder = Number.isFinite(a?.workOrder) ? a.workOrder : Number.POSITIVE_INFINITY
+    const bOrder = Number.isFinite(b?.workOrder) ? b.workOrder : Number.POSITIVE_INFINITY
+    if (aOrder !== bOrder) return aOrder - bOrder
+
+    const aDate = a?.date ? new Date(a.date).getTime() : 0
+    const bDate = b?.date ? new Date(b.date).getTime() : 0
+    return bDate - aDate
+  })
+}
 
 function groupByOrg(items = []) {
   const map = new Map()
@@ -17,6 +28,7 @@ function groupByOrg(items = []) {
     if (!map.has(org)) map.set(org, [])
     map.get(org).push(it)
   }
+  for (const [org, list] of map.entries()) map.set(org, sortProjects(list))
   return map
 }
 
@@ -30,27 +42,38 @@ function slugify(input) {
     .replace(/-+/g, '-')
 }
 
-function trunc(input, max = 300) {
-  const s = String(input || '').trim().replace(/\s+/g, ' ')
-  if (!s) return ''
-  if (s.length <= max) return s
-  return s.slice(0, Math.max(0, max - 1)).trimEnd() + '…'
+function yearOf(date) {
+  if (!date) return ''
+  const d = new Date(date)
+  return Number.isNaN(d.getTime()) ? '' : String(d.getFullYear())
 }
 
-function TagPill({text}) {
-  return (
-    <span className="pill">
-      <MarqueeText text={text} />
-    </span>
-  )
-}
+function cardData(p, lang, index, featured) {
+  const titlePick = pickLocalized(p?.title, p?.titleEn, lang)
+  const summaryPick = pickLocalized(p?.summary, p?.summaryEn, lang)
+  const tagsPick = pickLocalized(p?.tags, p?.tagsEn, lang)
+  const altPick = pickLocalized(p?.cardImage?.alt, p?.cardImage?.altEn, lang)
+  const statLabelPick = pickLocalized(p?.cardStat?.label, p?.cardStat?.labelEn, lang)
+  const typeLabel = featured
+    ? (lang === 'en' ? 'FEATURED CASE STUDY' : 'STUDI KASUS UTAMA')
+    : (lang === 'en' ? 'CASE STUDY' : 'STUDI KASUS')
+  const meta = [...(tagsPick.value || []).slice(0, 2), yearOf(p?.date)].filter(Boolean)
 
-function buildTagSet(tags = [], cap = 4) {
-  const visible = tags.slice(0, cap)
-  const extra = Math.max(0, tags.length - visible.length)
-  const v = (extra > 0 && visible.length % 2 === 1) ? visible.slice(0, Math.max(0, visible.length - 1)) : visible
-  const e = Math.max(0, tags.length - v.length)
-  return { visible: v, extra: e }
+  return {
+    title: titlePick.value,
+    summary: summaryPick.value,
+    image: p?.cardImage,
+    alt: altPick.value,
+    logo: p?.organization?.logo,
+    index: `${String(index).padStart(2, '0')} / ${typeLabel}`,
+    eyebrow: p?.organization?.name,
+    meta,
+    statValue: p?.cardStat?.value,
+    statLabel: statLabelPick.value,
+    featured,
+    titleClassName: titlePick.nativeEnglish ? 'notranslate' : '',
+    summaryClassName: summaryPick.nativeEnglish ? 'notranslate' : '',
+  }
 }
 
 export default async function Work() {
@@ -74,7 +97,6 @@ export default async function Work() {
   }
 
   const accent = settings?.pageAccents?.work || 'none'
-
   const grouped = groupByOrg(projects)
   const orgOrder = (orgs || []).map((o) => o.name)
 
@@ -95,7 +117,7 @@ export default async function Work() {
       const logoBuilder = o?.logo ? urlFor(o.logo) : null
       const logoUrl = logoBuilder ? logoBuilder.width(64).height(64).fit('max').quality(85).auto('format').url() : null
       const id = slugify(name)
-      return { key: name, id, logoUrl }
+      return {key: name, id, logoUrl}
     })
     .filter((g) => grouped.get(g.key)?.length)
 
@@ -105,19 +127,19 @@ export default async function Work() {
     .map((g) => {
       const tab = `#tab-${g.id}:checked ~ .work-tabs .tabs-row label[for="tab-${g.id}"]`
       const panel = `#tab-${g.id}:checked ~ .work-panels .work-panel[data-panel="${g.id}"]`
-      return `${tab}{color:var(--fg);border-color:rgba(11,11,11,.32)}\n${panel}{display:block}`
+      return `${tab}{color:var(--fg);border-bottom-color:var(--fg);opacity:1}\n${panel}{display:block}`
     })
     .join('\n')
 
   return (
     <main className="container page-work" data-accent={accent}>
-      <section className="section tight">
+      <section className="section tight work-hero">
         <div className="grid12">
-          <div style={{ gridColumn: '1 / span 8' }}>
+          <div className="work-hero-title">
             <div className="kicker"><span className="dot" /> <span className="notranslate">Farhan Fauzan Jamaludin</span></div>
             <h1 className={lang === 'en' ? 'h1-tight notranslate' : 'h1-tight'}>{copy.nav.work}</h1>
           </div>
-          <div style={{ gridColumn: '9 / span 4', paddingTop: 10 }}>
+          <div className="work-hero-intro">
             <p className={lang === 'en' ? 'lead notranslate' : 'lead'}>{copy.workIntro}</p>
           </div>
         </div>
@@ -125,7 +147,7 @@ export default async function Work() {
 
       <div className="hr" />
 
-      <section className="section">
+      <section className="section work-index-section">
         <div className="work-tabs-wrap" role="tablist" aria-label="Organizations">
           <style>{tabCss}</style>
 
@@ -144,11 +166,7 @@ export default async function Work() {
             <div className="tabs-row">
               {groups.map((g) => (
                 <label key={g.id} className="tab" htmlFor={`tab-${g.id}`}>
-                  {g.logoUrl ? (
-                    <img className="tab-logo" src={g.logoUrl} alt="" aria-hidden="true" />
-                  ) : (
-                    <span className="tab-mark" aria-hidden="true" />
-                  )}
+                  {g.logoUrl ? <img className="tab-logo" src={g.logoUrl} alt="" aria-hidden="true" /> : <span className="tab-mark" aria-hidden="true" />}
                   <span className="tab-text notranslate">{g.key}</span>
                 </label>
               ))}
@@ -158,38 +176,30 @@ export default async function Work() {
           <div className="work-panels">
             {groups.map((g) => {
               const list = grouped.get(g.key) || []
+              const [featured, ...supporting] = list
+
               return (
                 <div key={g.id} className="work-panel" data-panel={g.id}>
-                  <div className="grid12 work-grid" style={{ alignItems: 'stretch' }}>
-                    {list.map((p) => {
-                      const titlePick = pickLocalized(p?.title, p?.titleEn, lang)
-                      const summaryPick = pickLocalized(p?.summary, p?.summaryEn, lang)
-                      const tagsPick = pickLocalized(p?.tags, p?.tagsEn, lang)
-                      const altPick = pickLocalized(p?.cardImage?.alt, p?.cardImage?.altEn, lang)
-                      const tags = [p.organization?.name, ...(tagsPick.value || [])].filter(Boolean)
-                      const { visible, extra } = buildTagSet(tags, 4)
-                      const desc = trunc(summaryPick.value || '', 320)
+                  {featured?.slug?.current ? (
+                    <EditorialCard
+                      href={`/work/${featured.slug.current}`}
+                      className="work-featured-card"
+                      {...cardData(featured, lang, 1, true)}
+                    />
+                  ) : null}
 
-                      return (
-                        <a
-                          key={p.slug?.current}
-                          className="card card-link"
-                          style={{ gridColumn: 'span 6' }}
-                          href={`/work/${p.slug?.current}`}
-                        >
-                          <CardMedia image={p.cardImage} alt={altPick.value} logo={p.organization?.logo} />
-                          <div className="card-body">
-                            <h3 className={titlePick.nativeEnglish ? 'notranslate' : undefined}>{titlePick.value}</h3>
-                            <p className={summaryPick.nativeEnglish ? 'notranslate' : undefined}>{desc}<span className="more"> …</span></p>
-                          </div>
-                          <div className={tagsPick.nativeEnglish ? 'meta tags card-meta notranslate' : 'meta tags card-meta'}>
-                            {visible.map((t) => <TagPill key={t} text={t} />)}
-                            {extra ? <span className="pill morepill">+{extra}</span> : null}
-                          </div>
-                        </a>
-                      )
-                    })}
-                  </div>
+                  {supporting.length ? (
+                    <div className="grid12 editorial-support-grid">
+                      {supporting.map((p, idx) => p?.slug?.current ? (
+                        <EditorialCard
+                          key={p.slug.current}
+                          href={`/work/${p.slug.current}`}
+                          className="work-support-card"
+                          {...cardData(p, lang, idx + 2, false)}
+                        />
+                      ) : null)}
+                    </div>
+                  ) : null}
                 </div>
               )
             })}

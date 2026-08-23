@@ -9,6 +9,8 @@ const ACCENT_OPTIONS = [
 const CARD_RATIO = [
   { title: 'Auto', value: 'auto' },
   { title: '16:9', value: '16:9' },
+  { title: '16:10', value: '16:10' },
+  { title: '3:2', value: '3:2' },
   { title: '4:3', value: '4:3' },
   { title: '1:1', value: '1:1' },
 ]
@@ -85,8 +87,16 @@ export default {
     { name: 'tags', title: 'Tags — Indonesian', type: 'array', of: [{ type: 'string' }] },
     { name: 'tagsEn', title: 'Tags — English', type: 'array', of: [{ type: 'string' }], description: EN_FALLBACK_NOTE },
 
-    // Featured toggle (used on Home).
+    // Existing home curation stays intact.
     { name: 'featured', title: 'Show on Home (Featured)', type: 'boolean', initialValue: false },
+
+    {
+      name: 'workOrder',
+      title: 'Work index order (optional)',
+      type: 'number',
+      description: 'Lower numbers appear first inside the organization on /work. Leave blank to fall back to the project date. Use 1 for the flagship project you want shown first.',
+      validation: (Rule) => Rule.integer().min(1),
+    },
 
     {
       name: 'accent',
@@ -105,9 +115,21 @@ export default {
       fields: [
         { name: 'alt', title: 'Alt text — Indonesian', type: 'string' },
         { name: 'altEn', title: 'Alt text — English', type: 'string', description: EN_FALLBACK_NOTE },
-        { name: 'ratio', title: 'Card ratio', type: 'string', options: { list: CARD_RATIO }, initialValue: '16:9' },
+        { name: 'ratio', title: 'Card ratio', type: 'string', options: { list: CARD_RATIO }, initialValue: '3:2' },
       ],
-      description: 'Shown on project cards. Leave empty to keep text-only cards.',
+      description: 'Shown on project cards. New editorial listings use a consistent 3:2 frame; the stored ratio remains useful elsewhere.',
+    },
+
+    {
+      name: 'cardStat',
+      title: 'Card outcome / proof point (optional)',
+      type: 'object',
+      description: 'One concise proof point for index cards, e.g. “+11%” / “peak KYC uplift”. Keep it factual and short.',
+      fields: [
+        { name: 'value', title: 'Value', type: 'string', description: 'Examples: +11%, −10%, 9.3%, 15K' },
+        { name: 'label', title: 'Label — Indonesian', type: 'string' },
+        { name: 'labelEn', title: 'Label — English', type: 'string', description: EN_FALLBACK_NOTE },
+      ],
     },
 
     { name: 'role', title: 'Role — Indonesian', type: 'string' },

@@ -3,35 +3,43 @@ import {sanityFetch} from '../../../lib/sanity.client'
 import {RECRUITER_LINK_BY_CODE_QUERY} from '../../../lib/sanity.queries'
 import {getLanguage} from '../../../lib/i18n.server'
 import {pickLocalized} from '../../../lib/i18n'
-import CardMedia from '../../../components/CardMedia'
-import MarqueeText from '../../../components/MarqueeText'
+import {EditorialCardContent} from '../../../components/EditorialCard'
 import {RecruiterOpenTracker, RecruiterTrackedLink} from '../../../components/RecruiterTracking'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
 
-function trunc(input, max = 280) {
-  const s = String(input || '').trim().replace(/\s+/g, ' ')
-  if (!s) return ''
-  if (s.length <= max) return s
-  return s.slice(0, Math.max(0, max - 1)).trimEnd() + '…'
+function yearOf(date) {
+  if (!date) return ''
+  const d = new Date(date)
+  return Number.isNaN(d.getTime()) ? '' : String(d.getFullYear())
 }
 
-function TagPill({text}) {
-  return (
-    <span className="pill">
-      <MarqueeText text={text} />
-    </span>
-  )
-}
+function projectCardData(p, lang, index, featured = false) {
+  const titlePick = pickLocalized(p?.title, p?.titleEn, lang)
+  const summaryPick = pickLocalized(p?.summary, p?.summaryEn, lang)
+  const tagsPick = pickLocalized(p?.tags, p?.tagsEn, lang)
+  const altPick = pickLocalized(p?.cardImage?.alt, p?.cardImage?.altEn, lang)
+  const statLabelPick = pickLocalized(p?.cardStat?.label, p?.cardStat?.labelEn, lang)
+  const typeLabel = featured
+    ? (lang === 'en' ? 'SELECTED CASE STUDY' : 'STUDI KASUS PILIHAN')
+    : (lang === 'en' ? 'CASE STUDY' : 'STUDI KASUS')
 
-function buildTagSet(tags = [], cap = 4) {
-  const visible = tags.slice(0, cap)
-  const extra = Math.max(0, tags.length - visible.length)
-  const adjusted = (extra > 0 && visible.length % 2 === 1)
-    ? visible.slice(0, Math.max(0, visible.length - 1))
-    : visible
-  return {visible: adjusted, extra: Math.max(0, tags.length - adjusted.length)}
+  return {
+    title: titlePick.value,
+    summary: summaryPick.value,
+    image: p?.cardImage,
+    alt: altPick.value,
+    logo: p?.organization?.logo,
+    index: `${String(index).padStart(2, '0')} / ${typeLabel}`,
+    eyebrow: p?.organization?.name,
+    meta: [...(tagsPick.value || []).slice(0, 2), yearOf(p?.date)].filter(Boolean),
+    statValue: p?.cardStat?.value,
+    statLabel: statLabelPick.value,
+    featured,
+    titleClassName: titlePick.nativeEnglish ? 'notranslate' : '',
+    summaryClassName: summaryPick.nativeEnglish ? 'notranslate' : '',
+  }
 }
 
 async function getRecruiterLink(code) {
@@ -72,7 +80,9 @@ export default async function RecruiterPortfolio({params}) {
   const code = recruiter?.linkCode?.current || String(params?.code || '')
   const company = recruiter?.company || 'this opportunity'
   const role = recruiter?.role || ''
+  // Preserve the exact drag-and-drop order from the Recruiter Link document.
   const projects = recruiter?.selectedProjects || []
+  const [featuredProject, ...supportingProjects] = projects
 
   const defaultMessageEn = 'A few projects selected for this opportunity, focused on complex product systems, clear decision-making, and measurable outcomes.'
   const defaultMessageId = 'Beberapa proyek yang saya pilih untuk kesempatan ini, dengan fokus pada sistem produk yang kompleks, keputusan desain yang jelas, dan hasil yang terukur.'
@@ -84,9 +94,31 @@ export default async function RecruiterPortfolio({params}) {
   const resumeLabel = lang === 'en' ? 'View resume' : 'Lihat resume'
   const allWorkLabel = lang === 'en' ? 'View all work' : 'Lihat semua karya'
   const projectsLabel = lang === 'en' ? 'Selected work' : 'Karya pilihan'
-  const projectCountLabel = lang === 'en'
-    ? (projects.length === 1 ? 'project' : 'projects')
-    : 'proyek'
+  const projectCountLabel = lang === 'en' ? (projects.length === 1 ? 'project' : 'projects') : 'proyek'
+
+  const trackedProject = (p, idx, featured) => {
+    const slug = p?.slug?.current
+    if (!slug) return null
+    const classes = [
+      'editorial-card',
+      'card-link',
+      featured ? 'editorial-card-featured recruiter-featured-card' : 'editorial-card-standard recruiter-support-card',
+    ].join(' ')
+
+    return (
+      <RecruiterTrackedLink
+        key={p?._id || slug}
+        className={classes}
+        href={`/work/${slug}?r=${encodeURIComponent(code)}`}
+        eventName="recruiter_project_open"
+        code={code}
+        company={company}
+        target={slug}
+      >
+        <EditorialCardContent {...projectCardData(p, lang, idx, featured)} />
+      </RecruiterTrackedLink>
+    )
+  }
 
   return (
     <main className="container page-work recruiter-page" data-accent="none">
@@ -94,7 +126,7 @@ export default async function RecruiterPortfolio({params}) {
 
       <section className="section tight recruiter-hero">
         <div className="grid12">
-          <div style={{gridColumn: '1 / span 7'}}>
+          <div className="recruiter-hero-title">
             <div className={lang === 'en' ? 'kicker notranslate' : 'kicker'}>
               <span className="dot" /> {curatedLabel}
             </div>
@@ -104,7 +136,7 @@ export default async function RecruiterPortfolio({params}) {
             {role ? <div className="recruiter-role notranslate">{role}</div> : null}
           </div>
 
-          <div style={{gridColumn: '8 / span 5', paddingTop: 10}}>
+          <div className="recruiter-hero-copy">
             <p className={messagePick.nativeEnglish || (lang === 'en' && !recruiter?.messageEn) ? 'lead notranslate' : 'lead'}>
               {message}
             </p>
@@ -144,48 +176,19 @@ export default async function RecruiterPortfolio({params}) {
 
       <div className="hr" />
 
-      <section className="section">
+      <section className="section recruiter-work-section">
         <div className="recruiter-section-head">
           <div className={lang === 'en' ? 'kicker notranslate' : 'kicker'}><span className="dot" /> {projectsLabel}</div>
           <div className="recruiter-count">{projects.length} {projectCountLabel}</div>
         </div>
 
-        <div className="grid12 work-grid" style={{alignItems: 'stretch'}}>
-          {projects.map((p) => {
-            const titlePick = pickLocalized(p?.title, p?.titleEn, lang)
-            const summaryPick = pickLocalized(p?.summary, p?.summaryEn, lang)
-            const tagsPick = pickLocalized(p?.tags, p?.tagsEn, lang)
-            const altPick = pickLocalized(p?.cardImage?.alt, p?.cardImage?.altEn, lang)
-            const tags = [p?.organization?.name, ...(tagsPick.value || [])].filter(Boolean)
-            const {visible, extra} = buildTagSet(tags, 4)
-            const desc = trunc(summaryPick.value || '', 300)
-            const slug = p?.slug?.current
-            if (!slug) return null
+        {featuredProject ? trackedProject(featuredProject, 1, true) : null}
 
-            return (
-              <RecruiterTrackedLink
-                key={p?._id || slug}
-                className="card card-link"
-                style={{gridColumn: 'span 6'}}
-                href={`/work/${slug}?r=${encodeURIComponent(code)}`}
-                eventName="recruiter_project_open"
-                code={code}
-                company={company}
-                target={slug}
-              >
-                <CardMedia image={p.cardImage} alt={altPick.value} logo={p.organization?.logo} />
-                <div className="card-body">
-                  <h3 className={titlePick.nativeEnglish ? 'notranslate' : undefined}>{titlePick.value}</h3>
-                  {desc ? <p className={summaryPick.nativeEnglish ? 'notranslate' : undefined}>{desc}</p> : null}
-                </div>
-                <div className={tagsPick.nativeEnglish ? 'meta tags card-meta notranslate' : 'meta tags card-meta'}>
-                  {visible.map((t) => <TagPill key={t} text={t} />)}
-                  {extra ? <span className="pill morepill">+{extra}</span> : null}
-                </div>
-              </RecruiterTrackedLink>
-            )
-          })}
-        </div>
+        {supportingProjects.length ? (
+          <div className="grid12 editorial-support-grid recruiter-support-grid">
+            {supportingProjects.map((p, idx) => trackedProject(p, idx + 2, false))}
+          </div>
+        ) : null}
       </section>
     </main>
   )

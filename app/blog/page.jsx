@@ -1,7 +1,7 @@
 import {sanityFetch} from '../../lib/sanity.client'
 import {SITE_SETTINGS_QUERY, BLOG_INDEX_QUERY} from '../../lib/sanity.queries'
 import {placeholderSiteSettings} from '../../lib/placeholders'
-import CardMedia from '../../components/CardMedia'
+import EditorialCard from '../../components/EditorialCard'
 import {getLanguage} from '../../lib/i18n.server'
 import {pickLocalized, uiCopy} from '../../lib/i18n'
 
@@ -15,11 +15,27 @@ function safeDate(iso) {
   return d.toISOString().slice(0, 10)
 }
 
-function trunc(input, max = 320) {
-  const s = String(input || '').trim().replace(/\s+/g, ' ')
-  if (!s) return ''
-  if (s.length <= max) return s
-  return s.slice(0, Math.max(0, max - 1)).trimEnd() + '…'
+function postCardData(p, lang, index, featured = false) {
+  const titlePick = pickLocalized(p?.title, p?.titleEn, lang)
+  const excerptPick = pickLocalized(p?.excerpt, p?.excerptEn, lang)
+  const tagsPick = pickLocalized(p?.tags, p?.tagsEn, lang)
+  const altPick = pickLocalized(p?.cardImage?.alt, p?.cardImage?.altEn, lang)
+  const typeLabel = featured
+    ? (lang === 'en' ? 'FEATURED JOURNAL' : 'CATATAN UTAMA')
+    : (lang === 'en' ? 'JOURNAL' : 'CATATAN')
+
+  return {
+    title: titlePick.value,
+    summary: excerptPick.value,
+    image: p?.cardImage,
+    alt: altPick.value,
+    index: `${String(index).padStart(2, '0')} / ${typeLabel}`,
+    eyebrow: safeDate(p?.publishedAt),
+    meta: (tagsPick.value || []).slice(0, 3),
+    featured,
+    titleClassName: titlePick.nativeEnglish ? 'notranslate' : '',
+    summaryClassName: excerptPick.nativeEnglish ? 'notranslate' : '',
+  }
 }
 
 export default async function BlogIndex() {
@@ -40,16 +56,17 @@ export default async function BlogIndex() {
   }
 
   const accent = settings?.pageAccents?.blog || 'none'
+  const [featuredPost, ...supportingPosts] = posts || []
 
   return (
     <main className="container page-blog" data-accent={accent}>
-      <section className="section tight">
+      <section className="section tight blog-hero">
         <div className="grid12">
-          <div style={{ gridColumn: '1 / span 8' }}>
+          <div className="blog-hero-title">
             <div className="kicker"><span className="dot" /> <span className="notranslate">Farhan Fauzan Jamaludin</span></div>
             <h1 className={lang === 'en' ? 'h1-tight notranslate' : 'h1-tight'}>{copy.nav.blog}</h1>
           </div>
-          <div style={{ gridColumn: '9 / span 4', paddingTop: 10 }}>
+          <div className="blog-hero-intro">
             <p className={lang === 'en' ? 'lead notranslate' : 'lead'}>{copy.blogIntro}</p>
           </div>
         </div>
@@ -57,43 +74,33 @@ export default async function BlogIndex() {
 
       <div className="hr" />
 
-      <section className="section blog-list">
-        <div className="grid12" style={{ alignItems: 'stretch' }}>
-          {(posts || []).map((p) => {
-            const slug = p?.slug?.current
-            if (!slug) return null
-            const date = safeDate(p.publishedAt)
-            const titlePick = pickLocalized(p?.title, p?.titleEn, lang)
-            const excerptPick = pickLocalized(p?.excerpt, p?.excerptEn, lang)
-            const tagsPick = pickLocalized(p?.tags, p?.tagsEn, lang)
-            const altPick = pickLocalized(p?.cardImage?.alt, p?.cardImage?.altEn, lang)
-            const desc = trunc(excerptPick.value || '', 320)
+      <section className="section blog-list editorial-index-section">
+        {featuredPost?.slug?.current ? (
+          <EditorialCard
+            href={`/blog/${featuredPost.slug.current}`}
+            className="blog-featured-card"
+            {...postCardData(featuredPost, lang, 1, true)}
+          />
+        ) : null}
 
-            return (
-              <a
-                key={slug}
-                className="card card-link"
-                style={{ gridColumn: 'span 6' }}
-                href={`/blog/${slug}`}
-              >
-                <CardMedia image={p.cardImage} alt={altPick.value} badge={date} />
-                <div className="card-body">
-                  <h3 className={titlePick.nativeEnglish ? 'notranslate' : undefined}>{titlePick.value}</h3>
-                  <p className={excerptPick.nativeEnglish ? 'notranslate' : undefined}>{desc}<span className="more"> …</span></p>
-                </div>
-                <div className={tagsPick.nativeEnglish ? 'meta tags card-meta notranslate' : 'meta tags card-meta'}>
-                  {(tagsPick.value || []).slice(0, 4).map((t) => <span key={t} className="pill">{t}</span>)}
-                </div>
-              </a>
-            )
-          })}
+        {supportingPosts.length ? (
+          <div className="grid12 editorial-support-grid blog-support-grid">
+            {supportingPosts.map((p, idx) => p?.slug?.current ? (
+              <EditorialCard
+                key={p.slug.current}
+                href={`/blog/${p.slug.current}`}
+                className="blog-support-card"
+                {...postCardData(p, lang, idx + 2, false)}
+              />
+            ) : null)}
+          </div>
+        ) : null}
 
-          {(!posts || posts.length === 0) && (
-            <div className="card" style={{ gridColumn: '1 / span 12' }}>
-              <h3 className={lang === 'en' ? 'notranslate' : undefined} style={{ margin: 0 }}>{copy.noPosts}</h3>
-            </div>
-          )}
-        </div>
+        {(!posts || posts.length === 0) ? (
+          <div className="editorial-empty">
+            <h3 className={lang === 'en' ? 'notranslate' : undefined}>{copy.noPosts}</h3>
+          </div>
+        ) : null}
       </section>
     </main>
   )
