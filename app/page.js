@@ -1,9 +1,8 @@
 import {sanityFetch} from '../lib/sanity.client'
 import {SITE_SETTINGS_QUERY, HOME_FEATURED_PROJECTS_QUERY, HOME_FEATURED_POSTS_QUERY} from '../lib/sanity.queries'
 import {placeholderSiteSettings} from '../lib/placeholders'
-import CardMedia from '../components/CardMedia'
+import EditorialCard from '../components/EditorialCard'
 import HeroTicker from '../components/HeroTicker'
-import MarqueeText from '../components/MarqueeText'
 import {urlFor} from '../lib/sanity.image'
 import {getLanguage} from '../lib/i18n.server'
 import {pickLocalized, uiCopy} from '../lib/i18n'
@@ -11,34 +10,71 @@ import {pickLocalized, uiCopy} from '../lib/i18n'
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
 
-function trunc(input, max = 260) {
-  const s = String(input || '').trim().replace(/\s+/g, ' ')
-  if (!s) return ''
-  if (s.length <= max) return s
-  return s.slice(0, Math.max(0, max - 1)).trimEnd() + '…'
-}
-
-function TagPill({text}) {
-  return (
-    <span className="pill">
-      <MarqueeText text={text} />
-    </span>
-  )
-}
-
-function buildTagSet(tags = [], cap = 4) {
-  const visible = tags.slice(0, cap)
-  const extra = Math.max(0, tags.length - visible.length)
-  const v = (extra > 0 && visible.length % 2 === 1) ? visible.slice(0, Math.max(0, visible.length - 1)) : visible
-  const e = Math.max(0, tags.length - v.length)
-  return { visible: v, extra: e }
-}
-
 function heroImageUrl(img, w, h) {
   if (!img) return null
   const b = urlFor(img)
   if (!b) return img?.asset?.url || null
   return h ? b.width(w).height(h).fit('crop').quality(85).auto('format').url() : b.width(w).quality(85).auto('format').url()
+}
+
+function yearOf(date) {
+  if (!date) return ''
+  const d = new Date(date)
+  return Number.isNaN(d.getTime()) ? '' : String(d.getFullYear())
+}
+
+function dateOf(date) {
+  if (!date) return ''
+  const d = new Date(date)
+  return Number.isNaN(d.getTime()) ? '' : d.toISOString().slice(0, 10)
+}
+
+function projectCardData(p, lang, index, featured = false) {
+  const titlePick = pickLocalized(p?.title, p?.titleEn, lang)
+  const summaryPick = pickLocalized(p?.summary, p?.summaryEn, lang)
+  const tagsPick = pickLocalized(p?.tags, p?.tagsEn, lang)
+  const altPick = pickLocalized(p?.cardImage?.alt, p?.cardImage?.altEn, lang)
+  const statLabelPick = pickLocalized(p?.cardStat?.label, p?.cardStat?.labelEn, lang)
+  const typeLabel = featured
+    ? (lang === 'en' ? 'FEATURED CASE STUDY' : 'STUDI KASUS UTAMA')
+    : (lang === 'en' ? 'CASE STUDY' : 'STUDI KASUS')
+
+  return {
+    title: titlePick.value,
+    summary: summaryPick.value,
+    image: p?.cardImage,
+    alt: altPick.value,
+    logo: p?.organization?.logo,
+    index: `${String(index).padStart(2, '0')} / ${typeLabel}`,
+    eyebrow: p?.organization?.name,
+    meta: [...(tagsPick.value || []).slice(0, 2), yearOf(p?.date)].filter(Boolean),
+    statValue: p?.cardStat?.value,
+    statLabel: statLabelPick.value,
+    featured,
+    titleClassName: titlePick.nativeEnglish ? 'notranslate' : '',
+    summaryClassName: summaryPick.nativeEnglish ? 'notranslate' : '',
+  }
+}
+
+function postCardData(p, lang, index) {
+  const titlePick = pickLocalized(p?.title, p?.titleEn, lang)
+  const excerptPick = pickLocalized(p?.excerpt, p?.excerptEn, lang)
+  const tagsPick = pickLocalized(p?.tags, p?.tagsEn, lang)
+  const altPick = pickLocalized(p?.cardImage?.alt, p?.cardImage?.altEn, lang)
+  const journalLabel = lang === 'en' ? 'JOURNAL' : 'CATATAN'
+
+  return {
+    title: titlePick.value,
+    summary: excerptPick.value,
+    image: p?.cardImage,
+    alt: altPick.value,
+    index: `${String(index).padStart(2, '0')} / ${journalLabel}`,
+    eyebrow: dateOf(p?.publishedAt),
+    meta: (tagsPick.value || []).slice(0, 3),
+    featured: false,
+    titleClassName: titlePick.nativeEnglish ? 'notranslate' : '',
+    summaryClassName: excerptPick.nativeEnglish ? 'notranslate' : '',
+  }
 }
 
 export default async function Home() {
@@ -58,9 +94,9 @@ export default async function Home() {
   const subtitle = subtitlePick.value || ''
 
   const defaultLinks = [
-    { label: `${copy.nav.work} →`, url: '/work', nativeEnglish: lang === 'en' },
-    { label: `${copy.nav.blog} →`, url: '/blog', nativeEnglish: lang === 'en' },
-    { label: `${copy.nav.resume} →`, url: '/resume', nativeEnglish: lang === 'en' },
+    {label: `${copy.nav.work} →`, url: '/work', nativeEnglish: lang === 'en'},
+    {label: `${copy.nav.blog} →`, url: '/blog', nativeEnglish: lang === 'en'},
+    {label: `${copy.nav.resume} →`, url: '/resume', nativeEnglish: lang === 'en'},
   ]
 
   const links = s?.links?.length
@@ -72,13 +108,13 @@ export default async function Home() {
 
   const heroDesk = s?.heroPortraitDesktop
   const heroMob = s?.heroPortraitMobile
-
   const heroDeskUrl = heroImageUrl(heroDesk, 1200, 1500)
   const heroMobUrl = heroImageUrl(heroMob, 1600, 1067)
   const deskAltPick = pickLocalized(heroDesk?.alt, heroDesk?.altEn, lang)
   const mobAltPick = pickLocalized(heroMob?.alt, heroMob?.altEn, lang)
   const heroAlt = deskAltPick.value || mobAltPick.value || 'Portrait'
 
+  // Existing Site Settings curation remains the source of truth and preserves manual order.
   let featuredWork = (s?.featuredWork || []).slice(0, 4)
   let featuredPosts = (s?.featuredPosts || []).slice(0, 4)
 
@@ -91,13 +127,14 @@ export default async function Home() {
 
   const tickerPick = pickLocalized(s?.heroTickerWords, s?.heroTickerWordsEn, lang)
   const tickerWords = tickerPick.value || []
+  const [homeFlagship, ...homeSupporting] = featuredWork
 
   return (
     <main className="container page-home" data-accent={accent}>
       <section className="section tight hero-wrap">
         <HeroTicker words={tickerWords} nativeEnglish={tickerPick.nativeEnglish} />
 
-        <div className="hero-grid" style={{ position: 'relative', zIndex: 1 }}>
+        <div className="hero-grid" style={{position: 'relative', zIndex: 1}}>
           <div>
             {tagline ? <div className={taglinePick.nativeEnglish ? 'kicker notranslate' : 'kicker'}><span className="dot" /> {tagline}</div> : null}
             <h1 className="h1-tight notranslate">{name}</h1>
@@ -121,71 +158,56 @@ export default async function Home() {
             ) : (
               <img className="avatar hero-img hero-img-desktop" src="/avatar-placeholder.svg" alt="Portrait placeholder" />
             )}
-
-            {heroMobUrl ? (
-              <img className="hero-img hero-img-mobile" src={heroMobUrl} alt={heroAlt} />
-            ) : null}
+            {heroMobUrl ? <img className="hero-img hero-img-mobile" src={heroMobUrl} alt={heroAlt} /> : null}
           </div>
         </div>
       </section>
 
       <div className="hr" />
 
-      <section className="section">
-        <div className="grid12" style={{ alignItems: 'stretch' }}>
-          <div style={{ gridColumn: '1 / span 12' }}><h2 className={lang === 'en' ? 'notranslate' : undefined}>{copy.featuredWork}</h2></div>
-          {featuredWork.map((p) => {
-            const titlePick = pickLocalized(p?.title, p?.titleEn, lang)
-            const summaryPick = pickLocalized(p?.summary, p?.summaryEn, lang)
-            const tagsPick = pickLocalized(p?.tags, p?.tagsEn, lang)
-            const altPick = pickLocalized(p?.cardImage?.alt, p?.cardImage?.altEn, lang)
-            const tags = [p.organization?.name, ...(tagsPick.value || [])].filter(Boolean)
-            const { visible, extra } = buildTagSet(tags, 4)
-            const desc = trunc(summaryPick.value || '', 300)
+      <section className="section home-editorial-section">
+        <div className="home-section-head">
+          <h2 className={lang === 'en' ? 'notranslate' : undefined}>{copy.featuredWork}</h2>
+          <a className="editorial-section-link" href="/work">{lang === 'en' ? 'All work →' : 'Semua karya →'}</a>
+        </div>
 
-            return (
-              <a key={p.slug?.current} className="card card-link" style={{ gridColumn: 'span 6' }} href={`/work/${p.slug?.current}`}>
-                <CardMedia image={p.cardImage} alt={altPick.value} logo={p.organization?.logo} />
-                <div className="card-body">
-                  <h3 className={titlePick.nativeEnglish ? 'notranslate' : undefined}>{titlePick.value}</h3>
-                  <p className={summaryPick.nativeEnglish ? 'notranslate' : undefined}>{desc}<span className="more"> …</span></p>
-                </div>
-                <div className={tagsPick.nativeEnglish ? 'meta tags card-meta notranslate' : 'meta tags card-meta'}>
-                  {visible.map((t) => <TagPill key={t} text={t} />)}
-                  {extra ? <span className="pill morepill">+{extra}</span> : null}
-                </div>
-              </a>
-            )
-          })}
+        {homeFlagship?.slug?.current ? (
+          <EditorialCard
+            href={`/work/${homeFlagship.slug.current}`}
+            className="home-featured-card"
+            {...projectCardData(homeFlagship, lang, 1, true)}
+          />
+        ) : null}
 
-          <div style={{ gridColumn: '1 / span 12', marginTop: 34 }}>
-            <div className="hr" />
+        {homeSupporting.length ? (
+          <div className={`grid12 home-work-support home-work-support-count-${homeSupporting.length}`}>
+            {homeSupporting.map((p, idx) => p?.slug?.current ? (
+              <EditorialCard
+                key={p.slug.current}
+                href={`/work/${p.slug.current}`}
+                className="home-support-card"
+                {...projectCardData(p, lang, idx + 2, false)}
+              />
+            ) : null)}
           </div>
+        ) : null}
 
-          <div style={{ gridColumn: '1 / span 12', marginTop: 10 }}><h2 className={lang === 'en' ? 'notranslate' : undefined}>{copy.featuredPosts}</h2></div>
-          {featuredPosts.map((p) => {
-            const titlePick = pickLocalized(p?.title, p?.titleEn, lang)
-            const excerptPick = pickLocalized(p?.excerpt, p?.excerptEn, lang)
-            const tagsPick = pickLocalized(p?.tags, p?.tagsEn, lang)
-            const altPick = pickLocalized(p?.cardImage?.alt, p?.cardImage?.altEn, lang)
-            const tags = tagsPick.value || []
-            const { visible, extra } = buildTagSet(tags, 4)
-            const desc = trunc(excerptPick.value || '', 300)
+        <div className="home-section-divider hr" />
 
-            return (
-              <a key={p.slug?.current} className="card card-link" style={{ gridColumn: 'span 6' }} href={`/blog/${p.slug?.current}`}>
-                <CardMedia image={p.cardImage} alt={altPick.value} badge={p.publishedAt ? new Date(p.publishedAt).toISOString().slice(0,10) : ''} />
-                <div className="card-body">
-                  <h3 className={titlePick.nativeEnglish ? 'notranslate' : undefined}>{titlePick.value}</h3>
-                  <p className={excerptPick.nativeEnglish ? 'notranslate' : undefined}>{desc}<span className="more"> …</span></p>
-                </div>
-                <div className={tagsPick.nativeEnglish ? 'meta tags card-meta notranslate' : 'meta tags card-meta'}>
-                  {visible.map((t) => <TagPill key={t} text={t} />)}
-                  {extra ? <span className="pill morepill">+{extra}</span> : null}
-                </div>
-              </a>
-            )
-          })}
+        <div className="home-section-head home-posts-head">
+          <h2 className={lang === 'en' ? 'notranslate' : undefined}>{copy.featuredPosts}</h2>
+          <a className="editorial-section-link" href="/blog">{lang === 'en' ? 'All writing →' : 'Semua tulisan →'}</a>
+        </div>
+
+        <div className="grid12 home-post-grid">
+          {featuredPosts.map((p, idx) => p?.slug?.current ? (
+            <EditorialCard
+              key={p.slug.current}
+              href={`/blog/${p.slug.current}`}
+              className="home-post-card"
+              {...postCardData(p, lang, idx + 1)}
+            />
+          ) : null)}
         </div>
       </section>
     </main>
