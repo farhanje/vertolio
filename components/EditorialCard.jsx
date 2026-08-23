@@ -22,10 +22,13 @@ export function EditorialCardContent({
   const metaItems = cleanMeta(meta)
 
   return (
-    <div className={featured ? 'editorial-card-inner editorial-card-featured-grid' : 'editorial-card-inner'}>
+    <div
+      className={featured ? 'editorial-card-inner editorial-card-featured-grid' : 'editorial-card-inner'}
+      style={featured ? undefined : {display: 'flex', flexDirection: 'column', height: '100%'}}
+    >
       <CardMedia image={image} alt={alt} logo={logo} ratio="3:2" />
 
-      <div className="editorial-copy">
+      <div className="editorial-copy" style={{height: 'auto', flex: '1 1 auto'}}>
         <div className="editorial-overline">
           <span className="editorial-index">{index}</span>
           {eyebrow ? <span className="editorial-eyebrow notranslate">{eyebrow}</span> : null}
