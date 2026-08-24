@@ -85,6 +85,7 @@ export default async function RootLayout({ children }) {
             src={umamiScriptUrl}
             data-website-id={umamiWebsiteId}
             data-exclude-search="false"
+            data-performance="true"
           />
         ) : null}
       </head>
