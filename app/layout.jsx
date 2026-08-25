@@ -4,11 +4,11 @@ import SiteNav from '../components/SiteNav';
 import SiteFooter from '../components/SiteFooter';
 import AnalyticsBridge from '../components/AnalyticsBridge';
 import UmamiRecorder from '../components/UmamiRecorder';
+import GoogleTranslateGate from '../components/GoogleTranslateGate';
 import { GeistSans, GeistMono } from 'geist/font';
 import {sanityFetch} from '../lib/sanity.client';
 import {SITE_SETTINGS_QUERY} from '../lib/sanity.queries';
 import {placeholderSiteSettings} from '../lib/placeholders';
-import GoogleTranslateCleanup from '../components/GoogleTranslateCleanup';
 import { Analytics } from '@vercel/analytics/next';
 import {getLanguage} from '../lib/i18n.server';
 import {pickLocalized} from '../lib/i18n';
@@ -71,14 +71,6 @@ export default async function RootLayout({ children }) {
   return (
     <html lang={lang} className={`${GeistSans.variable} ${GeistMono.variable}`}>
       <head>
-        {/* Google Translate stays available as the fallback while native English fields are being filled in Sanity. */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `function googleTranslateElementInit(){try{new google.translate.TranslateElement({pageLanguage:'id',autoDisplay:false},'google_translate_element');}catch(e){}}`,
-          }}
-        />
-        <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" async />
-
         {umamiWebsiteId && umamiScriptUrl ? (
           <script
             defer
@@ -90,8 +82,7 @@ export default async function RootLayout({ children }) {
         ) : null}
       </head>
       <body className="app" data-language={lang}>
-        <div id="google_translate_element" className="g-translate-hidden" />
-        <GoogleTranslateCleanup />
+        <GoogleTranslateGate />
         <AnalyticsBridge />
         <UmamiRecorder trackerUrl={umamiScriptUrl} websiteId={umamiWebsiteId} />
 
