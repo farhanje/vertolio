@@ -4,5 +4,17 @@ import post from './schemas/post'
 import siteSettings from './schemas/siteSettings'
 import recruiterLink from './schemas/recruiterLink'
 import researchStudy from './schemaTypes/researchStudy'
+import normalizeProjectCaseStudyBlocks from './normalizeProjectCaseStudyBlocks'
+import {caseStudyBlockTypes} from './schemas/caseStudyBlocks'
 
-export const schemaTypes = [siteSettings, organization, project, post, recruiterLink, researchStudy]
+const normalizedProject = normalizeProjectCaseStudyBlocks(project)
+
+export const schemaTypes = [
+  siteSettings,
+  organization,
+  ...caseStudyBlockTypes,
+  normalizedProject,
+  post,
+  recruiterLink,
+  researchStudy,
+]
