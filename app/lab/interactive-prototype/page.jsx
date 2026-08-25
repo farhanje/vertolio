@@ -5,161 +5,226 @@ export const metadata = {
   robots: {index: false, follow: false},
 }
 
-function svgData({title, subtitle, progress = 0, cards = [], action = 'Continue', camera = false, success = false}) {
-  const cardMarkup = cards.map((card, index) => {
-    const y = 350 + (index * 142)
-    const status = card.status || 'Not started'
-    const statusFill = status === 'Saved' ? '#111111' : '#777777'
-    return `
-      <rect x="54" y="${y}" width="322" height="112" rx="16" fill="#ffffff" stroke="#d8d8d8"/>
-      <circle cx="88" cy="${y + 40}" r="16" fill="${status === 'Saved' ? '#111111' : '#ededed'}"/>
-      <text x="118" y="${y + 36}" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="700" fill="#111111">${card.title}</text>
-      <text x="118" y="${y + 62}" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="${statusFill}">${status}</text>
-      <text x="348" y="${y + 57}" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="22" fill="#777777">›</text>
-    `
-  }).join('')
+const screens = {
+  intro: 'https://www.figma.com/api/mcp/asset/8fcb0a19-5946-4ec4-bcdf-433620ce4127.png',
+  hubEmpty: 'https://www.figma.com/api/mcp/asset/3bee80d7-ecfd-4851-bd5c-ee52030e9f23.png',
+  ktpCapture: 'https://www.figma.com/api/mcp/asset/aff9d8f7-ce04-49e9-9756-e1e2b3d5269b.png',
+  hubKtp: 'https://www.figma.com/api/mcp/asset/11f70f8d-7f87-4801-b6bb-1bc6f478d293.png',
+  selfieCapture: 'https://www.figma.com/api/mcp/asset/0879c022-f726-4fbf-96d9-7b8a5ae12d99.png',
+  hubSelfie: 'https://www.figma.com/api/mcp/asset/b344c060-0ffb-4ff8-9d62-d379ede0cf8b.png',
+  hubComplete: 'https://www.figma.com/api/mcp/asset/690a61f0-9eb6-4103-b18d-735a07853ebf.png',
+  processing: 'https://www.figma.com/api/mcp/asset/3f6952ea-66ea-464e-8d9e-47482aab8bdc.png',
+}
 
-  const cameraMarkup = camera ? `
-    <rect x="54" y="330" width="322" height="350" rx="26" fill="#171717"/>
-    <rect x="76" y="352" width="278" height="306" rx="20" fill="#2b2b2b"/>
-    <path d="M112 407h-22v22 M318 407h22v22 M112 603h-22v-22 M318 603h22v-22" stroke="#ffffff" stroke-width="4" fill="none" stroke-linecap="round"/>
-    <rect x="126" y="440" width="178" height="112" rx="12" fill="#f1f1f1" stroke="#ffffff" stroke-width="2"/>
-    <rect x="147" y="462" width="54" height="62" rx="6" fill="#d5d5d5"/>
-    <line x1="218" y1="467" x2="282" y2="467" stroke="#b6b6b6" stroke-width="7"/>
-    <line x1="218" y1="492" x2="272" y2="492" stroke="#c4c4c4" stroke-width="7"/>
-    <line x1="218" y1="517" x2="287" y2="517" stroke="#c4c4c4" stroke-width="7"/>
-    <circle cx="215" cy="715" r="32" fill="#ffffff" stroke="#111111" stroke-width="5"/>
-  ` : ''
-
-  const successMarkup = success ? `
-    <circle cx="215" cy="430" r="70" fill="#111111"/>
-    <path d="M181 431l24 24 47-55" fill="none" stroke="#ffffff" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
-    <text x="215" y="535" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" fill="#111111">Ready to submit</text>
-    <text x="215" y="570" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#666666">Both identity sections are saved.</text>
-  ` : ''
-
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="430" height="932" viewBox="0 0 430 932">
-    <rect width="430" height="932" fill="#f7f7f7"/>
-    <rect x="0" y="0" width="430" height="104" fill="#ffffff"/>
-    <text x="32" y="61" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" fill="#111111">AstraPay</text>
-    <text x="398" y="61" text-anchor="end" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#888888">DEMO</text>
-    <rect x="32" y="120" width="366" height="5" rx="2.5" fill="#e3e3e3"/>
-    <rect x="32" y="120" width="${Math.max(0, Math.min(progress, 1)) * 366}" height="5" rx="2.5" fill="#111111"/>
-    <text x="32" y="191" font-family="Arial, Helvetica, sans-serif" font-size="31" font-weight="700" fill="#111111">${title}</text>
-    <text x="32" y="228" font-family="Arial, Helvetica, sans-serif" font-size="15" fill="#666666">${subtitle}</text>
-    ${cardMarkup}
-    ${cameraMarkup}
-    ${successMarkup}
-    <rect x="32" y="830" width="366" height="58" rx="12" fill="#111111"/>
-    <text x="215" y="866" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" fill="#ffffff">${action}</text>
-  </svg>`
-
-  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
+const taskHotspots = {
+  ktp: {label: 'Start KTP', x: 6.5, y: 14.2, width: 87, height: 14.8},
+  selfie: {label: 'Start Selfie', x: 6.5, y: 31, width: 87, height: 14.8},
 }
 
 const demoSteps = [
   {
-    label: 'KYC landing',
-    caption: 'Set expectations before the user enters the verification flow.',
-    alt: 'Demo KYC landing screen',
-    src: svgData({
-      title: 'Upgrade your account',
-      subtitle: 'Complete identity verification to unlock higher limits.',
-      progress: .08,
-      cards: [
-        {title: 'Higher balance limit', status: 'Up to 20M'},
-        {title: 'More transactions', status: 'Preferred benefit'},
-      ],
-      action: 'Start verification',
-    }),
+    key: 'intro',
+    navNumber: '01',
+    counter: '01 / 07',
+    label: 'Upgrade entry',
+    annotation: 'Set expectations',
+    caption: 'The existing upgrade page explains the two verification tasks before the user enters KYC.',
+    alt: 'AstraPay Upgrade Akun screen',
+    src: screens.intro,
+    nextKey: 'hub-empty',
+    event: 'kyc_lab_start',
   },
   {
-    label: 'Review hub',
-    caption: 'Flow B makes progress visible and lets users choose the next incomplete section.',
-    alt: 'Demo KYC review hub',
-    src: svgData({
-      title: 'Review your KYC',
-      subtitle: 'Complete both sections. Your progress is saved.',
-      progress: .22,
-      cards: [
-        {title: 'Identity card', status: 'Not started'},
-        {title: 'Selfie', status: 'Not started'},
-      ],
-      action: 'Continue',
-    }),
+    key: 'hub-empty',
+    navNumber: '02',
+    counter: '02 / 07',
+    label: 'Tinjauan hub',
+    annotation: '01 · Task hub replaces forced sequence',
+    caption: 'Choose either KTP or Selfie. The flow no longer dictates one fixed order.',
+    alt: 'AstraPay KYC review hub with both tasks incomplete',
+    src: screens.hubEmpty,
+    hotspots: [
+      {...taskHotspots.ktp, nextKey: 'ktp-first', event: 'kyc_lab_ktp'},
+      {...taskHotspots.selfie, nextKey: 'selfie-first', event: 'kyc_lab_selfie'},
+    ],
   },
   {
+    key: 'ktp-first',
+    navNumber: '03',
+    counter: '03 / 07',
+    navGroup: 'ktp',
     label: 'Capture KTP',
-    caption: 'The task is isolated: capture one document, validate it, then return to the hub.',
-    alt: 'Demo KTP camera screen',
-    src: svgData({
-      title: 'Photograph your KTP',
-      subtitle: 'Keep the card inside the frame and make sure text is readable.',
-      progress: .40,
-      camera: true,
-      action: 'Use this photo',
-    }),
+    annotation: 'Complete one task',
+    caption: 'The identity document task is completed independently from Selfie.',
+    alt: 'AstraPay KTP capture screen',
+    src: screens.ktpCapture,
+    nextKey: 'hub-ktp',
+    event: 'kyc_lab_ktp',
   },
   {
+    key: 'hub-ktp',
+    navNumber: '04',
+    counter: '04 / 07',
+    navGroup: 'autosave',
     label: 'Autosaved progress',
-    caption: 'Returning to Review proves the first task persisted instead of forcing a serial sequence.',
-    alt: 'Demo KYC review hub with KTP saved',
-    src: svgData({
-      title: 'Review your KYC',
-      subtitle: 'One section saved. Finish the remaining step when ready.',
-      progress: .58,
-      cards: [
-        {title: 'Identity card', status: 'Saved'},
-        {title: 'Selfie', status: 'Not started'},
-      ],
-      action: 'Continue',
-    }),
+    annotation: '02 · Completed work persists',
+    caption: 'The user returns to Tinjauan with KTP retained and Selfie still independently actionable.',
+    alt: 'AstraPay Tinjauan screen with KTP saved and Selfie incomplete',
+    src: screens.hubKtp,
+    hotspots: [
+      {...taskHotspots.selfie, nextKey: 'selfie-after-ktp', event: 'kyc_lab_selfie'},
+    ],
+    event: 'kyc_lab_autosave_return',
   },
   {
-    label: 'Capture selfie',
-    caption: 'A second independent task can be completed without losing the KTP state.',
-    alt: 'Demo selfie camera screen',
-    src: svgData({
-      title: 'Take a selfie',
-      subtitle: 'Position your face clearly and look straight at the camera.',
-      progress: .78,
-      camera: true,
-      action: 'Use this selfie',
-    }),
+    key: 'selfie-after-ktp',
+    navNumber: '05',
+    counter: '05 / 07',
+    navGroup: 'selfie',
+    label: 'Selfie / liveness',
+    annotation: '03 · Resume from remaining task',
+    caption: 'Only the remaining task needs attention. Previously completed KTP work stays intact.',
+    alt: 'AstraPay selfie liveness screen',
+    src: screens.selfieCapture,
+    nextKey: 'hub-complete',
+    event: 'kyc_lab_selfie',
   },
   {
+    key: 'selfie-first',
+    counter: '03 / 07',
+    navGroup: 'selfie',
+    showInNav: false,
+    label: 'Selfie / liveness',
+    annotation: 'Complete one task',
+    caption: 'The same system also supports Selfie first, proving that task order is genuinely flexible.',
+    alt: 'AstraPay selfie liveness screen',
+    src: screens.selfieCapture,
+    nextKey: 'hub-selfie',
+    event: 'kyc_lab_selfie',
+  },
+  {
+    key: 'hub-selfie',
+    counter: '04 / 07',
+    navGroup: 'autosave',
+    showInNav: false,
+    label: 'Selfie autosaved',
+    annotation: '02 · Completed work persists',
+    caption: 'Selfie is retained while KTP remains available. Autosave works regardless of task order.',
+    alt: 'AstraPay Tinjauan screen with Selfie saved and KTP incomplete',
+    src: screens.hubSelfie,
+    hotspots: [
+      {...taskHotspots.ktp, nextKey: 'ktp-after-selfie', event: 'kyc_lab_ktp'},
+    ],
+    event: 'kyc_lab_autosave_return',
+  },
+  {
+    key: 'ktp-after-selfie',
+    counter: '05 / 07',
+    navGroup: 'ktp',
+    showInNav: false,
+    label: 'Capture KTP',
+    annotation: '03 · Resume from remaining task',
+    caption: 'The user can finish KTP after Selfie without repeating the completed task.',
+    alt: 'AstraPay KTP capture screen',
+    src: screens.ktpCapture,
+    nextKey: 'hub-complete',
+    event: 'kyc_lab_ktp',
+  },
+  {
+    key: 'hub-complete',
+    navNumber: '06',
+    counter: '06 / 07',
+    navGroup: 'complete',
     label: 'Ready to submit',
-    caption: 'Both sections resolve into one final review state before submission.',
-    alt: 'Demo KYC ready to submit screen',
-    src: svgData({
-      title: 'Verification complete',
-      subtitle: 'Check your saved information before sending it for review.',
-      progress: 1,
-      success: true,
-      action: 'Submit KYC',
-    }),
+    annotation: '04 · Tasks converge before submission',
+    caption: 'Both independently completed tasks resolve into one final Tinjauan state.',
+    alt: 'AstraPay Tinjauan screen with KTP and Selfie completed',
+    src: screens.hubComplete,
+    nextKey: 'processing',
+    event: 'kyc_lab_complete',
+  },
+  {
+    key: 'processing',
+    navNumber: '07',
+    counter: '07 / 07',
+    navGroup: 'processing',
+    label: 'Verification sent',
+    annotation: 'Submission state',
+    caption: 'The flexible task model ends in the same operational review state after submission.',
+    alt: 'AstraPay Upgrade Akun processing screen',
+    src: screens.processing,
+    isEnd: true,
+    event: 'kyc_lab_submit',
   },
 ]
+
+const comparisonStyle = {
+  display: 'grid',
+  gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+  gap: 1,
+  background: '#d8d8d2',
+  border: '1px solid #d8d8d2',
+  marginTop: 22,
+}
+
+const comparisonCardStyle = {
+  background: '#f7f7f2',
+  padding: '22px',
+}
 
 export default function InteractivePrototypeLab() {
   return (
     <main className="container" style={{padding: '54px 0 90px'}}>
-      <div style={{maxWidth: 760, marginBottom: 28}}>
+      <div style={{maxWidth: 790, marginBottom: 28}}>
         <div className="kicker"><span className="dot" /> Portfolio lab / not production</div>
-        <h1 style={{fontSize: 'clamp(42px, 6vw, 78px)'}}>Make the work inspectable.</h1>
+        <h1 style={{fontSize: 'clamp(42px, 6vw, 78px)'}}>Make the system inspectable.</h1>
         <p className="lead">
-          Interaction proof-of-concept for the KYC Autosave case study. The screen content below is intentionally fake; the component is the part being tested.
+          Real AstraPay Flow B screens from the KYC prototype. At Tinjauan, choose KTP or Selfie and watch the completed task persist when the flow returns to the hub.
         </p>
       </div>
 
       <InteractivePrototype
-        eyebrow="Interactive product artifact"
+        eyebrow="Interactive product artifact · Flow B"
         title="Try the flexible KYC flow"
-        description="Instead of showing a static strip of screens, let a reviewer move through the behavior that made Flow B different: a Review hub, independently saved tasks, and a final submission state. Click the device, choose a step, or use the arrow keys."
+        description="The design change was not simply a different sequence of screens. Autosave made KTP and Selfie independently completable tasks, coordinated through Tinjauan. Choose either task first to inspect the behavior."
         theme="dark"
         device="phone"
         steps={demoSteps}
       />
+
+      <section style={{marginTop: 52, maxWidth: 1000}}>
+        <div className="kicker"><span className="dot" /> Why the structure changed</div>
+        <h2 style={{fontSize: 'clamp(30px, 4vw, 52px)', maxWidth: 760, marginBottom: 12}}>From a forced sequence to resumable tasks.</h2>
+        <p style={{maxWidth: 720, color: '#595959'}}>
+          Flow B decoupled KYC tasks so progress could persist independently. Tinjauan became the orchestration layer: it shows what is done, what remains, and where the user can resume.
+        </p>
+
+        <div style={comparisonStyle}>
+          <article style={comparisonCardStyle}>
+            <div className="kicker">Flow A · serial</div>
+            <p style={{fontSize: 18, lineHeight: 1.5, margin: '14px 0 0'}}>
+              Guide → KTP → Selfie → Form
+            </p>
+            <p style={{fontSize: 13, lineHeight: 1.55, color: '#666', marginBottom: 0}}>
+              Progress is experienced as one prescribed sequence. Leaving a step interrupts the journey.
+            </p>
+          </article>
+
+          <article style={comparisonCardStyle}>
+            <div className="kicker">Flow B · flexible</div>
+            <p style={{fontSize: 18, lineHeight: 1.5, margin: '14px 0 0'}}>
+              Tinjauan → choose task → autosave → return → remaining task
+            </p>
+            <p style={{fontSize: 13, lineHeight: 1.55, color: '#666', marginBottom: 0}}>
+              Each task can resolve independently while the hub preserves state and coordinates what happens next.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <p style={{marginTop: 28, maxWidth: 720, fontSize: 12, color: '#777'}}>
+        Lab note: these renders are linked directly from Figma for rapid interaction testing. They will be moved to permanent portfolio assets before this component is used in production.
+      </p>
     </main>
   )
 }
