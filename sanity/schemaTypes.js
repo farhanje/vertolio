@@ -4,8 +4,17 @@ import post from './schemas/post'
 import siteSettings from './schemas/siteSettings'
 import recruiterLink from './schemas/recruiterLink'
 import researchStudy from './schemaTypes/researchStudy'
-import enhanceProjectPrototypeBranching from './enhanceProjectPrototypeBranching'
+import normalizeProjectCaseStudyBlocks from './normalizeProjectCaseStudyBlocks'
+import {caseStudyBlockTypes} from './schemas/caseStudyBlocks'
 
-const enhancedProject = enhanceProjectPrototypeBranching(project)
+const normalizedProject = normalizeProjectCaseStudyBlocks(project)
 
-export const schemaTypes = [siteSettings, organization, enhancedProject, post, recruiterLink, researchStudy]
+export const schemaTypes = [
+  siteSettings,
+  organization,
+  ...caseStudyBlockTypes,
+  normalizedProject,
+  post,
+  recruiterLink,
+  researchStudy,
+]
