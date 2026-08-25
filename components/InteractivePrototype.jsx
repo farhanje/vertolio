@@ -23,6 +23,7 @@ export default function InteractivePrototype({
   theme = 'dark',
   device = 'phone',
   steps = [],
+  analyticsPrefix = 'portfolio_prototype',
 }) {
   const validSteps = useMemo(() => steps.filter((step) => step?.src), [steps])
   const stepByKey = useMemo(
@@ -46,8 +47,8 @@ export default function InteractivePrototype({
     if (didTrackStart.current || !firstKey) return
     didTrackStart.current = true
     const first = stepByKey.get(firstKey)
-    track(first?.event || 'kyc_lab_start', {screen: first?.key || firstKey})
-  }, [firstKey, stepByKey])
+    track(first?.event || `${analyticsPrefix}_start`, {screen: first?.key || firstKey})
+  }, [analyticsPrefix, firstKey, stepByKey])
 
   if (!validSteps.length) return null
 
@@ -57,12 +58,12 @@ export default function InteractivePrototype({
   const hasHotspots = Array.isArray(current.hotspots) && current.hotspots.length > 0
   const isEnd = current.isEnd === true
 
-  const enter = (key, {eventName, replaceHistory = false} = {}) => {
+  const enter = (key, {eventName, replaceHistory = false, interaction = 'navigate'} = {}) => {
     if (!key || !stepByKey.has(key)) return
     const target = stepByKey.get(key)
     setActiveKey(key)
     setHistory((previous) => (replaceHistory ? [key] : [...previous, key]))
-    track(eventName || target?.event, {screen: key, from: currentKey})
+    track(eventName || target?.event || `${analyticsPrefix}_${interaction}`, {screen: key, from: currentKey})
   }
 
   const goBack = () => {
@@ -73,13 +74,14 @@ export default function InteractivePrototype({
       if (previousKey) setActiveKey(previousKey)
       return nextHistory
     })
+    track(`${analyticsPrefix}_back`, {screen: currentKey})
   }
 
   const restart = () => {
     if (!firstKey) return
     setActiveKey(firstKey)
     setHistory([firstKey])
-    track('kyc_lab_restart', {screen: currentKey})
+    track(`${analyticsPrefix}_restart`, {screen: currentKey})
   }
 
   const goNext = () => {
@@ -166,7 +168,7 @@ export default function InteractivePrototype({
                   height: `${hotspot.height}%`,
                 }}
                 aria-label={hotspot.label}
-                onClick={() => enter(hotspot.nextKey, {eventName: hotspot.event})}
+                onClick={() => enter(hotspot.nextKey, {eventName: hotspot.event, interaction: 'choice'})}
               >
                 <span>{hotspot.label}</span>
               </button>
