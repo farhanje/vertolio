@@ -1,10 +1,19 @@
 'use client'
 
-import {useEffect, useMemo, useState} from 'react'
+import {useEffect, useMemo, useRef, useState} from 'react'
 import styles from './InteractivePrototype.module.css'
 
 function cx(...values) {
   return values.filter(Boolean).join(' ')
+}
+
+function track(name, data) {
+  if (!name || typeof window === 'undefined') return
+  try {
+    window.umami?.track?.(name, data)
+  } catch {
+    // Analytics should never block the prototype.
+  }
 }
 
 export default function InteractivePrototype({
@@ -16,31 +25,84 @@ export default function InteractivePrototype({
   steps = [],
 }) {
   const validSteps = useMemo(() => steps.filter((step) => step?.src), [steps])
-  const [active, setActive] = useState(0)
+  const stepByKey = useMemo(
+    () => new Map(validSteps.map((step, index) => [step.key || String(index), {...step, __index: index}])),
+    [validSteps],
+  )
+  const visibleSteps = useMemo(() => validSteps.filter((step) => step.showInNav !== false), [validSteps])
+  const firstKey = validSteps[0]?.key || '0'
+  const [activeKey, setActiveKey] = useState(firstKey)
+  const [history, setHistory] = useState(firstKey ? [firstKey] : [])
+  const didTrackStart = useRef(false)
 
   useEffect(() => {
-    if (active > validSteps.length - 1) setActive(0)
-  }, [active, validSteps.length])
+    if (!stepByKey.has(activeKey) && firstKey) {
+      setActiveKey(firstKey)
+      setHistory([firstKey])
+    }
+  }, [activeKey, firstKey, stepByKey])
+
+  useEffect(() => {
+    if (didTrackStart.current || !firstKey) return
+    didTrackStart.current = true
+    const first = stepByKey.get(firstKey)
+    track(first?.event || 'kyc_lab_start', {screen: first?.key || firstKey})
+  }, [firstKey, stepByKey])
 
   if (!validSteps.length) return null
 
-  const current = validSteps[active]
-  const isFirst = active === 0
-  const isLast = active === validSteps.length - 1
+  const current = stepByKey.get(activeKey) || {...validSteps[0], __index: 0}
+  const currentKey = current.key || String(current.__index)
+  const canGoBack = history.length > 1
+  const hasHotspots = Array.isArray(current.hotspots) && current.hotspots.length > 0
+  const isEnd = current.isEnd === true
 
-  const goTo = (index) => {
-    const next = Math.max(0, Math.min(index, validSteps.length - 1))
-    setActive(next)
+  const enter = (key, {eventName, replaceHistory = false} = {}) => {
+    if (!key || !stepByKey.has(key)) return
+    const target = stepByKey.get(key)
+    setActiveKey(key)
+    setHistory((previous) => (replaceHistory ? [key] : [...previous, key]))
+    track(eventName || target?.event, {screen: key, from: currentKey})
+  }
+
+  const goBack = () => {
+    if (!canGoBack) return
+    setHistory((previous) => {
+      const nextHistory = previous.slice(0, -1)
+      const previousKey = nextHistory[nextHistory.length - 1]
+      if (previousKey) setActiveKey(previousKey)
+      return nextHistory
+    })
+  }
+
+  const restart = () => {
+    if (!firstKey) return
+    setActiveKey(firstKey)
+    setHistory([firstKey])
+    track('kyc_lab_restart', {screen: currentKey})
+  }
+
+  const goNext = () => {
+    if (isEnd) {
+      restart()
+      return
+    }
+    if (current.nextKey) {
+      enter(current.nextKey)
+      return
+    }
+    const next = validSteps[current.__index + 1]
+    if (next) enter(next.key || String(current.__index + 1))
   }
 
   const handleKeyDown = (event) => {
-    if (event.key === 'ArrowRight') {
-      event.preventDefault()
-      goTo(active + 1)
-    }
     if (event.key === 'ArrowLeft') {
       event.preventDefault()
-      goTo(active - 1)
+      goBack()
+    }
+    if (event.key === 'ArrowRight' && !hasHotspots) {
+      event.preventDefault()
+      goNext()
     }
   }
 
@@ -56,56 +118,82 @@ export default function InteractivePrototype({
         {description ? <p className={styles.description}>{description}</p> : null}
 
         <div className={styles.stepList} aria-label="Prototype screens">
-          {validSteps.map((step, index) => (
-            <button
-              key={step.key || `${step.label}-${index}`}
-              type="button"
-              className={cx(styles.stepButton, index === active && styles.stepButtonActive)}
-              aria-current={index === active ? 'step' : undefined}
-              onClick={() => goTo(index)}
-            >
-              <span className={styles.stepNumber}>{String(index + 1).padStart(2, '0')}</span>
-              <span>{step.label || `Screen ${index + 1}`}</span>
-            </button>
-          ))}
+          {visibleSteps.map((step, index) => {
+            const key = step.key || String(index)
+            const isActive = key === activeKey || step.navGroup === current.navGroup
+            return (
+              <button
+                key={key}
+                type="button"
+                className={cx(styles.stepButton, isActive && styles.stepButtonActive)}
+                aria-current={isActive ? 'step' : undefined}
+                onClick={() => enter(key, {replaceHistory: false})}
+              >
+                <span className={styles.stepNumber}>{step.navNumber || String(index + 1).padStart(2, '0')}</span>
+                <span>{step.label || `Screen ${index + 1}`}</span>
+              </button>
+            )
+          })}
         </div>
       </div>
 
       <div className={styles.viewer}>
         <div className={styles.viewerTopline}>
-          <span>TRY THE FLOW</span>
-          <span>{String(active + 1).padStart(2, '0')} / {String(validSteps.length).padStart(2, '0')}</span>
+          <span>{hasHotspots ? 'CHOOSE A TASK' : isEnd ? 'FLOW COMPLETE' : 'TRY THE FLOW'}</span>
+          <span>{current.counter || String(current.__index + 1).padStart(2, '0')}</span>
         </div>
 
         <div className={styles.stage}>
-          <button
-            type="button"
-            className={cx(styles.deviceButton, device === 'browser' ? styles.browserDevice : styles.phoneDevice)}
-            onClick={() => (isLast ? goTo(0) : goTo(active + 1))}
-            aria-label={isLast ? 'Restart prototype' : `Next screen: ${validSteps[active + 1]?.label || 'next'}`}
-          >
+          <div className={cx(styles.deviceFrame, device === 'browser' ? styles.browserDevice : styles.phoneDevice)}>
             {device === 'phone' ? <span className={styles.phoneSpeaker} aria-hidden="true" /> : null}
             {device === 'browser' ? (
               <span className={styles.browserChrome} aria-hidden="true">
                 <span /><span /><span />
               </span>
             ) : null}
+
             <img className={styles.screenImage} src={current.src} alt={current.alt || current.label || ''} />
-          </button>
+
+            {hasHotspots ? current.hotspots.map((hotspot, index) => (
+              <button
+                key={`${currentKey}-${hotspot.label}-${index}`}
+                type="button"
+                className={styles.hotspot}
+                style={{
+                  left: `${hotspot.x}%`,
+                  top: `${hotspot.y}%`,
+                  width: `${hotspot.width}%`,
+                  height: `${hotspot.height}%`,
+                }}
+                aria-label={hotspot.label}
+                onClick={() => enter(hotspot.nextKey, {eventName: hotspot.event})}
+              >
+                <span>{hotspot.label}</span>
+              </button>
+            )) : (
+              <button
+                type="button"
+                className={styles.screenAdvance}
+                onClick={goNext}
+                aria-label={isEnd ? 'Restart prototype' : `Continue from ${current.label || 'current screen'}`}
+              />
+            )}
+          </div>
         </div>
 
         <div className={styles.viewerBottom}>
           <div className={styles.screenCopy}>
-            <strong>{current.label || `Screen ${active + 1}`}</strong>
+            {current.annotation ? <span className={styles.annotation}>{current.annotation}</span> : null}
+            <strong>{current.label || 'Prototype screen'}</strong>
             {current.caption ? <span>{current.caption}</span> : null}
           </div>
 
           <div className={styles.controls}>
-            <button type="button" onClick={() => goTo(active - 1)} disabled={isFirst} aria-label="Previous screen">
+            <button type="button" onClick={goBack} disabled={!canGoBack} aria-label="Previous screen">
               ←
             </button>
-            <button type="button" onClick={() => (isLast ? goTo(0) : goTo(active + 1))} aria-label={isLast ? 'Restart prototype' : 'Next screen'}>
-              {isLast ? '↻' : '→'}
+            <button type="button" onClick={goNext} disabled={hasHotspots} aria-label={isEnd ? 'Restart prototype' : hasHotspots ? 'Choose a task on screen' : 'Next screen'}>
+              {isEnd ? '↻' : '→'}
             </button>
           </div>
         </div>
