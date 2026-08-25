@@ -69,6 +69,70 @@ function bodyBlocks() {
         },
       ],
     },
+    {
+      name: 'interactivePrototype',
+      title: 'Interactive prototype',
+      type: 'object',
+      description: 'A dark/light artifact room with a clickable sequence of real product screens. Best for flows, responsive states, and before/after system behavior.',
+      fields: [
+        { name: 'eyebrow', title: 'Eyebrow', type: 'string', initialValue: 'Interactive prototype' },
+        { name: 'title', title: 'Title', type: 'string', validation: (Rule) => Rule.required() },
+        { name: 'description', title: 'Description', type: 'text', rows: 3 },
+        {
+          name: 'theme',
+          title: 'Theme',
+          type: 'string',
+          initialValue: 'dark',
+          options: {
+            list: [
+              { title: 'Dark artifact room', value: 'dark' },
+              { title: 'Light', value: 'light' },
+            ],
+            layout: 'radio',
+          },
+        },
+        {
+          name: 'device',
+          title: 'Device frame',
+          type: 'string',
+          initialValue: 'phone',
+          options: {
+            list: [
+              { title: 'Phone', value: 'phone' },
+              { title: 'Browser / desktop', value: 'browser' },
+            ],
+            layout: 'radio',
+          },
+        },
+        {
+          name: 'steps',
+          title: 'Prototype screens',
+          type: 'array',
+          validation: (Rule) => Rule.required().min(2).max(12),
+          of: [
+            {
+              type: 'object',
+              title: 'Screen',
+              fields: [
+                { name: 'label', title: 'Step label', type: 'string', validation: (Rule) => Rule.required() },
+                { name: 'caption', title: 'What this screen demonstrates', type: 'string' },
+                { name: 'image', title: 'Screen image', type: 'image', options: { hotspot: false }, validation: (Rule) => Rule.required() },
+                { name: 'alt', title: 'Alt text', type: 'string' },
+              ],
+              preview: {
+                select: { title: 'label', subtitle: 'caption', media: 'image' },
+              },
+            },
+          ],
+        },
+      ],
+      preview: {
+        select: { title: 'title', subtitle: 'description' },
+        prepare({title, subtitle}) {
+          return { title: title || 'Interactive prototype', subtitle: subtitle || 'Clickable product flow' }
+        },
+      },
+    },
   ]
 }
 
