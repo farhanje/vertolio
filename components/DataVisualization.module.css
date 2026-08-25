@@ -1,0 +1,297 @@
+.shell {
+  --dv-bg: #f7f7f2;
+  --dv-fg: #111;
+  --dv-muted: #666;
+  --dv-line: rgba(17,17,17,.14);
+  --dv-panel: rgba(17,17,17,.035);
+  margin: 36px 0;
+  padding: clamp(22px, 3.5vw, 38px);
+  border: 1px solid var(--dv-line);
+  background: var(--dv-bg);
+  color: var(--dv-fg);
+}
+
+.dark {
+  --dv-bg: #0b0b0b;
+  --dv-fg: #f7f7f2;
+  --dv-muted: rgba(247,247,242,.62);
+  --dv-line: rgba(247,247,242,.16);
+  --dv-panel: rgba(255,255,255,.045);
+}
+
+.header {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto;
+  gap: 24px;
+  align-items: end;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--dv-line);
+}
+
+.eyebrow,
+.meta,
+.takeaway > span {
+  font-size: 10px;
+  line-height: 1.2;
+  font-weight: 750;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+}
+
+.eyebrow,
+.meta {
+  color: var(--dv-muted);
+}
+
+.header h3 {
+  margin: 8px 0 0;
+  color: var(--dv-fg);
+  font-size: clamp(24px, 3vw, 38px);
+  line-height: 1.04;
+  letter-spacing: -.04em;
+}
+
+.header p {
+  max-width: 720px;
+  margin: 12px 0 0 !important;
+  color: var(--dv-muted) !important;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.meta {
+  max-width: 300px;
+  text-align: right;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding: 14px 0 0;
+  font-size: 11px;
+  color: var(--dv-muted);
+}
+
+.legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.legend i {
+  width: 16px;
+  height: 3px;
+  display: inline-block;
+}
+
+.visual {
+  position: relative;
+  margin-top: 14px;
+  min-height: 260px;
+  background: var(--dv-panel);
+  border: 1px solid var(--dv-line);
+}
+
+.chartWrap {
+  width: 100%;
+  overflow: hidden;
+}
+
+.svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  overflow: visible;
+}
+
+.gridLine {
+  stroke: var(--dv-line);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.axisText,
+.axisLabel,
+.baselineText {
+  fill: var(--dv-muted);
+  font-family: inherit;
+}
+
+.axisText { font-size: 10px; }
+.axisLabel { font-size: 11px; font-weight: 650; }
+.baselineText { font-size: 10px; }
+
+.baseline {
+  stroke: var(--dv-fg);
+  stroke-width: 1;
+  stroke-dasharray: 5 5;
+  opacity: .5;
+  vector-effect: non-scaling-stroke;
+}
+
+.point { cursor: crosshair; }
+
+.tooltip {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 4;
+  min-width: 160px;
+  max-width: 240px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 10px 12px;
+  border: 1px solid var(--dv-line);
+  background: var(--dv-bg);
+  box-shadow: 0 10px 28px rgba(0,0,0,.12);
+  font-size: 11px;
+}
+
+.tooltip span,
+.tooltip small { color: var(--dv-muted); }
+.tooltip strong { color: var(--dv-fg); font-size: 12px; }
+
+.funnel,
+.composition {
+  padding: clamp(22px, 4vw, 42px);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.funnelMeta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 7px;
+  color: var(--dv-muted);
+  font-size: 12px;
+}
+
+.funnelMeta strong { color: var(--dv-fg); }
+
+.funnelTrack {
+  height: 28px;
+  background: var(--dv-line);
+}
+
+.funnelBar {
+  height: 100%;
+  background: var(--dv-fg);
+  transition: width .3s ease;
+}
+
+.compositionRow {
+  display: grid;
+  grid-template-columns: 120px minmax(0,1fr);
+  gap: 14px;
+  align-items: center;
+}
+
+.compositionLabel {
+  color: var(--dv-muted);
+  font-size: 12px;
+}
+
+.compositionBar {
+  display: flex;
+  min-height: 30px;
+  overflow: hidden;
+  background: var(--dv-line);
+}
+
+.compositionBar button {
+  min-width: 2px;
+  border: 0;
+  padding: 0;
+  cursor: crosshair;
+}
+
+.takeaway {
+  display: grid;
+  grid-template-columns: 120px minmax(0,1fr);
+  gap: 18px;
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--dv-line);
+}
+
+.takeaway > span { color: var(--dv-muted); }
+.takeaway p {
+  max-width: 760px;
+  margin: 0 !important;
+  color: var(--dv-fg) !important;
+  font-size: clamp(17px, 2vw, 22px);
+  line-height: 1.4;
+  letter-spacing: -.015em;
+}
+
+.tableDetails {
+  margin-top: 18px;
+  border-top: 1px solid var(--dv-line);
+  padding-top: 13px;
+}
+
+.tableDetails summary {
+  width: max-content;
+  cursor: pointer;
+  color: var(--dv-muted);
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.tableScroll {
+  margin-top: 12px;
+  overflow-x: auto;
+}
+
+.tableScroll table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+
+.tableScroll th,
+.tableScroll td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--dv-line);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.tableScroll th:first-child,
+.tableScroll td:first-child { text-align: left; }
+.tableScroll th { color: var(--dv-muted); font-weight: 650; }
+
+.method,
+.empty,
+.error {
+  color: var(--dv-muted) !important;
+  font-size: 11px !important;
+  line-height: 1.5 !important;
+}
+
+.method { margin: 14px 0 0 !important; }
+.empty,
+.error { padding: 40px 20px; text-align: center; }
+.error { color: #a33 !important; }
+
+@media (max-width: 720px) {
+  .header { grid-template-columns: 1fr; }
+  .meta { max-width: none; text-align: left; }
+  .takeaway { grid-template-columns: 1fr; gap: 7px; }
+  .compositionRow { grid-template-columns: 1fr; gap: 6px; }
+  .visual { min-height: 220px; }
+}
+
+@media (max-width: 520px) {
+  .shell { margin-left: -12px; margin-right: -12px; padding: 18px 14px; }
+  .funnel, .composition { padding: 18px 12px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .funnelBar { transition: none; }
+}
