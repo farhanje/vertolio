@@ -1,0 +1,15 @@
+{
+  "name": "vertolio-studio",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "build": "sanity build ../public/studio --yes"
+  },
+  "dependencies": {
+    "@sanity/vision": "6.11.0",
+    "react": "19.2.2",
+    "react-dom": "19.2.2",
+    "sanity": "6.11.0",
+    "styled-components": "6.1.19"
+  }
+}
