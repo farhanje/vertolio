@@ -1,5 +1,5 @@
 {
   "version": 1,
-  "verifyWrite": true,
+  "verifyWrite": false,
   "operations": []
 }
