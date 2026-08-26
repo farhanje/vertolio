@@ -12,6 +12,8 @@ const ALLOWED_PROJECT_FIELDS = new Set([
   'title','titleEn','summary','summaryEn','tags','tagsEn','featured','workOrder','accent','cardStat',
   'role','roleEn','timeline','timelineEn','tools','body','bodyEn',
 ])
+const TRANSFORM_FIELDS = new Set(['body', 'bodyEn'])
+const TRANSFORM_ACTIONS = new Set(['mergeItem', 'replaceItem', 'removeItem', 'insertAfter'])
 
 function hash(value, length = 24) {
   return crypto.createHash('sha256').update(String(value)).digest('hex').slice(0, length)
@@ -41,6 +43,29 @@ function validateContentFile(path, operationId) {
   }
 }
 
+function validateTransforms(operation) {
+  const transforms = operation.bodyTransforms || []
+  if (!Array.isArray(transforms)) throw new Error(`Operation ${operation.id} bodyTransforms must be an array`)
+
+  for (const transform of transforms) {
+    if (!transform || typeof transform !== 'object') throw new Error(`Operation ${operation.id} contains an invalid body transform`)
+    if (!TRANSFORM_FIELDS.has(transform.field)) throw new Error(`Operation ${operation.id} cannot transform field: ${transform.field}`)
+    if (!TRANSFORM_ACTIONS.has(transform.action)) throw new Error(`Operation ${operation.id} has unsupported transform action: ${transform.action}`)
+    if (!transform.match || typeof transform.match !== 'object' || !Object.keys(transform.match).length) {
+      throw new Error(`Operation ${operation.id} transform needs a match object`)
+    }
+    if (transform.action === 'mergeItem') {
+      if (!transform.set || typeof transform.set !== 'object' || Array.isArray(transform.set)) throw new Error(`Operation ${operation.id} mergeItem needs set`)
+      if (transform.path && (typeof transform.path !== 'string' || !/^[A-Za-z0-9_]+$/.test(transform.path))) throw new Error(`Operation ${operation.id} mergeItem path must be one safe field`)
+    }
+    if (transform.action === 'replaceItem' || transform.action === 'insertAfter') {
+      if (!transform.value || typeof transform.value !== 'object' || Array.isArray(transform.value) || !transform.value._type) {
+        throw new Error(`Operation ${operation.id} ${transform.action} needs an object value with _type`)
+      }
+    }
+  }
+}
+
 function validateOperation(operation) {
   if (operation?.type !== 'patchProjectBySlug' || !operation?.targetId) return false
   if (typeof operation.id !== 'string' || !operation.id) throw new Error('Draft operation needs a stable id')
@@ -56,12 +81,56 @@ function validateOperation(operation) {
   }
   validateContentFile(operation.bodyFile, operation.id)
   validateContentFile(operation.bodyEnFile, operation.id)
-  if (operation.bodyTransforms?.length) throw new Error(`Operation ${operation.id} cannot use bodyTransforms in the draft adapter`)
+  validateTransforms(operation)
   return true
 }
 
-async function resolveSet(operation) {
-  const set = {...(operation.set || {})}
+function itemMatches(item, match = {}) {
+  if (!item || typeof item !== 'object') return false
+  return Object.entries(match).every(([key, expected]) => item?.[key] === expected)
+}
+
+function applyBodyTransforms(set, target, operation) {
+  const transforms = operation.bodyTransforms || []
+  if (!transforms.length) return set
+  const nextSet = {...set}
+  const working = new Map()
+
+  for (const transform of transforms) {
+    const field = transform.field
+    if (!working.has(field)) {
+      const source = Object.prototype.hasOwnProperty.call(nextSet, field) ? nextSet[field] : target?.[field]
+      if (!Array.isArray(source)) throw new Error(`Operation ${operation.id} cannot transform ${field}: field is not an array`)
+      working.set(field, structuredClone(source))
+    }
+    const body = working.get(field)
+    const matches = body.map((item, index) => itemMatches(item, transform.match) ? index : -1).filter((index) => index >= 0)
+    if (matches.length !== 1) throw new Error(`Operation ${operation.id} expected one ${field} match for ${JSON.stringify(transform.match)}, found ${matches.length}`)
+    const index = matches[0]
+
+    if (transform.action === 'mergeItem') {
+      if (transform.path) {
+        const current = body[index]?.[transform.path]
+        if (!current || typeof current !== 'object' || Array.isArray(current)) throw new Error(`Operation ${operation.id} cannot merge ${field}.${transform.path}`)
+        body[index] = {...body[index], [transform.path]: {...current, ...transform.set}}
+      } else {
+        body[index] = {...body[index], ...transform.set}
+      }
+    } else if (transform.action === 'replaceItem') {
+      body[index] = {...transform.value, _key: body[index]?._key || transform.value._key}
+    } else if (transform.action === 'removeItem') {
+      body.splice(index, 1)
+    } else if (transform.action === 'insertAfter') {
+      body.splice(index + 1, 0, transform.value)
+    }
+  }
+
+  for (const [field, body] of working.entries()) nextSet[field] = body
+  return nextSet
+}
+
+async function resolveSet(operation, target) {
+  let set = {...(operation.set || {})}
   for (const [field, path] of [['body', operation.bodyFile], ['bodyEn', operation.bodyEnFile]]) {
     if (!path) continue
     const url = new URL(`../${path}`, import.meta.url)
@@ -69,6 +138,7 @@ async function resolveSet(operation) {
     if (!Array.isArray(parsed)) throw new Error(`${path} must contain a JSON array`)
     set[field] = parsed
   }
+  set = applyBodyTransforms(set, target, operation)
   return stableArrayKeys(set, operation.id)
 }
 
@@ -110,7 +180,7 @@ for (const operation of draftOperations) {
     throw new Error(`Revision guard failed for ${target._id}. Expected ${operation.expectRevision}, got ${target._rev}`)
   }
 
-  const set = await resolveSet(operation)
+  const set = await resolveSet(operation, target)
   const unset = operation.unset || []
   const transaction = client.transaction()
   transaction.patch(target._id, (patch) => {
