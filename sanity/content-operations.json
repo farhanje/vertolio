@@ -1,5 +1,16 @@
 {
   "version": 1,
   "verifyWrite": false,
-  "operations": []
+  "operations": [
+    {
+      "id": "revamp-qris-top-up-v1-clone-others-20260827",
+      "type": "cloneProjectById",
+      "sourceId": "92b0e386-d257-465c-b776-e33eec79cb14",
+      "slug": "qris-top-up-revamp",
+      "organizationId": "f09035ed-9382-4a39-a764-927e4f630afb",
+      "set": {
+        "featured": false
+      }
+    }
+  ]
 }
