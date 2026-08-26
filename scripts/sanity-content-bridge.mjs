@@ -84,9 +84,15 @@ function validateOperation(operation) {
 const rawPlan = await fs.readFile(PLAN_PATH, 'utf8')
 const plan = JSON.parse(rawPlan)
 const operations = Array.isArray(plan.operations) ? plan.operations : []
+const needsWriteAccess = plan.verifyWrite === true || operations.length > 0
 
 if (!isProduction) {
   console.log(`[sanity-content-bridge] ${process.env.VERCEL_ENV || 'local'} environment: mutation execution skipped`)
+  process.exit(0)
+}
+
+if (!needsWriteAccess) {
+  console.log('[sanity-content-bridge] idle: no content operations queued')
   process.exit(0)
 }
 
