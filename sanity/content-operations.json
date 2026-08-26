@@ -1,5 +1,156 @@
 {
   "version": 1,
   "verifyWrite": false,
-  "operations": []
+  "operations": [
+    {
+      "id": "revamp-qris-top-up-v2-interactive-native-dataviz-20260827",
+      "type": "patchProjectBySlug",
+      "targetId": "drafts.projectRevamp-384db182c34868a889d0",
+      "slug": "qris-top-up-revamp",
+      "bodyTransforms": [
+        {
+          "field": "bodyEn",
+          "action": "mergeItem",
+          "match": {"_type": "comparison", "title": "Two cash-in moments needed different interaction models"},
+          "path": "right",
+          "set": {"linkLabel": "Try the interactive flow", "linkHref": "#interactive-qris-top-up"}
+        },
+        {
+          "field": "body",
+          "action": "mergeItem",
+          "match": {"_type": "comparison", "title": "Dua situasi cash-in membutuhkan pola interaksi yang berbeda"},
+          "path": "right",
+          "set": {"linkLabel": "Coba flow interaktif", "linkHref": "#interactive-qris-top-up"}
+        },
+        {
+          "field": "bodyEn",
+          "action": "replaceItem",
+          "match": {"_type": "carousel", "title": "Inspect the QRIS Top Up flow"},
+          "value": {
+            "_type": "interactivePrototype",
+            "anchorId": "interactive-qris-top-up",
+            "preset": "qris-top-up-flow-en",
+            "eyebrow": "Interactive prototype",
+            "title": "Try the QRIS Top Up flow",
+            "description": "Follow the main cash-in journey, then inspect the expired and recovery states that sit outside the happy path.",
+            "theme": "dark",
+            "device": "phone",
+            "analyticsPrefix": "qris_top_up_revamp"
+          }
+        },
+        {
+          "field": "body",
+          "action": "replaceItem",
+          "match": {"_type": "carousel", "title": "Lihat flow QRIS Top Up"},
+          "value": {
+            "_type": "interactivePrototype",
+            "anchorId": "interactive-qris-top-up",
+            "preset": "qris-top-up-flow-id",
+            "eyebrow": "Prototype interaktif",
+            "title": "Coba flow QRIS Top Up",
+            "description": "Ikuti main flow cash-in, lalu lihat state expired dan recovery yang tetap perlu ditangani di luar happy path.",
+            "theme": "dark",
+            "device": "phone",
+            "analyticsPrefix": "qris_top_up_revamp"
+          }
+        },
+        {
+          "field": "bodyEn",
+          "action": "replaceItem",
+          "match": {"_type": "narrativeSection", "title": "Add the transaction-state diagram here"},
+          "value": {
+            "_type": "dataVisualization",
+            "eyebrow": "Illustrative system evidence",
+            "title": "What happens after a QR is created",
+            "description": "A placeholder funnel for the transaction states that matter after QR generation.",
+            "takeaway": "The job is not finished when the QR appears. The product still has to stay clear until the transaction is paid, expires, or needs recovery.",
+            "chartType": "funnel",
+            "dataSource": "manual",
+            "series": [{"_type": "dataSeries", "key": "transactions", "label": "Illustrative transactions"}],
+            "rows": [
+              {"_type": "dataRow", "label": "QR created", "values": [{"_type": "dataValue", "seriesKey": "transactions", "value": 100}]},
+              {"_type": "dataRow", "label": "Paid successfully", "values": [{"_type": "dataValue", "seriesKey": "transactions", "value": 68}]},
+              {"_type": "dataRow", "label": "Expired", "values": [{"_type": "dataValue", "seriesKey": "transactions", "value": 20}]},
+              {"_type": "dataRow", "label": "Retried and recovered", "values": [{"_type": "dataValue", "seriesKey": "transactions", "value": 8}]},
+              {"_type": "dataRow", "label": "Failed or cancelled", "values": [{"_type": "dataValue", "seriesKey": "transactions", "value": 4}]}
+            ],
+            "evidenceStatus": "illustrative",
+            "source": "Illustrative placeholder · replace with production transaction analytics",
+            "period": "Placeholder",
+            "methodNote": "These figures are illustrative, not production data. Replace them with the actual QR-created, paid, expired, retry, and failed funnel when the analytics are available.",
+            "theme": "dark"
+          }
+        },
+        {
+          "field": "body",
+          "action": "replaceItem",
+          "match": {"_type": "narrativeSection", "title": "Tambahkan diagram state transaksi di sini"},
+          "value": {
+            "_type": "dataVisualization",
+            "eyebrow": "Ilustrasi evidence sistem",
+            "title": "Apa yang terjadi setelah QR dibuat",
+            "description": "Placeholder funnel untuk memperlihatkan state transaksi yang tetap perlu ditangani setelah QR muncul.",
+            "takeaway": "Pekerjaan produk tidak selesai saat QR berhasil dibuat. Pengalaman tetap harus jelas sampai transaksi benar-benar paid, expired, atau perlu recovery.",
+            "chartType": "funnel",
+            "dataSource": "manual",
+            "series": [{"_type": "dataSeries", "key": "transactions", "label": "Transaksi ilustratif"}],
+            "rows": [
+              {"_type": "dataRow", "label": "QR dibuat", "values": [{"_type": "dataValue", "seriesKey": "transactions", "value": 100}]},
+              {"_type": "dataRow", "label": "Paid", "values": [{"_type": "dataValue", "seriesKey": "transactions", "value": 68}]},
+              {"_type": "dataRow", "label": "Expired", "values": [{"_type": "dataValue", "seriesKey": "transactions", "value": 20}]},
+              {"_type": "dataRow", "label": "Retry lalu pulih", "values": [{"_type": "dataValue", "seriesKey": "transactions", "value": 8}]},
+              {"_type": "dataRow", "label": "Gagal atau dibatalkan", "values": [{"_type": "dataValue", "seriesKey": "transactions", "value": 4}]}
+            ],
+            "evidenceStatus": "illustrative",
+            "source": "Placeholder ilustratif · ganti dengan analytics transaksi production",
+            "period": "Placeholder",
+            "methodNote": "Angka ini ilustratif, bukan data production. Ganti dengan funnel aktual ketika analytics QR created, paid, expired, retry, dan failed sudah tersedia.",
+            "theme": "dark"
+          }
+        },
+        {
+          "field": "bodyEn",
+          "action": "mergeItem",
+          "match": {"_type": "dataVisualization", "title": "QRIS Top Up accounted for 9.3% of cash-in"},
+          "set": {
+            "description": "A native composition view of the documented 2026 channel share.",
+            "takeaway": "A flow that started by removing account-number exchange grew into one of AstraPay's largest cash-in channels.",
+            "evidenceStatus": "derived",
+            "methodNote": "The 9.3% QRIS Top Up share is the measured figure. The 90.7% remainder is derived from it, not a separately measured channel breakdown. This chart describes composition, not causal lift from the feature."
+          }
+        },
+        {
+          "field": "body",
+          "action": "mergeItem",
+          "match": {"_type": "dataVisualization", "title": "QRIS Top Up menyumbang 9.3% dari cash-in"},
+          "set": {
+            "description": "Native composition view dari share channel yang terdokumentasi pada 2026.",
+            "takeaway": "Flow yang awalnya menghilangkan kebutuhan untuk bertukar nomor akun berkembang menjadi salah satu channel cash-in terbesar di AstraPay.",
+            "evidenceStatus": "derived",
+            "methodNote": "Share QRIS Top Up sebesar 9.3% adalah angka yang terukur. Sisa 90.7% dihitung dari angka tersebut, bukan breakdown channel yang diukur terpisah. Chart ini menunjukkan komposisi, bukan causal lift dari fitur."
+          }
+        },
+        {
+          "field": "bodyEn",
+          "action": "removeItem",
+          "match": {"_type": "image", "alt": "QRIS Top Up post-launch cash-in outcome"}
+        },
+        {
+          "field": "body",
+          "action": "removeItem",
+          "match": {"_type": "image", "alt": "Outcome cash-in QRIS Top Up setelah implementasi"}
+        },
+        {
+          "field": "bodyEn",
+          "action": "removeItem",
+          "match": {"_type": "narrativeSection", "title": "Add the adoption curve when the raw data is ready"}
+        },
+        {
+          "field": "body",
+          "action": "removeItem",
+          "match": {"_type": "narrativeSection", "title": "Tambahkan adoption curve ketika raw data sudah tersedia"}
+        }
+      ]
+    }
+  ]
 }
