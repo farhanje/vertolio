@@ -36,6 +36,46 @@ function stableArrayKeys(value, seed = 'root') {
   return value
 }
 
+function plainText(block) {
+  if (!block || block._type !== 'block' || !Array.isArray(block.children)) return ''
+  return block.children.map((child) => child?.text || '').join('').trim()
+}
+
+function assetRef(value) {
+  return value?.asset?._ref || value?.image?.asset?._ref || null
+}
+
+function summarizeBody(body = []) {
+  if (!Array.isArray(body)) return []
+  return body.map((item, index) => {
+    const summary = {_index:index,_type:item?._type || 'unknown'}
+    if (item?._key) summary._key = item._key
+    if (item?._type === 'block') {
+      summary.style = item.style || 'normal'
+      summary.text = plainText(item)
+    }
+    for (const key of ['eyebrow','title','description','callout','ratio','width','theme','url']) {
+      if (item?.[key]) summary[key] = item[key]
+    }
+    const directAsset = assetRef(item)
+    if (directAsset) summary.asset = directAsset
+    if (item?._type === 'carousel' && Array.isArray(item.slides)) {
+      summary.slides = item.slides.map((slide, slideIndex) => ({
+        index: slideIndex,
+        asset: assetRef(slide),
+        caption: slide?.caption || null,
+        alt: slide?.alt || null,
+      }))
+    }
+    if (item?._type === 'interactivePrototype') {
+      summary.preset = item.preset || null
+      summary.anchorId = item.anchorId || null
+      summary.steps = Array.isArray(item.steps) ? item.steps.map((step) => ({key:step?.stepKey,label:step?.label,asset:assetRef(step)})) : []
+    }
+    return summary
+  })
+}
+
 function validateContentFile(path, operationId) {
   if (!path) return
   if (typeof path !== 'string' || !path.startsWith('sanity/revamps/') || !path.endsWith('.json') || path.includes('..')) {
@@ -224,6 +264,8 @@ for (const operation of operations) {
   if (!source?._id) throw new Error(`Source project not found: ${operation.sourceId}`)
   if (source._type !== 'project') throw new Error(`Source ${operation.sourceId} is not a project`)
   if (operation.expectSourceRevision && source._rev !== operation.expectSourceRevision) throw new Error(`Source revision guard failed for ${operation.sourceId}. Expected ${operation.expectSourceRevision}, got ${source._rev}`)
+
+  console.log(`[sanity-content-bridge] source map ${operation.sourceId} ${JSON.stringify({title:source.title,titleEn:source.titleEn,slug:source.slug?.current,summary:source.summary,summaryEn:source.summaryEn,tags:source.tags,tagsEn:source.tagsEn,role:source.role,roleEn:source.roleEn,timeline:source.timeline,timelineEn:source.timelineEn,tools:source.tools,cardStat:source.cardStat,organization:source.organization,body:summarizeBody(source.body),bodyEn:summarizeBody(source.bodyEn)})}`)
 
   const organization = await client.fetch('*[_id == $id && _type == "organization"][0]{_id}', {id:operation.organizationId})
   if (!organization?._id) throw new Error(`Organization not found: ${operation.organizationId}`)
