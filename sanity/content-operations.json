@@ -1,34 +1,5 @@
 {
   "version": 1,
   "verifyWrite": false,
-  "operations": [
-    {
-      "id": "revamp-kyc-autosave-v1-clone-others-20260826",
-      "type": "cloneProjectById",
-      "sourceId": "b5bd71dc-efe5-4e1b-ba2e-ed136d917af8",
-      "expectSourceRevision": "ph6rFpvsczNvsebxd1YST2",
-      "slug": "kyc-autosave-flow-a-b-test-revamp",
-      "organizationId": "f09035ed-9382-4a39-a764-927e4f630afb",
-      "bodyFile": "sanity/revamps/kyc-autosave-v1.id.json",
-      "bodyEnFile": "sanity/revamps/kyc-autosave-v1.en.json",
-      "set": {
-        "title": "Menguji Flow KYC yang Lebih Fleksibel dengan Autosave",
-        "titleEn": "Testing a More Flexible KYC Flow with Autosave",
-        "summary": "Autosave membuka pertanyaan baru di KYC AstraPay. Kalau progress sudah bisa disimpan per bagian, apakah user masih perlu mengikuti urutan yang kaku? Randomized usability test dengan 30 responden tidak menemukan perbedaan signifikan pada SUS maupun total misclick. Flow B tetap memberi arah produk yang lebih kuat dari pola deskriptif, feedback pengguna, dan struktur yang lebih sesuai dengan tujuan Autosave, sehingga dipilih sebagai baseline implementasi.",
-        "summaryEn": "Autosave raised a bigger question for AstraPay KYC: if progress could be saved section by section, did users still need to follow a rigid sequence? A randomized usability test with 30 participants found no significant difference in SUS or total misclicks. Flow B still offered the stronger product direction through descriptive patterns, user feedback, and a structure that better matched the purpose of Autosave, so it became the implementation baseline.",
-        "tags": ["KYC", "A/B Testing", "UX Research", "Experimentation", "Fintech"],
-        "tagsEn": ["KYC", "A/B Testing", "UX Research", "Experimentation", "Fintech"],
-        "featured": false,
-        "workOrder": 1,
-        "accent": "blue",
-        "cardStat": {
-          "value": "30",
-          "label": "responden dalam usability study",
-          "labelEn": "participants in usability study"
-        },
-        "role": "Designer / Researcher",
-        "roleEn": "Designer / Researcher"
-      }
-    }
-  ]
+  "operations": []
 }
