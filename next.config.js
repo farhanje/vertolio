@@ -37,9 +37,18 @@ const nextConfig = {
   async headers() {
     return [
       {source: '/:path*', headers: securityHeaders},
+      {source: '/studio/:path*', headers: adminHeaders},
       {source: '/research-admin/:path*', headers: adminHeaders},
       {source: '/api/research/export', headers: adminHeaders},
     ]
+  },
+  async rewrites() {
+    return {
+      fallback: [
+        {source: '/studio', destination: '/studio/index.html'},
+        {source: '/studio/:path*', destination: '/studio/index.html'},
+      ],
+    }
   },
 }
 
