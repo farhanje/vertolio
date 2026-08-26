@@ -1,0 +1,198 @@
+[
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Context",
+    "title": "The problem was showing up before verification",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"KYB approval had been falling while submission volume was also starting to weaken. Adding another mandatory step could easily make fewer merchants finish the flow."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"I started with rejection data and quick interviews with several merchants who had been rejected. The same mismatch problems kept appearing around business information, storefront photos, product photos, and business names."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Some merchants had missed or misunderstood the photo guidance. Other submissions needed a closer check because the business name or image could sit outside the company’s risk appetite."}]}
+    ],
+    "callout": "The pre-check needed to catch likely problems earlier without turning an uncertain model into a new blocker.",
+    "width": "wide",
+    "theme": "light"
+  },
+  {
+    "_type": "artifactExplorer",
+    "eyebrow": "Evidence",
+    "title": "What led us to a pre-check",
+    "description": "The existing data showed where approval was moving, which rejection reasons appeared most often, and how model findings were later mapped into product logic.",
+    "theme": "dark",
+    "tabs": [
+      {
+        "_type": "artifactTab",
+        "kind": "image",
+        "label": "Approval trend",
+        "title": "Approval was already moving in the wrong direction",
+        "description": "The decline mattered more because submission volume was weakening during the same period.",
+        "image": {"_type":"image","asset":{"_type":"reference","_ref":"image-c02f5b1e28501d9420296c11f11643c4e7148f0a-1672x941-png"}},
+        "alt": "KYB approval trend before the AI-assisted pre-check",
+        "caption": "Baseline context before the pre-check was introduced."
+      },
+      {
+        "_type": "artifactTab",
+        "kind": "image",
+        "label": "Rejection reasons",
+        "title": "A few mismatch remarks kept recurring",
+        "description": "The main issues involved business information, storefront photos, product photos, and business names.",
+        "image": {"_type":"image","asset":{"_type":"reference","_ref":"image-bcf227656b21158bb3dcb801ed6f43db1d14197d-1672x941-png"}},
+        "alt": "KYB rejection reasons related to business information and merchant photos",
+        "caption": "These mismatch reasons became the first target for the pre-check."
+      },
+      {
+        "_type": "artifactTab",
+        "kind": "image",
+        "label": "Decision mapping",
+        "title": "Model findings still needed product rules",
+        "description": "Detailed findings were grouped into conditions Product and Operations could understand, then mapped to merchant-facing feedback.",
+        "image": {"_type":"image","asset":{"_type":"reference","_ref":"image-577f7d740723659184cf0b9e4e5647f73997ccdc-1672x941-png"}},
+        "alt": "Mapping between AI findings, product conditions, and merchant-facing messages",
+        "caption": "Merchants never see the model output as raw technical feedback."
+      }
+    ]
+  },
+  {
+    "_type": "comparison",
+    "eyebrow": "Intervention",
+    "title": "A guide alone could not inspect the submission",
+    "description": "The interviews showed that guidance needed work. The rejection data also contained cases where the submitted information itself needed checking.",
+    "left": {
+      "_type": "comparisonSide",
+      "label": "Content-only fix",
+      "title": "Make the existing guide easier to find",
+      "description": "Useful when a merchant does not know what a valid photo should look like. The guide cannot tell whether the photo they actually upload matches the business.",
+      "note": "Low implementation effort with limited coverage."
+    },
+    "right": {
+      "_type": "comparisonSide",
+      "label": "AI-assisted pre-check",
+      "title": "Check the submission before it leaves the form",
+      "description": "Use the information and photos already available in Step 1 to flag a likely mismatch while the merchant can still correct it.",
+      "note": "AstraPay already had Llama available through Vertex AI, which made this practical to ship quickly.",
+      "linkLabel": "Try the pre-check flow",
+      "linkHref": "#interactive-kyb-ai-precheck"
+    },
+    "theme": "light"
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Model scope",
+    "title": "The model was not allowed to approve or reject a merchant",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"The pre-check reads the business name, business category, storefront photo, and product photo. It looks for possible mismatches before the application reaches verification."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"The conditions cover cases such as a storefront that does not represent the stated business, products that do not match the selected category, inconsistencies between the business name and uploaded visuals, and images that appear to be screenshots or edited materials."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"A finding only tells the product that something may need another look. Verification still owns the final decision."}]}
+    ],
+    "callout": "Verification kept the final decision, with AI providing an earlier warning before submission.",
+    "width": "normal",
+    "theme": "light"
+  },
+  {
+    "_type": "comparison",
+    "eyebrow": "Decision logic",
+    "title": "Detailed model output became one clear merchant message",
+    "description": "The same photo problem could be described in several ways by the model. The product needed a stable instruction that merchants could act on.",
+    "left": {
+      "_type": "comparisonSide",
+      "label": "Model finding",
+      "title": "Keep the detection logic specific",
+      "description": "The model might describe a dark image, an interior-only photo, an unclear storefront, or a storefront that is not visible.",
+      "note": "That detail stays useful for product logic and evaluation."
+    },
+    "right": {
+      "_type": "comparisonSide",
+      "label": "Merchant message",
+      "title": "Give one clear correction",
+      "description": "Those findings can map to one instruction asking the merchant to adjust the business place photo according to the guide.",
+      "note": "The merchant only needs to know what to fix."
+    },
+    "theme": "light"
+  },
+  {
+    "_type": "interactivePrototype",
+    "anchorId": "interactive-kyb-ai-precheck",
+    "preset": "kyb-ai-precheck-flow-en",
+    "eyebrow": "Interactive prototype",
+    "title": "Try the AI-assisted pre-check",
+    "description": "The warning is assistive. A merchant can fix the flagged information or continue when they believe the submission is already correct.",
+    "theme": "dark",
+    "device": "phone",
+    "analyticsPrefix": "kyb_ai_precheck_revamp"
+  },
+  {
+    "_type": "evidenceGrid",
+    "eyebrow": "Release guardrails",
+    "title": "The first release limited how often the model could intervene",
+    "description": "The team kept AI dependency low while production evidence was still being collected.",
+    "columns": 3,
+    "metrics": [
+      {"_type":"evidenceMetric","value":"<2s","label":"target response time","context":"kept the check from becoming a long pause"},
+      {"_type":"evidenceMetric","value":"1×","label":"model check per KYB attempt","context":"limited repeated inference in the initial release"},
+      {"_type":"evidenceMetric","value":"Optional","label":"merchant correction","context":"Continue Anyway remained available"}
+    ],
+    "theme": "light"
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Prompt and output design",
+    "title": "Prompt design was part of the product work",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"I worked with the developer on the prompt, condition definitions, and output structure. The response needed to be predictable enough for the product to map it to the right message and next action."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"The request also needed to stay compact. Additional processing affected latency and inference cost, so prompt detail was useful only when it improved a decision the product could use."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"The initial release gave us room to observe incorrect findings, response time, and how merchants reacted to warnings before changing the model’s role."}]}
+    ],
+    "callout": "The prompt only became useful when its output was consistent enough for the product to act on.",
+    "width": "wide",
+    "theme": "dark"
+  },
+  {
+    "_type": "evidenceGrid",
+    "eyebrow": "Outcome",
+    "title": "The targeted mismatch reasons fell after launch",
+    "description": "The strongest movement appeared in the rejection reasons the pre-check was designed to catch.",
+    "columns": 3,
+    "metrics": [
+      {"_type":"evidenceMetric","value":"22–90%","label":"reduction in targeted mismatch remarks","context":"range across the three targeted rejection types"},
+      {"_type":"evidenceMetric","value":"~7%","label":"approval rate improvement","context":"during the period following release"},
+      {"_type":"evidenceMetric","value":"Stable","label":"submission volume","context":"no meaningful drop during the observed period"}
+    ],
+    "theme": "light"
+  },
+  {
+    "_type": "dataVisualization",
+    "eyebrow": "Post-implementation",
+    "title": "The three targeted mismatch remarks fell by 22–90%",
+    "description": "The category-level values are kept private here, so the chart shows the documented lower and upper bounds of the observed reduction.",
+    "takeaway": "The mismatch reasons targeted by the pre-check declined substantially after merchants were given a chance to review likely issues before verification.",
+    "chartType": "bar",
+    "dataSource": "manual",
+    "series": [
+      {"_type":"dataSeries","key":"low","label":"Lowest observed reduction","suffix":"%"},
+      {"_type":"dataSeries","key":"high","label":"Highest observed reduction","suffix":"%"}
+    ],
+    "rows": [
+      {"_type":"dataRow","label":"Targeted mismatch remarks","values":[
+        {"_type":"dataValue","seriesKey":"low","value":22},
+        {"_type":"dataValue","seriesKey":"high","value":90}
+      ]}
+    ],
+    "yLabel": "Reduction",
+    "evidenceStatus": "measured",
+    "source": "Internal KYB analytics",
+    "period": "Period following release",
+    "methodNote": "The 22–90% figure is the recorded range across the three rejection types targeted by the pre-check. Category-level values are not shown here. Approval rate improved by around 7%, while submission volume remained relatively stable.",
+    "theme": "light"
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Next iteration",
+    "title": "I would expand the model’s role after measuring its errors more closely",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"The current version remains an assistive layer. A stronger evaluation set would make false positives and false negatives visible for each condition."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"That evidence can support model comparison and confidence-based interventions. High-confidence findings may justify firmer guidance, while uncertain cases should remain easy to override."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"For more specialized image checks, I would also compare the current LLM approach with computer vision or a hybrid setup rather than assigning every visual problem to one model."}]}
+    ],
+    "width": "normal",
+    "theme": "light"
+  }
+]
