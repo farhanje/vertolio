@@ -70,7 +70,7 @@ function validateOperation(operation) {
   if (operation?.type !== 'patchProjectBySlug' || !operation?.targetId) return false
   if (typeof operation.id !== 'string' || !operation.id) throw new Error('Draft operation needs a stable id')
   if (typeof operation.targetId !== 'string' || !operation.targetId.startsWith('drafts.')) {
-    throw new Error(`Operation ${operation.id} must target a drafts.* document`)
+    throw new Error(`Operation ${operation.id} must start from a drafts.* target id`)
   }
   if (typeof operation.slug !== 'string' || !operation.slug) throw new Error(`Operation ${operation.id} needs a slug guard`)
   for (const field of Object.keys(operation.set || {})) {
@@ -142,6 +142,21 @@ async function resolveSet(operation, target) {
   return stableArrayKeys(set, operation.id)
 }
 
+async function resolveTarget(client, operation) {
+  const exact = await client.getDocument(operation.targetId)
+  if (exact?._id) return exact
+
+  const candidates = await client.fetch('*[_type == "project" && slug.current == $slug]{_id,_type,_rev,slug,body,bodyEn}', {slug:operation.slug})
+  if (!Array.isArray(candidates) || candidates.length === 0) throw new Error(`Revamp project not found for slug: ${operation.slug}`)
+
+  const preferred = candidates.find((doc) => doc?._id?.startsWith('drafts.')) || candidates[0]
+  if (candidates.length > 1 && !preferred?._id?.startsWith('drafts.')) {
+    throw new Error(`Ambiguous revamp target for slug ${operation.slug}: ${candidates.map((doc) => doc._id).join(', ')}`)
+  }
+  console.log(`[sanity-draft-bridge] target id changed from ${operation.targetId} to ${preferred._id}`)
+  return preferred
+}
+
 const rawPlan = await fs.readFile(PLAN_PATH, 'utf8')
 const plan = JSON.parse(rawPlan)
 const operations = Array.isArray(plan.operations) ? plan.operations : []
@@ -170,8 +185,7 @@ for (const operation of draftOperations) {
     continue
   }
 
-  const target = await client.getDocument(operation.targetId)
-  if (!target?._id) throw new Error(`Draft project not found: ${operation.targetId}`)
+  const target = await resolveTarget(client, operation)
   if (target._type !== 'project') throw new Error(`Target ${target._id} is not a project`)
   if (target.slug?.current !== operation.slug) {
     throw new Error(`Slug guard failed for ${target._id}. Expected ${operation.slug}, got ${target.slug?.current || 'none'}`)
