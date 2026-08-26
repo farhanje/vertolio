@@ -1,0 +1,408 @@
+[
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Context",
+    "title": "The real use case was not a planned top up",
+    "body": [
+      {
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "marks": [],
+            "text": "Virtual Accounts, bank transfers, and OTC already covered deliberate top ups. The gap appeared in a more spontaneous moment: a user needed balance while they were with someone who could fund it immediately."
+          }
+        ]
+      },
+      {
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "marks": [],
+            "text": "In that situation, asking either person to look up, share, or retype an account identifier added friction to a task that should have felt instant."
+          }
+        ]
+      }
+    ],
+    "callout": "The Board request was simple: no number entry. The AstraPay user should be able to show a QR, have it scanned, and receive the top up.",
+    "width": "wide",
+    "theme": "light"
+  },
+  {
+    "_type": "comparison",
+    "eyebrow": "Problem framing",
+    "title": "Two cash-in moments needed different interaction models",
+    "description": "The existing channels were not wrong. They were optimized for a different context.",
+    "left": {
+      "label": "Planned cash-in",
+      "title": "Use account details",
+      "description": "The user intentionally opens a bank, VA, or OTC channel and follows the required account or payment details.",
+      "note": "Good for deliberate top ups."
+    },
+    "right": {
+      "label": "Spontaneous cash-in",
+      "title": "Show something scannable",
+      "description": "The user is already with the person funding the balance. A displayed QR removes the need to exchange or type an identifier.",
+      "note": "The interaction is built around proximity."
+    },
+    "theme": "light"
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Design direction",
+    "title": "Reuse a QRIS behavior people already understood",
+    "body": [
+      {
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "marks": [],
+            "text": "The interaction borrowed a familiar merchant-presented QRIS pattern. Instead of teaching a new transfer behavior, AstraPay generates a QR that the funding person can scan."
+          }
+        ]
+      },
+      {
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "marks": [],
+            "text": "The direction of money changes, but the visible behavior stays familiar: present QR, scan, pay, confirm."
+          }
+        ]
+      }
+    ],
+    "callout": "The design reduced learning by reusing an existing payment habit rather than inventing a new cash-in ritual.",
+    "width": "normal",
+    "theme": "light"
+  },
+  {
+    "_type": "image",
+    "asset": {
+      "_type": "reference",
+      "_ref": "image-9514671c4a33c1e75c0029071115561547fd278d-1672x941-png"
+    },
+    "ratio": "auto",
+    "width": "wide",
+    "alt": "QRIS Top Up concept showing a displayed QR used for cash-in"
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Main flow",
+    "title": "Six moments were enough for the visible journey",
+    "body": [
+      {
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "marks": [],
+            "text": "Open Top Up, choose QRIS, enter the amount, display the QR, let the funding person scan and pay, then update the top-up status."
+          }
+        ]
+      },
+      {
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "marks": [],
+            "text": "The screens stay simple because most of the complexity belongs to transaction handling rather than navigation."
+          }
+        ]
+      }
+    ],
+    "width": "normal",
+    "theme": "light"
+  },
+  {
+    "_type": "carousel",
+    "title": "Inspect the QRIS Top Up flow",
+    "ratio": "4:3",
+    "slides": [
+      {
+        "_key": "21bc1e2cd57b",
+        "image": {
+          "_type": "image",
+          "asset": {
+            "_type": "reference",
+            "_ref": "image-cdefb5d75fe2137aaef619a2bd2ca1b5b10e3c0d-360x654-png"
+          }
+        }
+      },
+      {
+        "_key": "beaf9cc6a6f1",
+        "image": {
+          "_type": "image",
+          "asset": {
+            "_type": "reference",
+            "_ref": "image-6d357aee603c27284bd4bd80cd5b6752e7789d2e-360x654-png"
+          }
+        }
+      },
+      {
+        "_key": "57545414e618",
+        "image": {
+          "_type": "image",
+          "asset": {
+            "_type": "reference",
+            "_ref": "image-679412c4d23a7f73d9d402357374c2c3adf62e05-360x654-png"
+          }
+        }
+      },
+      {
+        "_key": "18f2eeaa2f22",
+        "image": {
+          "_type": "image",
+          "asset": {
+            "_type": "reference",
+            "_ref": "image-71d837a98721989cf8ecdcb8692bb39c0450d85a-360x654-png"
+          }
+        }
+      },
+      {
+        "_key": "aa3056c1524a",
+        "image": {
+          "_type": "image",
+          "asset": {
+            "_type": "reference",
+            "_ref": "image-fdada037ae935d969db8c38cda57c26a56bc49cd-360x654-png"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Transaction states",
+    "title": "The hard part started after the QR appeared",
+    "body": [
+      {
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "marks": [],
+            "text": "Generating a QR is only the beginning of a money movement flow. The interface also has to distinguish a bill that is waiting, paid, expired, or temporarily unresolved."
+          }
+        ]
+      },
+      {
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "marks": [],
+            "text": "I worked with engineering so the status shown to users followed the transaction state in the backend. The product should never celebrate a successful top up while the system still considers the bill unresolved."
+          }
+        ]
+      }
+    ],
+    "callout": "For a transaction product, the UI state is only trustworthy when it is tied to the same source of truth as the payment state.",
+    "width": "wide",
+    "theme": "dark"
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Placeholder · system artifact",
+    "title": "Add the transaction-state diagram here",
+    "body": [
+      {
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "marks": [],
+            "text": "Replace this block with the simplified system flow once the asset is ready."
+          }
+        ]
+      },
+      {
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "marks": [],
+            "text": "The useful version should show QR or bill creation, waiting for payment, callback or status checking, paid and balance updated, expiry, and the retry or temporary-error branch. Keep it at product-system level rather than exposing implementation details that should stay internal."
+          }
+        ]
+      }
+    ],
+    "callout": "Asset needed: a simplified state diagram from QR generated to paid, expired, or temporary failure.",
+    "width": "normal",
+    "theme": "light"
+  },
+  {
+    "_type": "comparison",
+    "eyebrow": "System design",
+    "title": "The product had to work on two layers at once",
+    "description": "The visible flow stayed short while the system underneath protected transaction correctness.",
+    "left": {
+      "label": "User-facing",
+      "title": "Make the state obvious",
+      "description": "Generate the QR, show what is waiting, confirm payment, and communicate expiry or a recoverable issue without making users interpret backend terminology.",
+      "note": "Clarity at the moment of payment."
+    },
+    "right": {
+      "label": "System-facing",
+      "title": "Keep the transaction safe",
+      "description": "Create bill, status checks, callbacks, retries, and idempotency have to resolve into one reliable product state.",
+      "note": "Correctness before celebration."
+    },
+    "theme": "light"
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Engineering alignment",
+    "title": "Designing the interface meant understanding the transaction sequence",
+    "body": [
+      {
+        "_type": "block",
+        "style": "h3",
+        "markDefs": [],
+        "children": [{"_type":"span","marks":[],"text":"Idempotency"}]
+      },
+      {
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [{"_type":"span","marks":[],"text":"Repeated requests should not create duplicate transactions."}]
+      },
+      {
+        "_type": "block",
+        "style": "h3",
+        "markDefs": [],
+        "children": [{"_type":"span","marks":[],"text":"Retry policy"}]
+      },
+      {
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [{"_type":"span","marks":[],"text":"Temporary failures need a controlled recovery path without creating repeated uncontrolled requests."}]
+      },
+      {
+        "_type": "block",
+        "style": "h3",
+        "markDefs": [],
+        "children": [{"_type":"span","marks":[],"text":"Observability"}]
+      },
+      {
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [{"_type":"span","marks":[],"text":"Logs and metrics need to make production issues traceable when a payment state does not resolve as expected."}]
+      },
+      {
+        "_type": "block",
+        "style": "h3",
+        "markDefs": [],
+        "children": [{"_type":"span","marks":[],"text":"Transaction sequence"}]
+      },
+      {
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [{"_type":"span","marks":[],"text":"Create bill, bill status, and callback notifications need to converge before the interface communicates the final state."}]
+      }
+    ],
+    "callout": "The interaction only stays credible when product, frontend, backend, and payment-state behavior agree on what happened.",
+    "width": "wide",
+    "theme": "light"
+  },
+  {
+    "_type": "image",
+    "asset": {"_type":"reference","_ref":"image-57d594e4df85bf75a56470a0cae45c5480a6ed51-1672x941-png"},
+    "ratio": "auto",
+    "width": "wide",
+    "alt": "QRIS Top Up engineering alignment and transaction sequence artifact"
+  },
+  {
+    "_type": "evidenceGrid",
+    "eyebrow": "Outcome",
+    "title": "QRIS Top Up became a meaningful cash-in channel",
+    "description": "The clearest post-launch evidence is its share in AstraPay cash-in during 2026.",
+    "columns": 3,
+    "metrics": [
+      {"_type":"evidenceMetric","value":"9.3%","label":"share of 2026 cash-in","context":"measured channel contribution"},
+      {"_type":"evidenceMetric","value":"Top 2","label":"cash-in channel","context":"among AstraPay cash-in channels"},
+      {"_type":"evidenceMetric","value":"2026","label":"measurement period","context":"post-implementation evidence"}
+    ],
+    "theme": "light"
+  },
+  {
+    "_type": "dataVisualization",
+    "eyebrow": "Post-implementation",
+    "title": "QRIS Top Up accounted for 9.3% of cash-in",
+    "description": "A composition view of the documented 2026 channel share.",
+    "takeaway": "A flow that started as a way to avoid typing account details grew into a channel responsible for 9.3% of AstraPay cash-in in 2026.",
+    "chartType": "composition",
+    "dataSource": "manual",
+    "series": [
+      {"_type":"dataSeries","key":"qris","label":"QRIS Top Up","suffix":"%"},
+      {"_type":"dataSeries","key":"other","label":"Other cash-in","suffix":"%"}
+    ],
+    "rows": [
+      {"_type":"dataRow","label":"2026 cash-in mix","values":[
+        {"_type":"dataValue","seriesKey":"qris","value":9.3},
+        {"_type":"dataValue","seriesKey":"other","value":90.7}
+      ]}
+    ],
+    "evidenceStatus": "measured",
+    "source": "AstraPay cash-in analytics",
+    "period": "2026",
+    "methodNote": "The 90.7% remainder is derived from the documented 9.3% QRIS Top Up share. This chart describes channel composition, not incremental lift caused by the feature.",
+    "theme": "light"
+  },
+  {
+    "_type": "image",
+    "asset": {"_type":"reference","_ref":"image-062935c8bc22e82b0c7a9cfe55ca973f876ed93f-1672x941-png"},
+    "ratio": "auto",
+    "width": "wide",
+    "alt": "QRIS Top Up post-launch cash-in outcome"
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Placeholder · post-launch data",
+    "title": "Add the adoption curve when the raw data is ready",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"The current evidence proves scale at one point in time, but it does not show how adoption developed."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"If monthly data is available, add a trend from launch through 2026 using either QRIS Top Up share or successful transaction volume. A second useful view would be the operational funnel from QR created to scanned or paid, including expiry and failure rates."}]}
+    ],
+    "callout": "Data needed: monthly channel share or transaction volume, QR-created to paid conversion, expiry rate, and failure or delayed-callback rate.",
+    "width": "normal",
+    "theme": "light"
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Reflection",
+    "title": "The simplest interaction came from using a model that already existed",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"The feature did not need a new payment language. It needed the right existing behavior applied to a different cash-in moment."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"The visible flow could stay small because the design work also covered the transaction states behind it. That combination mattered more than adding more screens."}]}
+    ],
+    "width": "narrow",
+    "theme": "light"
+  }
+]
