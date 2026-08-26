@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build:studio": "rm -rf public/studio && sanity build public/studio --yes",
-    "prebuild": "npm run check:promo-boundaries && npm run build:studio",
+    "prebuild": "node scripts/check-sanity-array-keys.mjs && npm run check:promo-boundaries && npm run build:studio",
     "build": "next build",
     "start": "next start",
     "check:promo-boundaries": "tsx scripts/promo-boundary-smoke.mjs"
