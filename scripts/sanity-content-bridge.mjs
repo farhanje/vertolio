@@ -59,26 +59,39 @@ function stableArrayKeys(value, seed = 'root') {
   return value
 }
 
-function validateOperation(operation) {
-  if (!operation || typeof operation !== 'object') throw new Error('Invalid Sanity operation')
-  if (!operation.id || typeof operation.id !== 'string') throw new Error('Every Sanity operation needs a stable id')
-  if (operation.type !== 'patchProjectBySlug') throw new Error(`Unsupported Sanity operation type: ${operation.type}`)
-  if (!operation.slug || typeof operation.slug !== 'string') throw new Error(`Operation ${operation.id} needs a project slug`)
-
+function validateSet(operation) {
   const set = operation.set || {}
-  const unset = operation.unset || []
-
   for (const field of Object.keys(set)) {
     if (!ALLOWED_PROJECT_FIELDS.has(field)) {
       throw new Error(`Operation ${operation.id} cannot set project field: ${field}`)
     }
   }
+}
 
-  for (const field of unset) {
-    if (!ALLOWED_PROJECT_FIELDS.has(field)) {
-      throw new Error(`Operation ${operation.id} cannot unset project field: ${field}`)
+function validateOperation(operation) {
+  if (!operation || typeof operation !== 'object') throw new Error('Invalid Sanity operation')
+  if (!operation.id || typeof operation.id !== 'string') throw new Error('Every Sanity operation needs a stable id')
+
+  if (operation.type === 'patchProjectBySlug') {
+    if (!operation.slug || typeof operation.slug !== 'string') throw new Error(`Operation ${operation.id} needs a project slug`)
+    validateSet(operation)
+    for (const field of operation.unset || []) {
+      if (!ALLOWED_PROJECT_FIELDS.has(field)) {
+        throw new Error(`Operation ${operation.id} cannot unset project field: ${field}`)
+      }
     }
+    return
   }
+
+  if (operation.type === 'cloneProjectById') {
+    if (!operation.sourceId || typeof operation.sourceId !== 'string') throw new Error(`Operation ${operation.id} needs sourceId`)
+    if (!operation.slug || typeof operation.slug !== 'string') throw new Error(`Operation ${operation.id} needs a new project slug`)
+    if (!operation.organizationId || typeof operation.organizationId !== 'string') throw new Error(`Operation ${operation.id} needs organizationId`)
+    validateSet(operation)
+    return
+  }
+
+  throw new Error(`Unsupported Sanity operation type: ${operation.type}`)
 }
 
 const rawPlan = await fs.readFile(PLAN_PATH, 'utf8')
@@ -131,39 +144,92 @@ for (const operation of operations) {
     continue
   }
 
-  const target = await client.fetch(
-    '*[_type == "project" && slug.current == $slug][0]{_id,_rev,title}',
-    {slug: operation.slug}
-  )
+  if (operation.type === 'patchProjectBySlug') {
+    const target = await client.fetch(
+      '*[_type == "project" && slug.current == $slug][0]{_id,_rev,title}',
+      {slug: operation.slug}
+    )
 
-  if (!target?._id) throw new Error(`Project not found for slug: ${operation.slug}`)
-  if (operation.expectRevision && target._rev !== operation.expectRevision) {
+    if (!target?._id) throw new Error(`Project not found for slug: ${operation.slug}`)
+    if (operation.expectRevision && target._rev !== operation.expectRevision) {
+      throw new Error(
+        `Revision guard failed for ${operation.slug}. Expected ${operation.expectRevision}, got ${target._rev}`
+      )
+    }
+
+    const normalizedSet = stableArrayKeys(operation.set || {}, operation.id)
+    const unset = operation.unset || []
+    const transaction = client.transaction()
+    transaction.patch(target._id, (patch) => {
+      let next = patch
+      if (Object.keys(normalizedSet).length) next = next.set(normalizedSet)
+      if (unset.length) next = next.unset(unset)
+      return next
+    })
+    transaction.create({
+      _id: receiptId,
+      _type: 'portfolioMutationReceipt',
+      operationId: operation.id,
+      targetId: target._id,
+      targetSlug: operation.slug,
+      appliedAt: new Date().toISOString(),
+    })
+    await transaction.commit()
+    console.log(`[sanity-content-bridge] applied ${operation.id} to ${operation.slug}`)
+    continue
+  }
+
+  const source = await client.fetch('*[_id == $id][0]', {id: operation.sourceId})
+  if (!source?._id) throw new Error(`Source project not found: ${operation.sourceId}`)
+  if (source._type !== 'project') throw new Error(`Source ${operation.sourceId} is not a project`)
+  if (operation.expectSourceRevision && source._rev !== operation.expectSourceRevision) {
     throw new Error(
-      `Revision guard failed for ${operation.slug}. Expected ${operation.expectRevision}, got ${target._rev}`
+      `Source revision guard failed for ${operation.sourceId}. Expected ${operation.expectSourceRevision}, got ${source._rev}`
     )
   }
 
+  const organization = await client.fetch('*[_id == $id && _type == "organization"][0]{_id}', {id: operation.organizationId})
+  if (!organization?._id) throw new Error(`Organization not found: ${operation.organizationId}`)
+
+  const slugCollision = await client.fetch('count(*[_type == "project" && slug.current == $slug])', {slug: operation.slug})
+  if (slugCollision > 0) throw new Error(`Project slug already exists: ${operation.slug}`)
+
+  const {
+    _id: sourceId,
+    _rev,
+    _createdAt,
+    _updatedAt,
+    _system,
+    ...sourceFields
+  } = source
+
+  const targetId = `drafts.projectRevamp-${hash(operation.id, 20)}`
   const normalizedSet = stableArrayKeys(operation.set || {}, operation.id)
-  const unset = operation.unset || []
+  const clonedProject = stableArrayKeys(
+    {
+      ...sourceFields,
+      ...normalizedSet,
+      _id: targetId,
+      _type: 'project',
+      slug: {_type: 'slug', current: operation.slug},
+      organization: {_type: 'reference', _ref: operation.organizationId},
+    },
+    `${operation.id}.clone`
+  )
 
   const transaction = client.transaction()
-  transaction.patch(target._id, (patch) => {
-    let next = patch
-    if (Object.keys(normalizedSet).length) next = next.set(normalizedSet)
-    if (unset.length) next = next.unset(unset)
-    return next
-  })
+  transaction.create(clonedProject)
   transaction.create({
     _id: receiptId,
     _type: 'portfolioMutationReceipt',
     operationId: operation.id,
-    targetId: target._id,
+    sourceId,
+    targetId,
     targetSlug: operation.slug,
     appliedAt: new Date().toISOString(),
   })
-
   await transaction.commit()
-  console.log(`[sanity-content-bridge] applied ${operation.id} to ${operation.slug}`)
+  console.log(`[sanity-content-bridge] cloned ${sourceId} to ${targetId} as ${operation.slug}`)
 }
 
 console.log(`[sanity-content-bridge] complete operations=${operations.length}`)
