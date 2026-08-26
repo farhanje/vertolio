@@ -1,0 +1,344 @@
+[
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Konteks",
+    "title": "Volume membuat alur lama tidak lagi masuk akal",
+    "body": [
+      {
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "marks": [],
+            "text": "AstraPay bekerja sama dengan merchant aggregator yang mengelola jaringan SRC. Sekitar 15.000 merchant perlu melewati KYB sebelum QRIS dan QRIS soundbox bisa digunakan."
+          }
+        ]
+      },
+      {
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "marks": [],
+            "text": "Alur yang ada dibuat untuk review satu per satu. Verifier memeriksa data dan dokumen, lalu approver mengecek hasilnya lagi. Di dalam tool, reviewer juga harus berpindah melewati empat langkah."
+          }
+        ]
+      },
+      {
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "marks": [],
+            "text": "Dengan tim Operations sekitar tiga orang dan target onboarding 2–3 bulan, waktu paling banyak justru habis pada langkah kecil yang harus diulang ribuan kali."
+          }
+        ]
+      }
+    ],
+    "width": "wide",
+    "theme": "light",
+    "callout": "Saya perlu memangkas pekerjaan yang berulang tanpa membuka fast track untuk merchant di luar cohort ini."
+  },
+  {
+    "_type": "evidenceGrid",
+    "eyebrow": "Skala pekerjaan",
+    "title": "Angkanya sudah cukup untuk mengubah cara review",
+    "description": "Target rollout dan kapasitas tim menjadi dasar utama ketika saya menentukan bagian mana yang perlu disederhanakan.",
+    "columns": 3,
+    "metrics": [
+      {
+        "_type": "evidenceMetric",
+        "value": "15K",
+        "label": "merchant dalam target onboarding",
+        "context": "cohort aggregator SRC"
+      },
+      {
+        "_type": "evidenceMetric",
+        "value": "±3",
+        "label": "orang di tim Operations",
+        "context": "kapasitas review yang tersedia"
+      },
+      {
+        "_type": "evidenceMetric",
+        "value": "2–3 bulan",
+        "label": "target onboarding",
+        "context": "delivery window yang disepakati"
+      }
+    ],
+    "theme": "light"
+  },
+  {
+    "_type": "artifactExplorer",
+    "eyebrow": "Artifact explorer",
+    "title": "Lihat perubahan di alur review",
+    "description": "Empat artefak ini menunjukkan alur awal, batasan yang harus dijaga, perubahan layout review, dan aksi Instant Approve.",
+    "theme": "dark",
+    "tabs": [
+      {
+        "_type": "artifactTab",
+        "kind": "image",
+        "label": "Alur awal",
+        "title": "Review masih melewati beberapa tahap",
+        "description": "Reviewer berpindah antar langkah dan clear case tetap diteruskan ke approver.",
+        "image": {
+          "_type": "image",
+          "asset": {
+            "_type": "reference",
+            "_ref": "image-fd927af5811529b73ea5f3ae11dbbd81ffa82835-1672x941-png"
+          }
+        },
+        "alt": "Alur KYB awal dengan beberapa tahap review",
+        "caption": "Kondisi awal sebelum fast track."
+      },
+      {
+        "_type": "artifactTab",
+        "kind": "image",
+        "label": "Batasan",
+        "title": "Perubahan harus tetap memakai core KYB yang ada",
+        "description": "Timeline tidak memberi ruang untuk rebuild database atau membuat sistem baru.",
+        "image": {
+          "_type": "image",
+          "asset": {
+            "_type": "reference",
+            "_ref": "image-9d1691f92d17fb8382dfd87de94bea42242c2781-1672x941-png"
+          }
+        },
+        "alt": "Batasan proyek KYB fast track",
+        "caption": "Scope difokuskan pada flow dan UI yang bisa diubah dalam sistem existing."
+      },
+      {
+        "_type": "artifactTab",
+        "kind": "image",
+        "label": "One-page review",
+        "title": "Informasi utama dibuat lebih mudah dipindai",
+        "description": "Data merchant, dokumen, dan informasi pendukung ditampilkan dalam satu halaman yang bisa di-scroll.",
+        "image": {
+          "_type": "image",
+          "asset": {
+            "_type": "reference",
+            "_ref": "image-1f4c2642797b23c15379c66eb690ec4b8e0602fd-2016x982-png"
+          }
+        },
+        "alt": "Desain one-page review untuk KYB fast track",
+        "caption": "Reviewer tidak perlu berpindah empat langkah untuk clear case."
+      },
+      {
+        "_type": "artifactTab",
+        "kind": "image",
+        "label": "Instant Approve",
+        "title": "Clear case bisa selesai di review pertama",
+        "description": "Merchant yang lolos rule cohort dan tidak punya masalah dokumen bisa diselesaikan tanpa approver kedua.",
+        "image": {
+          "_type": "image",
+          "asset": {
+            "_type": "reference",
+            "_ref": "image-f384a00073ff13f23728680bfc8c89f0e6dbc7bb-1440x854-png"
+          }
+        },
+        "alt": "Aksi Instant Approve pada KYB fast track",
+        "caption": "Aksi utama dipisahkan jelas dari Reject untuk mengurangi salah klik."
+      }
+    ]
+  },
+  {
+    "_type": "comparison",
+    "eyebrow": "Perubahan alur",
+    "title": "Waktu paling banyak bisa dihemat di review yang berulang",
+    "description": "Saya mempertahankan informasi yang perlu dicek. Yang berubah adalah cara reviewer mengakses informasi dan kapan review kedua benar-benar dibutuhkan.",
+    "left": {
+      "_type": "comparisonSide",
+      "label": "Alur lama",
+      "title": "Empat langkah dan dua layer review",
+      "description": "Operations membuka beberapa bagian secara berurutan. Setelah verifier selesai, clear case masih masuk ke approver untuk pengecekan berikutnya.",
+      "note": "Aman untuk volume normal, tetapi mahal ketika diulang ribuan kali."
+    },
+    "right": {
+      "_type": "comparisonSide",
+      "label": "Fast track",
+      "title": "Satu halaman untuk clear case",
+      "description": "Informasi yang dibutuhkan tersedia dalam satu halaman. Clear case yang memenuhi rule cohort bisa selesai setelah satu review.",
+      "note": "Review kedua dipakai ketika memang ada hal yang perlu diperiksa lebih lanjut."
+    },
+    "theme": "light"
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Eligibility",
+    "title": "Fast track dimulai dari cara mengenali merchant yang tepat",
+    "body": [
+      {
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "marks": [],
+            "text": "Fast track tidak boleh muncul untuk semua merchant. Saya memakai referral code yang memang sudah ada di form KYB sebagai penanda source acquisition."
+          }
+        ]
+      },
+      {
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "marks": [],
+            "text": "Operations memberikan code khusus kepada aggregator. Backend kemudian memvalidasi code tersebut sebelum merchant diarahkan ke queue fast track."
+          }
+        ]
+      },
+      {
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "marks": [],
+            "text": "Dengan cara ini, routing tidak bergantung pada reviewer menebak merchant mana yang eligible. Akses ke code juga tetap perlu dijaga agar tidak dipakai di luar cohort yang dimaksud."
+          }
+        ]
+      }
+    ],
+    "width": "normal",
+    "theme": "light"
+  },
+  {
+    "_type": "comparison",
+    "eyebrow": "Review decision",
+    "title": "Clear case dan exception dipisahkan sejak awal",
+    "description": "First pass dibuat cepat untuk merchant yang jelas. Case yang punya issue tetap mendapat ruang untuk pemeriksaan yang lebih detail.",
+    "left": {
+      "_type": "comparisonSide",
+      "label": "Clear case",
+      "title": "Selesai lewat Instant Approve",
+      "description": "Kalau data dan dokumen sesuai, Operations bisa menyelesaikan KYB pada review pertama.",
+      "note": "Fast track hanya berlaku untuk merchant dengan referral code yang tervalidasi."
+    },
+    "right": {
+      "_type": "comparisonSide",
+      "label": "Perlu diperiksa lagi",
+      "title": "Masuk ke secondary review",
+      "description": "Case yang punya issue dipindahkan ke daftar review lanjutan. Operations bisa kembali ke case tersebut untuk mengecek detail dan menulis remark yang tepat.",
+      "note": "Reject pada first pass tidak langsung menjadi final rejection."
+    },
+    "theme": "light"
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Risk dan fraud",
+    "title": "Satu layer review dihapus hanya untuk cohort yang sudah dibatasi",
+    "body": [
+      {
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "marks": [],
+            "text": "Menghilangkan approver dari clear case memang mengurangi satu kontrol manual. Karena itu, saya membahas risikonya bersama tim Fraud sebelum flow dipakai."
+          }
+        ]
+      },
+      {
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "marks": [],
+            "text": "Kontrol utama ada pada eligibility cohort, validasi referral code, rule dokumen, dan jalur secondary review ketika ada issue. Fast track tidak mengubah standar dokumen yang harus lolos."
+          }
+        ]
+      },
+      {
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "marks": [],
+            "text": "Tujuannya sederhana. Reviewer tidak perlu mengulang pengecekan yang sama ketika source merchant sudah diketahui dan tidak ada masalah pada submission."
+          }
+        ]
+      }
+    ],
+    "width": "wide",
+    "theme": "dark",
+    "callout": "Fast track hanya bekerja kalau source merchant dan eligibility-nya bisa dipercaya."
+  },
+  {
+    "_type": "evidenceGrid",
+    "eyebrow": "Outcome",
+    "title": "Target onboarding selesai tanpa rebuild besar",
+    "description": "Hasil rollout menunjukkan bahwa perubahan pada routing dan review sudah cukup untuk menangani cohort ini.",
+    "columns": 3,
+    "metrics": [
+      {
+        "_type": "evidenceMetric",
+        "value": "15K",
+        "label": "merchant diproses",
+        "context": "dalam periode onboarding yang direncanakan"
+      },
+      {
+        "_type": "evidenceMetric",
+        "value": "1 review",
+        "label": "untuk clear case yang eligible",
+        "context": "tanpa approver kedua pada happy path"
+      },
+      {
+        "_type": "evidenceMetric",
+        "value": "0 reported",
+        "label": "fraud atau issue dokumen material",
+        "context": "berdasarkan laporan selama rollout",
+        "note": "Bukan hasil audit independen."
+      }
+    ],
+    "theme": "light"
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Setelah rollout",
+    "title": "Kalau pola ini berulang, fast track perlu jadi capability",
+    "body": [
+      {
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "marks": [],
+            "text": "Solusi ini dibuat untuk satu aggregator dan satu delivery window. Selama konteksnya tetap seperti itu, perubahan kecil pada routing dan review sudah cukup."
+          }
+        ]
+      },
+      {
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "marks": [],
+            "text": "Kalau model onboarding seperti ini mulai dipakai untuk aggregator lain, saya akan memisahkannya menjadi bulk KYB workflow yang permanen. Eligibility, queue management, audit trail, sampling, risk rules, dan monitoring perlu dikelola sebagai bagian dari product, bukan lewat konfigurasi kasus per kasus."
+          }
+        ]
+      }
+    ],
+    "width": "normal",
+    "theme": "light"
+  }
+]
