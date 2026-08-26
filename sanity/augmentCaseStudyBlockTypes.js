@@ -3,6 +3,8 @@ const PROTOTYPE_PRESETS = [
   {title: 'KYC Autosave Flow B · English', value: 'kyc-autosave-flow-b-en'},
   {title: 'QRIS Top Up · Indonesian', value: 'qris-top-up-flow-id'},
   {title: 'QRIS Top Up · English', value: 'qris-top-up-flow-en'},
+  {title: 'KYB AI Pre-check · Indonesian', value: 'kyb-ai-precheck-flow-id'},
+  {title: 'KYB AI Pre-check · English', value: 'kyb-ai-precheck-flow-en'},
 ]
 
 function augmentInteractivePrototype(type) {
