@@ -4,15 +4,19 @@
   --prototype-muted: rgba(247, 247, 242, .62);
   --prototype-line: rgba(247, 247, 242, .16);
   --prototype-panel: rgba(255, 255, 255, .045);
+  container-type: inline-size;
   display: grid;
-  grid-template-columns: minmax(0, .78fr) minmax(320px, 1.22fr);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
   gap: clamp(24px, 4vw, 48px);
+  width: 100%;
+  min-width: 0;
   margin: 30px 0 38px;
   padding: clamp(22px, 3.5vw, 38px);
   border: 1px solid var(--prototype-line);
   background: var(--prototype-bg);
   color: var(--prototype-fg);
   overflow: hidden;
+  scroll-margin-top: 88px;
 }
 
 .dark {
@@ -31,8 +35,12 @@
   --prototype-panel: rgba(11, 11, 11, .035);
 }
 
-.copy {
+.copy,
+.viewer {
   min-width: 0;
+}
+
+.copy {
   display: flex;
   flex-direction: column;
 }
@@ -57,6 +65,7 @@
   font-size: clamp(24px, 3vw, 38px);
   line-height: 1.02;
   letter-spacing: -.04em;
+  overflow-wrap: anywhere;
 }
 
 .description {
@@ -64,6 +73,7 @@
   color: var(--prototype-muted) !important;
   font-size: 14px;
   line-height: 1.55;
+  overflow-wrap: anywhere;
 }
 
 .stepList {
@@ -74,8 +84,9 @@
 
 .stepButton {
   width: 100%;
+  min-width: 0;
   display: grid;
-  grid-template-columns: 34px 1fr;
+  grid-template-columns: 34px minmax(0, 1fr);
   gap: 10px;
   align-items: center;
   padding: 10px 0;
@@ -89,24 +100,10 @@
   transition: color .15s ease, transform .15s ease;
 }
 
-.stepButton:hover {
-  color: var(--prototype-fg);
-  transform: translateX(2px);
-}
-
-.stepButtonActive {
-  color: var(--prototype-fg);
-}
-
-.stepNumber {
-  font-size: 10px;
-  letter-spacing: .08em;
-  color: var(--prototype-muted);
-}
-
-.viewer {
-  min-width: 0;
-}
+.stepButton span:last-child { overflow-wrap: anywhere; }
+.stepButton:hover { color: var(--prototype-fg); transform: translateX(2px); }
+.stepButtonActive { color: var(--prototype-fg); }
+.stepNumber { font-size: 10px; letter-spacing: .08em; color: var(--prototype-muted); }
 
 .viewerTopline {
   display: flex;
@@ -119,17 +116,20 @@
 
 .stage {
   min-height: 500px;
+  min-width: 0;
   display: grid;
   place-items: center;
   padding: clamp(24px, 4vw, 48px) 16px;
   background: var(--prototype-panel);
   border-left: 1px solid var(--prototype-line);
   border-right: 1px solid var(--prototype-line);
+  overflow: hidden;
 }
 
 .deviceFrame {
   position: relative;
   display: block;
+  max-width: 100%;
   padding: 0;
   background: #fff;
   overflow: hidden;
@@ -137,10 +137,7 @@
   transition: transform .18s ease, box-shadow .18s ease;
 }
 
-.deviceFrame:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 34px 82px rgba(0, 0, 0, .34);
-}
+.deviceFrame:hover { transform: translateY(-3px); box-shadow: 0 34px 82px rgba(0, 0, 0, .34); }
 
 .phoneDevice {
   width: min(270px, 78%);
@@ -184,20 +181,8 @@
   pointer-events: none;
 }
 
-.browserChrome span {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, .28);
-}
-
-.screenImage {
-  width: 100%;
-  height: 100%;
-  display: block;
-  object-fit: contain;
-  background: #fff;
-}
+.browserChrome span { width: 6px; height: 6px; border-radius: 50%; background: rgba(0, 0, 0, .28); }
+.screenImage { width: 100%; height: 100%; display: block; object-fit: contain; background: #fff; }
 
 .screenAdvance {
   position: absolute;
@@ -211,10 +196,7 @@
   cursor: pointer;
 }
 
-.screenAdvance:focus-visible {
-  outline: 3px solid #1e54e8;
-  outline-offset: -5px;
-}
+.screenAdvance:focus-visible { outline: 3px solid #1e54e8; outline-offset: -5px; }
 
 .hotspot {
   position: absolute;
@@ -231,6 +213,7 @@
   position: absolute;
   left: 50%;
   bottom: 8px;
+  max-width: min(220px, 90vw);
   transform: translateX(-50%) translateY(5px);
   padding: 5px 7px;
   border-radius: 999px;
@@ -255,16 +238,14 @@
 }
 
 .hotspot:hover span,
-.hotspot:focus-visible span {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
-}
+.hotspot:focus-visible span { opacity: 1; transform: translateX(-50%) translateY(0); }
 
 .viewerBottom {
   display: flex;
   justify-content: space-between;
   gap: 18px;
   align-items: flex-start;
+  min-width: 0;
   padding-top: 14px;
   border-top: 1px solid var(--prototype-line);
 }
@@ -276,14 +257,14 @@
   gap: 3px;
   color: var(--prototype-fg);
   font-size: 12px;
+  overflow-wrap: anywhere;
 }
 
-.screenCopy > span:not(.annotation) {
-  color: var(--prototype-muted);
-}
+.screenCopy > span:not(.annotation) { color: var(--prototype-muted); }
 
 .annotation {
-  width: max-content;
+  width: fit-content;
+  max-width: 100%;
   margin-bottom: 4px;
   padding: 4px 7px;
   border: 1px solid var(--prototype-line);
@@ -293,39 +274,15 @@
   line-height: 1.1;
   letter-spacing: .08em;
   text-transform: uppercase;
+  overflow-wrap: anywhere;
 }
 
-.controls {
-  display: flex;
-  gap: 8px;
-  flex: 0 0 auto;
-}
+.controls { display: flex; gap: 8px; flex: 0 0 auto; }
+.controls button { width: 38px; height: 38px; border: 1px solid var(--prototype-line); background: transparent; color: var(--prototype-fg); font: inherit; font-size: 17px; cursor: pointer; }
+.controls button:hover:not(:disabled) { background: var(--prototype-panel); }
+.controls button:disabled { opacity: .28; cursor: default; }
 
-.controls button {
-  width: 38px;
-  height: 38px;
-  border: 1px solid var(--prototype-line);
-  background: transparent;
-  color: var(--prototype-fg);
-  font: inherit;
-  font-size: 17px;
-  cursor: pointer;
-}
-
-.controls button:hover:not(:disabled) {
-  background: var(--prototype-panel);
-}
-
-.controls button:disabled {
-  opacity: .28;
-  cursor: default;
-}
-
-@media (max-width: 820px) {
-  .shell {
-    grid-template-columns: 1fr;
-  }
-
+@container (max-width: 680px) {
   .stepList {
     margin-top: 24px;
     padding-top: 16px;
@@ -335,50 +292,21 @@
     border-top: 1px solid var(--prototype-line);
     scrollbar-width: thin;
   }
-
-  .stepButton {
-    width: auto;
-    min-width: max-content;
-    display: flex;
-    padding: 9px 10px;
-    border: 1px solid var(--prototype-line);
-  }
-
-  .stepButton:hover {
-    transform: none;
-  }
-
-  .stage {
-    min-height: 440px;
-  }
+  .stepButton { width: auto; min-width: max-content; display: flex; padding: 9px 10px; border: 1px solid var(--prototype-line); }
+  .stepButton:hover { transform: none; }
+  .stage { min-height: 440px; }
 }
 
 @media (max-width: 520px) {
-  .shell {
-    margin-left: -12px;
-    margin-right: -12px;
-    padding: 18px 14px;
-  }
-
-  .stage {
-    min-height: 390px;
-    padding: 26px 8px;
-  }
-
-  .phoneDevice {
-    width: min(245px, 82%);
-  }
-
-  .viewerBottom {
-    align-items: center;
-  }
+  .shell { margin-left: -12px; margin-right: -12px; padding: 18px 14px; }
+  .stage { min-height: 390px; padding: 26px 8px; }
+  .phoneDevice { width: min(245px, 82%); }
+  .viewerBottom { align-items: center; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .stepButton,
   .deviceFrame,
   .hotspot,
-  .hotspot span {
-    transition: none;
-  }
+  .hotspot span { transition: none; }
 }
