@@ -12,6 +12,8 @@ const ALLOWED_PROJECT_FIELDS = new Set([
   'title','titleEn','summary','summaryEn','tags','tagsEn','featured','workOrder','accent','cardStat',
   'role','roleEn','timeline','timelineEn','tools','body','bodyEn',
 ])
+const TRANSFORM_FIELDS = new Set(['body', 'bodyEn'])
+const TRANSFORM_ACTIONS = new Set(['mergeItem', 'insertAfter'])
 
 function hash(value, length = 24) {
   return crypto.createHash('sha256').update(String(value)).digest('hex').slice(0, length)
@@ -53,6 +55,35 @@ async function resolveSet(operation) {
   return set
 }
 
+function validateTransforms(operation) {
+  const transforms = operation.bodyTransforms || []
+  if (!Array.isArray(transforms)) throw new Error(`Operation ${operation.id} bodyTransforms must be an array`)
+
+  for (const transform of transforms) {
+    if (!transform || typeof transform !== 'object') throw new Error(`Operation ${operation.id} contains an invalid body transform`)
+    if (!TRANSFORM_FIELDS.has(transform.field)) throw new Error(`Operation ${operation.id} cannot transform field: ${transform.field}`)
+    if (!TRANSFORM_ACTIONS.has(transform.action)) throw new Error(`Operation ${operation.id} has unsupported transform action: ${transform.action}`)
+    if (!transform.match || typeof transform.match !== 'object' || !Object.keys(transform.match).length) {
+      throw new Error(`Operation ${operation.id} transform needs a match object`)
+    }
+
+    if (transform.action === 'mergeItem') {
+      if (!transform.set || typeof transform.set !== 'object' || Array.isArray(transform.set)) {
+        throw new Error(`Operation ${operation.id} mergeItem transform needs a set object`)
+      }
+      if (transform.path && (typeof transform.path !== 'string' || !/^[A-Za-z0-9_]+$/.test(transform.path))) {
+        throw new Error(`Operation ${operation.id} mergeItem path must be one safe object field`)
+      }
+    }
+
+    if (transform.action === 'insertAfter') {
+      if (!transform.value || typeof transform.value !== 'object' || Array.isArray(transform.value) || !transform.value._type) {
+        throw new Error(`Operation ${operation.id} insertAfter transform needs an object value with _type`)
+      }
+    }
+  }
+}
+
 function validateSet(operation) {
   const set = operation.set || {}
   for (const field of Object.keys(set)) {
@@ -60,6 +91,7 @@ function validateSet(operation) {
   }
   validateContentFile(operation.bodyFile, operation.id)
   validateContentFile(operation.bodyEnFile, operation.id)
+  validateTransforms(operation)
 }
 
 function validateOperation(operation) {
@@ -79,11 +111,58 @@ function validateOperation(operation) {
     if (!operation.sourceId || typeof operation.sourceId !== 'string') throw new Error(`Operation ${operation.id} needs sourceId`)
     if (!operation.slug || typeof operation.slug !== 'string') throw new Error(`Operation ${operation.id} needs a new project slug`)
     if (!operation.organizationId || typeof operation.organizationId !== 'string') throw new Error(`Operation ${operation.id} needs organizationId`)
+    if (operation.bodyTransforms?.length) throw new Error(`Operation ${operation.id} cannot use bodyTransforms while cloning`)
     validateSet(operation)
     return
   }
 
   throw new Error(`Unsupported Sanity operation type: ${operation.type}`)
+}
+
+function itemMatches(item, match = {}) {
+  if (!item || typeof item !== 'object') return false
+  return Object.entries(match).every(([key, expected]) => item?.[key] === expected)
+}
+
+function applyBodyTransforms(baseSet, target, operation) {
+  const transforms = operation.bodyTransforms || []
+  if (!transforms.length) return baseSet
+
+  const nextSet = {...baseSet}
+  const working = new Map()
+
+  for (const transform of transforms) {
+    const field = transform.field
+    if (!working.has(field)) {
+      const source = Object.prototype.hasOwnProperty.call(nextSet, field) ? nextSet[field] : target?.[field]
+      if (!Array.isArray(source)) throw new Error(`Operation ${operation.id} cannot transform ${field}: field is not an array`)
+      working.set(field, structuredClone(source))
+    }
+
+    const body = working.get(field)
+    const matches = body.map((item, index) => itemMatches(item, transform.match) ? index : -1).filter((index) => index >= 0)
+    if (matches.length !== 1) {
+      throw new Error(`Operation ${operation.id} expected exactly one ${field} match for ${JSON.stringify(transform.match)}, found ${matches.length}`)
+    }
+
+    const index = matches[0]
+    if (transform.action === 'mergeItem') {
+      if (transform.path) {
+        const current = body[index]?.[transform.path]
+        if (!current || typeof current !== 'object' || Array.isArray(current)) {
+          throw new Error(`Operation ${operation.id} cannot merge ${field}.${transform.path}: target is not an object`)
+        }
+        body[index] = {...body[index], [transform.path]: {...current, ...transform.set}}
+      } else {
+        body[index] = {...body[index], ...transform.set}
+      }
+    } else if (transform.action === 'insertAfter') {
+      body.splice(index + 1, 0, transform.value)
+    }
+  }
+
+  for (const [field, body] of working.entries()) nextSet[field] = body
+  return nextSet
 }
 
 const rawPlan = await fs.readFile(PLAN_PATH, 'utf8')
@@ -118,12 +197,14 @@ for (const operation of operations) {
     continue
   }
 
-  const normalizedSet = stableArrayKeys(await resolveSet(operation), operation.id)
-
   if (operation.type === 'patchProjectBySlug') {
-    const target = await client.fetch('*[_type == "project" && slug.current == $slug][0]{_id,_rev,title}', {slug:operation.slug})
+    const target = await client.fetch('*[_type == "project" && slug.current == $slug][0]{_id,_rev,title,body,bodyEn}', {slug:operation.slug})
     if (!target?._id) throw new Error(`Project not found for slug: ${operation.slug}`)
     if (operation.expectRevision && target._rev !== operation.expectRevision) throw new Error(`Revision guard failed for ${operation.slug}. Expected ${operation.expectRevision}, got ${target._rev}`)
+
+    const resolvedSet = await resolveSet(operation)
+    const transformedSet = applyBodyTransforms(resolvedSet, target, operation)
+    const normalizedSet = stableArrayKeys(transformedSet, operation.id)
     const unset = operation.unset || []
     const transaction = client.transaction()
     transaction.patch(target._id, (patch) => {
@@ -138,6 +219,7 @@ for (const operation of operations) {
     continue
   }
 
+  const normalizedSet = stableArrayKeys(await resolveSet(operation), operation.id)
   const source = await client.fetch('*[_id == $id][0]', {id:operation.sourceId})
   if (!source?._id) throw new Error(`Source project not found: ${operation.sourceId}`)
   if (source._type !== 'project') throw new Error(`Source ${operation.sourceId} is not a project`)
