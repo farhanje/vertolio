@@ -17,6 +17,7 @@ function track(name, data) {
 }
 
 export default function InteractivePrototype({
+  anchorId,
   eyebrow = 'Interactive prototype',
   title,
   description,
@@ -110,6 +111,7 @@ export default function InteractivePrototype({
 
   return (
     <section
+      id={anchorId || undefined}
       className={cx(styles.shell, theme === 'light' ? styles.light : styles.dark)}
       aria-label={title || 'Interactive prototype'}
       onKeyDown={handleKeyDown}
@@ -191,9 +193,7 @@ export default function InteractivePrototype({
           </div>
 
           <div className={styles.controls}>
-            <button type="button" onClick={goBack} disabled={!canGoBack} aria-label="Previous screen">
-              ←
-            </button>
+            <button type="button" onClick={goBack} disabled={!canGoBack} aria-label="Previous screen">←</button>
             <button type="button" onClick={goNext} disabled={hasHotspots} aria-label={isEnd ? 'Restart prototype' : hasHotspots ? 'Choose a task on screen' : 'Next screen'}>
               {isEnd ? '↻' : '→'}
             </button>
