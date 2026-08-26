@@ -1,0 +1,198 @@
+[
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Konteks",
+    "title": "Masalahnya sudah muncul sebelum verification",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Approval KYB sempat turun dan volume submission ikut melemah. Menambah langkah wajib baru berisiko membuat lebih banyak merchant berhenti sebelum selesai."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Saya mulai dari data rejection dan quick interview dengan beberapa merchant yang pernah ditolak. Masalah yang sama berulang pada informasi bisnis, foto tempat usaha, foto produk, dan nama bisnis."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Sebagian merchant melewatkan atau tidak memahami panduan foto. Ada juga submission yang perlu dicek lebih ketat karena nama atau visualnya bisa berada di luar risk appetite perusahaan."}]}
+    ],
+    "callout": "Pre-check harus bisa menangkap masalah lebih awal tanpa menjadikan model yang belum stabil sebagai blocker baru.",
+    "width": "wide",
+    "theme": "light"
+  },
+  {
+    "_type": "artifactExplorer",
+    "eyebrow": "Evidence",
+    "title": "Apa yang mengarah ke pre-check",
+    "description": "Data awal menunjukkan arah approval, rejection yang paling sering muncul, dan bagaimana finding dari model akhirnya dipetakan menjadi product logic.",
+    "theme": "dark",
+    "tabs": [
+      {
+        "_type": "artifactTab",
+        "kind": "image",
+        "label": "Tren approval",
+        "title": "Approval sudah bergerak ke arah yang salah",
+        "description": "Penurunan ini makin penting karena submission ikut melemah pada periode yang sama.",
+        "image": {"_type":"image","asset":{"_type":"reference","_ref":"image-c02f5b1e28501d9420296c11f11643c4e7148f0a-1672x941-png"}},
+        "alt": "Tren approval KYB sebelum AI-assisted pre-check",
+        "caption": "Kondisi awal sebelum pre-check diterapkan."
+      },
+      {
+        "_type": "artifactTab",
+        "kind": "image",
+        "label": "Alasan rejection",
+        "title": "Beberapa mismatch remark terus berulang",
+        "description": "Masalah paling sering muncul pada informasi bisnis, foto tempat usaha, foto produk, dan nama bisnis.",
+        "image": {"_type":"image","asset":{"_type":"reference","_ref":"image-bcf227656b21158bb3dcb801ed6f43db1d14197d-1672x941-png"}},
+        "alt": "Alasan rejection KYB yang berkaitan dengan informasi bisnis dan foto merchant",
+        "caption": "Mismatch ini menjadi target pertama untuk pre-check."
+      },
+      {
+        "_type": "artifactTab",
+        "kind": "image",
+        "label": "Decision mapping",
+        "title": "Finding dari model masih perlu product rules",
+        "description": "Output yang detail dikelompokkan menjadi kondisi yang bisa dipahami Product dan Operations, lalu dipetakan ke pesan untuk merchant.",
+        "image": {"_type":"image","asset":{"_type":"reference","_ref":"image-577f7d740723659184cf0b9e4e5647f73997ccdc-1672x941-png"}},
+        "alt": "Mapping finding AI ke kondisi produk dan pesan untuk merchant",
+        "caption": "Merchant tidak melihat output teknis model secara mentah."
+      }
+    ]
+  },
+  {
+    "_type": "comparison",
+    "eyebrow": "Intervention",
+    "title": "Panduan saja tidak bisa memeriksa submission",
+    "description": "Quick interview menunjukkan panduan perlu diperbaiki. Data rejection juga menunjukkan sebagian submission memang perlu dicek sebelum dikirim.",
+    "left": {
+      "_type": "comparisonSide",
+      "label": "Perbaikan panduan",
+      "title": "Buat guide lebih mudah ditemukan",
+      "description": "Cocok untuk merchant yang belum tahu seperti apa foto yang valid. Guide tidak bisa memastikan foto yang mereka unggah benar-benar sesuai dengan bisnisnya.",
+      "note": "Effort rendah dengan cakupan yang terbatas."
+    },
+    "right": {
+      "_type": "comparisonSide",
+      "label": "AI-assisted pre-check",
+      "title": "Cek submission sebelum keluar dari form",
+      "description": "Gunakan informasi dan foto yang sudah ada di Step 1 untuk menandai kemungkinan mismatch saat merchant masih bisa memperbaikinya.",
+      "note": "AstraPay sudah memiliki Llama melalui Vertex AI sehingga opsi ini lebih cepat untuk diimplementasikan.",
+      "linkLabel": "Coba flow pre-check",
+      "linkHref": "#interactive-kyb-ai-precheck"
+    },
+    "theme": "light"
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Ruang lingkup model",
+    "title": "Model tidak diberi kewenangan untuk approve atau reject merchant",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Pre-check membaca nama bisnis, kategori bisnis, foto tempat usaha, dan foto produk. Model mencari kemungkinan mismatch sebelum application masuk ke verification."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Kondisi yang dicek mencakup foto tempat usaha yang tidak mewakili bisnis, produk yang tidak sesuai kategori, nama bisnis yang tidak konsisten dengan visual, serta gambar yang terlihat seperti screenshot atau materi yang sudah diedit."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Finding dari model hanya memberi sinyal bahwa ada bagian yang mungkin perlu dicek lagi. Keputusan final tetap berada di proses verification."}]}
+    ],
+    "callout": "Verification tetap menentukan keputusan final. AI memberi warning lebih awal sebelum merchant submit.",
+    "width": "normal",
+    "theme": "light"
+  },
+  {
+    "_type": "comparison",
+    "eyebrow": "Decision logic",
+    "title": "Output model yang detail diubah menjadi satu pesan yang mudah dipahami",
+    "description": "Masalah foto yang sama bisa dijelaskan model dengan beberapa cara. Produk membutuhkan instruksi yang tetap konsisten dan bisa langsung ditindaklanjuti merchant.",
+    "left": {
+      "_type": "comparisonSide",
+      "label": "Finding model",
+      "title": "Detection logic boleh tetap spesifik",
+      "description": "Model bisa menyebut foto terlalu gelap, hanya menampilkan interior, storefront kurang jelas, atau storefront tidak terlihat.",
+      "note": "Detail ini tetap berguna untuk product logic dan evaluasi."
+    },
+    "right": {
+      "_type": "comparisonSide",
+      "label": "Pesan ke merchant",
+      "title": "Berikan satu instruksi yang jelas",
+      "description": "Beberapa finding tersebut bisa dipetakan ke satu pesan agar merchant menyesuaikan foto tempat usaha sesuai panduan.",
+      "note": "Merchant cukup tahu bagian yang perlu diperbaiki."
+    },
+    "theme": "light"
+  },
+  {
+    "_type": "interactivePrototype",
+    "anchorId": "interactive-kyb-ai-precheck",
+    "preset": "kyb-ai-precheck-flow-id",
+    "eyebrow": "Interactive prototype",
+    "title": "Coba AI-assisted pre-check",
+    "description": "Warning ini bersifat assistive. Merchant bisa memperbaiki data yang ditandai atau tetap lanjut ketika merasa submission-nya sudah benar.",
+    "theme": "dark",
+    "device": "phone",
+    "analyticsPrefix": "kyb_ai_precheck_revamp"
+  },
+  {
+    "_type": "evidenceGrid",
+    "eyebrow": "Guardrail saat rilis",
+    "title": "Pada rilis awal, penggunaan model sengaja dibatasi",
+    "description": "Ketergantungan flow pada AI dibuat rendah sambil tim mengumpulkan evidence dari penggunaan di production.",
+    "columns": 3,
+    "metrics": [
+      {"_type":"evidenceMetric","value":"<2s","label":"target response time","context":"agar pre-check tidak terasa seperti jeda yang panjang"},
+      {"_type":"evidenceMetric","value":"1×","label":"model check per percobaan KYB","context":"membatasi inference berulang pada rilis awal"},
+      {"_type":"evidenceMetric","value":"Optional","label":"perbaikan dari merchant","context":"Tetap Lanjut masih tersedia"}
+    ],
+    "theme": "light"
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Prompt dan output",
+    "title": "Prompt design ikut menentukan bagaimana produk bekerja",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Saya bekerja dengan developer untuk menyusun prompt, definisi kondisi, dan struktur output. Respons model harus cukup konsisten supaya produk bisa memetakannya ke pesan dan next action yang tepat."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Request juga perlu tetap ringkas. Processing tambahan memengaruhi latency dan inference cost, jadi detail di prompt hanya berguna ketika memang memperbaiki kualitas keputusan yang bisa dipakai produk."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Rilis awal memberi ruang untuk melihat incorrect finding, response time, dan bagaimana merchant merespons warning sebelum peran model diubah lebih jauh."}]}
+    ],
+    "callout": "Prompt baru berguna kalau output-nya cukup konsisten untuk dipakai oleh produk.",
+    "width": "wide",
+    "theme": "dark"
+  },
+  {
+    "_type": "evidenceGrid",
+    "eyebrow": "Outcome",
+    "title": "Mismatch yang menjadi target turun setelah rilis",
+    "description": "Perubahan paling terlihat pada rejection reason yang memang ingin ditangkap oleh pre-check.",
+    "columns": 3,
+    "metrics": [
+      {"_type":"evidenceMetric","value":"22–90%","label":"penurunan targeted mismatch remarks","context":"range pada tiga jenis rejection yang ditargetkan"},
+      {"_type":"evidenceMetric","value":"~7%","label":"kenaikan approval rate","context":"pada periode setelah rilis"},
+      {"_type":"evidenceMetric","value":"Stabil","label":"volume submission","context":"tidak terlihat penurunan yang berarti pada periode pengamatan"}
+    ],
+    "theme": "light"
+  },
+  {
+    "_type": "dataVisualization",
+    "eyebrow": "Post-implementation",
+    "title": "Tiga targeted mismatch remarks turun 22–90%",
+    "description": "Nilai per kategori tidak ditampilkan di case study ini, jadi chart menunjukkan batas bawah dan batas atas dari penurunan yang tercatat.",
+    "takeaway": "Pada periode setelah rilis, mismatch yang menjadi target pre-check turun cukup besar sebelum application masuk ke verification.",
+    "chartType": "bar",
+    "dataSource": "manual",
+    "series": [
+      {"_type":"dataSeries","key":"low","label":"Penurunan terendah","suffix":"%"},
+      {"_type":"dataSeries","key":"high","label":"Penurunan tertinggi","suffix":"%"}
+    ],
+    "rows": [
+      {"_type":"dataRow","label":"Targeted mismatch remarks","values":[
+        {"_type":"dataValue","seriesKey":"low","value":22},
+        {"_type":"dataValue","seriesKey":"high","value":90}
+      ]}
+    ],
+    "yLabel": "Penurunan",
+    "evidenceStatus": "measured",
+    "source": "Internal KYB analytics",
+    "period": "Periode setelah rilis",
+    "methodNote": "Angka 22–90% adalah range yang tercatat pada tiga jenis rejection yang ditargetkan. Nilai per kategori tidak ditampilkan di sini. Approval rate naik sekitar 7%, sementara volume submission relatif stabil.",
+    "theme": "light"
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Iterasi berikutnya",
+    "title": "Peran model baru layak diperbesar ketika error-nya sudah diukur lebih baik",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Versi sekarang masih menjadi layer bantuan. Langkah berikutnya adalah membuat evaluation set yang lebih kuat agar false positive dan false negative bisa dilihat per kondisi."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Evidence itu bisa dipakai untuk membandingkan model dan menentukan kapan warning boleh lebih tegas. Finding yang masih tidak pasti sebaiknya tetap mudah di-override."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Untuk pengecekan visual yang lebih spesifik, saya juga akan membandingkan LLM yang digunakan sekarang dengan computer vision atau pendekatan hybrid. Satu model tidak perlu menangani semua masalah gambar."}]}
+    ],
+    "width": "normal",
+    "theme": "light"
+  }
+]
