@@ -1,22 +1,5 @@
 {
   "version": 1,
   "verifyWrite": false,
-  "operations": [
-    {
-      "id": "revamp-kyb-ai-precheck-others-v1-20260827",
-      "type": "patchProjectBySlug",
-      "targetId": "drafts.projectRevamp-102b17ea674b0bedf647",
-      "slug": "portfolio-revamp-cd6916ec",
-      "set": {
-        "title": "Mendeteksi Masalah KYB Sebelum Submission dengan AI",
-        "titleEn": "Catching KYB Issues Before Submission with AI",
-        "summary": "Approval KYB sempat turun dan volume submission ikut melemah. Saya merancang pre-check berbasis Llama di Vertex AI yang membaca informasi bisnis dan foto sebelum merchant submit. Merchant masih bisa lanjut saat model belum cukup yakin. Setelah rilis, tiga mismatch remark utama turun 22–90% dan approval rate naik sekitar 7% tanpa penurunan submission yang berarti.",
-        "summaryEn": "KYB approval had been falling while submission volume was also weakening. I designed a Llama-based pre-check in Vertex AI that reviews business information and photos before submission. Merchants can still continue when the model is uncertain. After launch, the three targeted mismatch remarks fell 22–90% and approval improved around 7% without a meaningful drop in submissions.",
-        "tags": ["KYB", "AI", "Merchant Onboarding", "LLM", "Risk & Verification"],
-        "tagsEn": ["KYB", "AI", "Merchant Onboarding", "LLM", "Risk & Validation"]
-      },
-      "bodyFile": "sanity/revamps/kyb-ai-precheck-v1.id.json",
-      "bodyEnFile": "sanity/revamps/kyb-ai-precheck-v1.en.json"
-    }
-  ]
+  "operations": []
 }
