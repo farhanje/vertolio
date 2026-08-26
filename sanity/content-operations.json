@@ -1,5 +1,16 @@
 {
   "version": 1,
   "verifyWrite": false,
-  "operations": []
+  "operations": [
+    {
+      "id": "revamp-project-cd6916ec-clone-others-20260827",
+      "type": "cloneProjectById",
+      "sourceId": "cd6916ec-a56d-4315-9202-d45bc9ad4a8f",
+      "slug": "portfolio-revamp-cd6916ec",
+      "organizationId": "f09035ed-9382-4a39-a764-927e4f630afb",
+      "set": {
+        "featured": false
+      }
+    }
+  ]
 }
