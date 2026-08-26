@@ -1,5 +1,20 @@
 {
   "version": 1,
   "verifyWrite": false,
-  "operations": []
+  "operations": [
+    {
+      "id": "rewrite-kyb-fast-track-natural-blocks-20260827",
+      "type": "patchProjectBySlug",
+      "targetId": "drafts.c7181c47-8152-44a4-ab84-f12ce3ae8608",
+      "slug": "designing-a-kyb-fast-track-for-15-000-merchants",
+      "set": {
+        "title": "Mempercepat KYB untuk 15.000 Merchant Aggregator",
+        "titleEn": "Designing a KYB Fast Track for 15,000 Merchants",
+        "summary": "AstraPay perlu memproses sekitar 15.000 merchant aggregator dalam 2–3 bulan, sementara alur KYB yang ada masih memakai empat langkah review dan dua layer pengecekan. Saya menyederhanakan review untuk cohort ini tanpa rebuild core KYB atau mengurangi kontrol utama.",
+        "summaryEn": "AstraPay needed to process around 15,000 aggregator merchants within 2–3 months, while the existing KYB flow still used four review steps and two review layers. I simplified review for this cohort without rebuilding the core KYB system or removing its main controls."
+      },
+      "bodyFile": "sanity/revamps/kyb-fast-track-body-id-v2.json",
+      "bodyEnFile": "sanity/revamps/kyb-fast-track-body-en-v2.json"
+    }
+  ]
 }
