@@ -1,0 +1,344 @@
+[
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Context",
+    "title": "The volume changed what made the old flow expensive",
+    "body": [
+      {
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "marks": [],
+            "text": "AstraPay was onboarding merchants from an aggregator managing an SRC network. Around 15,000 merchants needed KYB before they could use QRIS and QRIS soundboxes."
+          }
+        ]
+      },
+      {
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "marks": [],
+            "text": "The existing process was designed for one case at a time. A verifier checked the merchant data and documents, then an approver reviewed the decision again. The internal tool also split the review across four steps."
+          }
+        ]
+      },
+      {
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "marks": [],
+            "text": "With roughly three Operations specialists and a 2–3 month onboarding target, most of the cost came from small actions repeated thousands of times."
+          }
+        ]
+      }
+    ],
+    "width": "wide",
+    "theme": "light",
+    "callout": "I needed to remove repeated work without making the fast track available to merchants outside this cohort."
+  },
+  {
+    "_type": "evidenceGrid",
+    "eyebrow": "Workload",
+    "title": "The scale was large enough to change the review model",
+    "description": "The rollout target and available Operations capacity shaped where the flow needed to become faster.",
+    "columns": 3,
+    "metrics": [
+      {
+        "_type": "evidenceMetric",
+        "value": "15K",
+        "label": "merchants in the onboarding target",
+        "context": "SRC aggregator cohort"
+      },
+      {
+        "_type": "evidenceMetric",
+        "value": "±3",
+        "label": "Operations specialists",
+        "context": "available review capacity"
+      },
+      {
+        "_type": "evidenceMetric",
+        "value": "2–3 months",
+        "label": "onboarding target",
+        "context": "agreed delivery window"
+      }
+    ],
+    "theme": "light"
+  },
+  {
+    "_type": "artifactExplorer",
+    "eyebrow": "Artifact explorer",
+    "title": "Inspect the review changes",
+    "description": "These four artifacts show the original flow, the project constraints, the one-page review, and the Instant Approve action.",
+    "theme": "dark",
+    "tabs": [
+      {
+        "_type": "artifactTab",
+        "kind": "image",
+        "label": "Original flow",
+        "title": "Review still moved through several stages",
+        "description": "Reviewers navigated across steps and clear cases still continued to an approver.",
+        "image": {
+          "_type": "image",
+          "asset": {
+            "_type": "reference",
+            "_ref": "image-fd927af5811529b73ea5f3ae11dbbd81ffa82835-1672x941-png"
+          }
+        },
+        "alt": "Original KYB flow with multiple review stages",
+        "caption": "The starting point before the fast track."
+      },
+      {
+        "_type": "artifactTab",
+        "kind": "image",
+        "label": "Constraints",
+        "title": "The change had to stay inside the existing KYB system",
+        "description": "The delivery window did not allow a database rebuild or a separate review product.",
+        "image": {
+          "_type": "image",
+          "asset": {
+            "_type": "reference",
+            "_ref": "image-9d1691f92d17fb8382dfd87de94bea42242c2781-1672x941-png"
+          }
+        },
+        "alt": "Constraints for the KYB fast-track project",
+        "caption": "The scope stayed focused on routing, flow, and the review interface."
+      },
+      {
+        "_type": "artifactTab",
+        "kind": "image",
+        "label": "One-page review",
+        "title": "The required information became easier to scan",
+        "description": "Merchant data, documents, and supporting information were placed on one scrollable page.",
+        "image": {
+          "_type": "image",
+          "asset": {
+            "_type": "reference",
+            "_ref": "image-1f4c2642797b23c15379c66eb690ec4b8e0602fd-2016x982-png"
+          }
+        },
+        "alt": "One-page review design for the KYB fast track",
+        "caption": "Reviewers no longer had to move through four steps for a clear case."
+      },
+      {
+        "_type": "artifactTab",
+        "kind": "image",
+        "label": "Instant Approve",
+        "title": "A clear case could finish in the first review",
+        "description": "Eligible merchants with valid documents could be completed without a second approver.",
+        "image": {
+          "_type": "image",
+          "asset": {
+            "_type": "reference",
+            "_ref": "image-f384a00073ff13f23728680bfc8c89f0e6dbc7bb-1440x854-png"
+          }
+        },
+        "alt": "Instant Approve action in the KYB fast-track flow",
+        "caption": "The primary action was visually separated from Reject to reduce accidental clicks."
+      }
+    ]
+  },
+  {
+    "_type": "comparison",
+    "eyebrow": "Review flow",
+    "title": "The biggest saving came from repeated review work",
+    "description": "The information being checked stayed largely the same. I changed how reviewers reached it and when a second review was actually needed.",
+    "left": {
+      "_type": "comparisonSide",
+      "label": "Existing flow",
+      "title": "Four steps and two review layers",
+      "description": "Operations moved through several sections in sequence. After verification, a clear case still continued to an approver.",
+      "note": "Reasonable at normal volume, expensive when repeated thousands of times."
+    },
+    "right": {
+      "_type": "comparisonSide",
+      "label": "Fast track",
+      "title": "One page for a clear case",
+      "description": "The required information was available on one page. An eligible clear case could finish after the first review.",
+      "note": "A second review remained available when the case actually needed more attention."
+    },
+    "theme": "light"
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Eligibility",
+    "title": "The fast track first needed a reliable way to identify the right merchants",
+    "body": [
+      {
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "marks": [],
+            "text": "The fast track could not be exposed to every merchant. I reused the referral code that already existed in the KYB form as the acquisition-source signal."
+          }
+        ]
+      },
+      {
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "marks": [],
+            "text": "Operations issued a dedicated code to the aggregator. The backend validated it before routing a merchant into the fast-track queue."
+          }
+        ]
+      },
+      {
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "marks": [],
+            "text": "This made routing explicit instead of asking reviewers to infer eligibility. Access to the code also needed to stay controlled so it could not be reused outside the intended cohort."
+          }
+        ]
+      }
+    ],
+    "width": "normal",
+    "theme": "light"
+  },
+  {
+    "_type": "comparison",
+    "eyebrow": "Review decision",
+    "title": "Clear cases and exceptions followed different review paths",
+    "description": "The first pass stayed fast for straightforward submissions. Cases with issues still had room for a more careful review.",
+    "left": {
+      "_type": "comparisonSide",
+      "label": "Clear case",
+      "title": "Finish with Instant Approve",
+      "description": "When the merchant data and documents were valid, Operations could complete KYB in the first review.",
+      "note": "The fast track only applied to merchants with a validated referral code."
+    },
+    "right": {
+      "_type": "comparisonSide",
+      "label": "Needs more review",
+      "title": "Move into secondary review",
+      "description": "A case with an issue moved to a follow-up list. Operations could return to it, inspect the details, and write the right rejection remark.",
+      "note": "Reject on the first pass did not immediately become a final rejection."
+    },
+    "theme": "light"
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Risk and fraud",
+    "title": "Removing one manual review layer only worked inside a tightly defined cohort",
+    "body": [
+      {
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "marks": [],
+            "text": "Skipping the approver for clear cases removed one manual control, so I reviewed the risk with the Fraud team before rollout."
+          }
+        ]
+      },
+      {
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "marks": [],
+            "text": "The main safeguards were cohort eligibility, referral-code validation, document rules, and the secondary-review path when something looked wrong. The fast track did not lower the document standard."
+          }
+        ]
+      },
+      {
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "marks": [],
+            "text": "The point was to avoid repeating the same review when the merchant source was already known and the submission had no material issue."
+          }
+        ]
+      }
+    ],
+    "width": "wide",
+    "theme": "dark",
+    "callout": "The fast track only works when the merchant source and eligibility can be trusted."
+  },
+  {
+    "_type": "evidenceGrid",
+    "eyebrow": "Outcome",
+    "title": "The onboarding target was completed without a major rebuild",
+    "description": "The rollout showed that routing and review changes were enough for this cohort.",
+    "columns": 3,
+    "metrics": [
+      {
+        "_type": "evidenceMetric",
+        "value": "15K",
+        "label": "merchants processed",
+        "context": "within the planned onboarding period"
+      },
+      {
+        "_type": "evidenceMetric",
+        "value": "1 review",
+        "label": "for an eligible clear case",
+        "context": "no second approver on the happy path"
+      },
+      {
+        "_type": "evidenceMetric",
+        "value": "0 reported",
+        "label": "fraud or material document issues",
+        "context": "based on rollout reporting",
+        "note": "This was not an independent audit."
+      }
+    ],
+    "theme": "light"
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "After rollout",
+    "title": "If this pattern repeats, the fast track should become a product capability",
+    "body": [
+      {
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "marks": [],
+            "text": "This solution was built for one aggregator and one delivery window. In that context, small changes to routing and review were enough."
+          }
+        ]
+      },
+      {
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "marks": [],
+            "text": "If the same onboarding model starts appearing across more aggregators, I would turn it into a permanent bulk KYB workflow. Eligibility, queue management, audit trails, sampling, risk rules, and monitoring should then be managed as product capabilities instead of case-by-case configuration."
+          }
+        ]
+      }
+    ],
+    "width": "normal",
+    "theme": "light"
+  }
+]
