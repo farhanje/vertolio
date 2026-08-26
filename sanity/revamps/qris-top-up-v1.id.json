@@ -1,0 +1,408 @@
+[
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Konteks",
+    "title": "Use case utamanya bukan top up yang direncanakan",
+    "body": [
+      {
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "marks": [],
+            "text": "Virtual Account, bank transfer, dan OTC sudah cukup baik untuk top up yang memang direncanakan. Gap-nya muncul pada situasi yang lebih spontan, ketika user sedang bersama orang lain dan butuh saldo saat itu juga."
+          }
+        ]
+      },
+      {
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "marks": [],
+            "text": "Dalam kondisi tersebut, mencari, membagikan, atau mengetik ulang nomor akun menambah langkah pada aktivitas yang seharusnya bisa selesai dengan cepat."
+          }
+        ]
+      }
+    ],
+    "callout": "Kebutuhan dari BOD sederhana: tidak perlu input nomor. User AstraPay cukup menunjukkan QR, orang lain scan dan bayar, lalu saldo masuk.",
+    "width": "wide",
+    "theme": "light"
+  },
+  {
+    "_type": "comparison",
+    "eyebrow": "Problem framing",
+    "title": "Dua situasi cash-in membutuhkan pola interaksi yang berbeda",
+    "description": "Channel yang sudah ada bukan bermasalah. Konteks penggunaannya memang berbeda.",
+    "left": {
+      "label": "Cash-in terencana",
+      "title": "Gunakan detail akun",
+      "description": "User memang membuka bank, VA, atau channel OTC dan mengikuti nomor atau instruksi pembayaran yang tersedia.",
+      "note": "Cocok ketika top up sudah direncanakan."
+    },
+    "right": {
+      "label": "Cash-in spontan",
+      "title": "Tunjukkan sesuatu yang bisa di-scan",
+      "description": "User sudah berada bersama orang yang akan mengisi saldo. QR menghilangkan kebutuhan untuk bertukar atau mengetik nomor akun.",
+      "note": "Interaksi memanfaatkan situasi ketika kedua orang berada berdekatan."
+    },
+    "theme": "light"
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Arah desain",
+    "title": "Menggunakan perilaku QRIS yang sudah familiar",
+    "body": [
+      {
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "marks": [],
+            "text": "Interaksinya mengambil pola merchant-presented QRIS yang sudah dikenal. AstraPay membuat QR untuk ditunjukkan kepada orang yang akan mengisi saldo, lalu orang tersebut scan dan menyelesaikan pembayaran."
+          }
+        ]
+      },
+      {
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "marks": [],
+            "text": "Arah uangnya berbeda, tetapi perilaku yang terlihat tetap familiar. Tunjukkan QR, scan, bayar, lalu konfirmasi."
+          }
+        ]
+      }
+    ],
+    "callout": "User tidak perlu belajar ritual cash-in baru karena desainnya memanfaatkan kebiasaan pembayaran QRIS yang sudah ada.",
+    "width": "normal",
+    "theme": "light"
+  },
+  {
+    "_type": "image",
+    "asset": {
+      "_type": "reference",
+      "_ref": "image-9514671c4a33c1e75c0029071115561547fd278d-1672x941-png"
+    },
+    "ratio": "auto",
+    "width": "wide",
+    "alt": "Konsep QRIS Top Up dengan QR yang ditampilkan untuk menerima cash-in"
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Main flow",
+    "title": "Enam momen sudah cukup untuk perjalanan yang terlihat user",
+    "body": [
+      {
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "marks": [],
+            "text": "Masuk ke Top Up, pilih QRIS, masukkan nominal, tampilkan QR, QR di-scan dan dibayar, lalu status top up diperbarui."
+          }
+        ]
+      },
+      {
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "marks": [],
+            "text": "Layarnya bisa tetap sederhana karena sebagian besar kompleksitas ada pada penanganan state transaksi, bukan pada navigasi."
+          }
+        ]
+      }
+    ],
+    "width": "normal",
+    "theme": "light"
+  },
+  {
+    "_type": "carousel",
+    "title": "Lihat flow QRIS Top Up",
+    "ratio": "4:3",
+    "slides": [
+      {
+        "_key": "21bc1e2cd57b",
+        "image": {
+          "_type": "image",
+          "asset": {
+            "_type": "reference",
+            "_ref": "image-cdefb5d75fe2137aaef619a2bd2ca1b5b10e3c0d-360x654-png"
+          }
+        }
+      },
+      {
+        "_key": "beaf9cc6a6f1",
+        "image": {
+          "_type": "image",
+          "asset": {
+            "_type": "reference",
+            "_ref": "image-6d357aee603c27284bd4bd80cd5b6752e7789d2e-360x654-png"
+          }
+        }
+      },
+      {
+        "_key": "57545414e618",
+        "image": {
+          "_type": "image",
+          "asset": {
+            "_type": "reference",
+            "_ref": "image-679412c4d23a7f73d9d402357374c2c3adf62e05-360x654-png"
+          }
+        }
+      },
+      {
+        "_key": "18f2eeaa2f22",
+        "image": {
+          "_type": "image",
+          "asset": {
+            "_type": "reference",
+            "_ref": "image-71d837a98721989cf8ecdcb8692bb39c0450d85a-360x654-png"
+          }
+        }
+      },
+      {
+        "_key": "aa3056c1524a",
+        "image": {
+          "_type": "image",
+          "asset": {
+            "_type": "reference",
+            "_ref": "image-fdada037ae935d969db8c38cda57c26a56bc49cd-360x654-png"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "State transaksi",
+    "title": "Bagian yang lebih sulit justru dimulai setelah QR muncul",
+    "body": [
+      {
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "marks": [],
+            "text": "Membuat QR baru langkah pertama. Interface juga harus membedakan transaksi yang masih menunggu pembayaran, sudah dibayar, expired, atau sedang mengalami masalah status sementara."
+          }
+        ]
+      },
+      {
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "marks": [],
+            "text": "Saya bekerja bersama engineering agar status yang dilihat user mengikuti state transaksi di backend. Jangan sampai interface menyatakan top up berhasil ketika sistem masih menganggap transaksinya belum selesai."
+          }
+        ]
+      }
+    ],
+    "callout": "Untuk produk transaksi, state di UI hanya bisa dipercaya kalau sumber kebenarannya sama dengan state pembayaran.",
+    "width": "wide",
+    "theme": "dark"
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Placeholder · system artifact",
+    "title": "Tambahkan diagram state transaksi di sini",
+    "body": [
+      {
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "marks": [],
+            "text": "Ganti blok ini dengan simplified system flow ketika asetnya sudah siap."
+          }
+        ]
+      },
+      {
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "marks": [],
+            "text": "Versi yang berguna cukup memperlihatkan pembuatan QR atau bill, menunggu pembayaran, callback atau pengecekan status, paid dan saldo bertambah, expiry, serta cabang retry atau temporary error. Tidak perlu membuka detail implementasi internal yang sensitif."
+          }
+        ]
+      }
+    ],
+    "callout": "Aset yang dibutuhkan: diagram sederhana dari QR dibuat sampai paid, expired, atau temporary failure.",
+    "width": "normal",
+    "theme": "light"
+  },
+  {
+    "_type": "comparison",
+    "eyebrow": "System design",
+    "title": "Produknya harus bekerja di dua layer sekaligus",
+    "description": "Flow yang terlihat user tetap pendek, sementara sistem di bawahnya menjaga transaksi tetap benar.",
+    "left": {
+      "label": "User-facing",
+      "title": "Buat status mudah dipahami",
+      "description": "Tampilkan QR, jelaskan saat transaksi menunggu, konfirmasi pembayaran, dan komunikasikan expiry atau masalah yang masih bisa dipulihkan tanpa membawa istilah backend ke user.",
+      "note": "Kejelasan pada momen pembayaran."
+    },
+    "right": {
+      "label": "System-facing",
+      "title": "Jaga transaksi tetap aman",
+      "description": "Create bill, status check, callback, retry, dan idempotency harus bermuara pada satu state produk yang konsisten.",
+      "note": "Correctness sebelum success state."
+    },
+    "theme": "light"
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Engineering alignment",
+    "title": "Mendesain interface berarti memahami urutan transaksinya",
+    "body": [
+      {
+        "_type": "block",
+        "style": "h3",
+        "markDefs": [],
+        "children": [{"_type":"span","marks":[],"text":"Idempotency"}]
+      },
+      {
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [{"_type":"span","marks":[],"text":"Request yang berulang tidak boleh membuat transaksi duplikat."}]
+      },
+      {
+        "_type": "block",
+        "style": "h3",
+        "markDefs": [],
+        "children": [{"_type":"span","marks":[],"text":"Retry policy"}]
+      },
+      {
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [{"_type":"span","marks":[],"text":"Temporary failure perlu punya recovery path yang terkontrol tanpa membuat request berulang tanpa batas."}]
+      },
+      {
+        "_type": "block",
+        "style": "h3",
+        "markDefs": [],
+        "children": [{"_type":"span","marks":[],"text":"Observability"}]
+      },
+      {
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [{"_type":"span","marks":[],"text":"Log dan metrics perlu membuat masalah transaksi di production bisa ditelusuri ketika status tidak selesai seperti yang diharapkan."}]
+      },
+      {
+        "_type": "block",
+        "style": "h3",
+        "markDefs": [],
+        "children": [{"_type":"span","marks":[],"text":"Transaction sequence"}]
+      },
+      {
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [{"_type":"span","marks":[],"text":"Create bill, bill status, dan callback perlu bertemu pada state yang sama sebelum interface menyampaikan hasil akhir."}]
+      }
+    ],
+    "callout": "Interaksi baru terasa kredibel ketika product, frontend, backend, dan state pembayaran sepakat mengenai apa yang sebenarnya terjadi.",
+    "width": "wide",
+    "theme": "light"
+  },
+  {
+    "_type": "image",
+    "asset": {"_type":"reference","_ref":"image-57d594e4df85bf75a56470a0cae45c5480a6ed51-1672x941-png"},
+    "ratio": "auto",
+    "width": "wide",
+    "alt": "Artefak engineering alignment dan urutan transaksi QRIS Top Up"
+  },
+  {
+    "_type": "evidenceGrid",
+    "eyebrow": "Outcome",
+    "title": "QRIS Top Up berkembang menjadi channel cash-in yang berarti",
+    "description": "Bukti post-launch paling jelas terlihat dari porsinya terhadap cash-in AstraPay pada 2026.",
+    "columns": 3,
+    "metrics": [
+      {"_type":"evidenceMetric","value":"9.3%","label":"share cash-in 2026","context":"kontribusi channel yang terukur"},
+      {"_type":"evidenceMetric","value":"Top 2","label":"channel cash-in","context":"di antara channel cash-in AstraPay"},
+      {"_type":"evidenceMetric","value":"2026","label":"periode pengukuran","context":"evidence setelah implementasi"}
+    ],
+    "theme": "light"
+  },
+  {
+    "_type": "dataVisualization",
+    "eyebrow": "Setelah implementasi",
+    "title": "QRIS Top Up menyumbang 9.3% dari cash-in",
+    "description": "Composition view dari share channel yang terdokumentasi pada 2026.",
+    "takeaway": "Flow yang awalnya dibuat agar user tidak perlu mengetik detail akun berkembang menjadi channel yang menyumbang 9.3% cash-in AstraPay pada 2026.",
+    "chartType": "composition",
+    "dataSource": "manual",
+    "series": [
+      {"_type":"dataSeries","key":"qris","label":"QRIS Top Up","suffix":"%"},
+      {"_type":"dataSeries","key":"other","label":"Cash-in lainnya","suffix":"%"}
+    ],
+    "rows": [
+      {"_type":"dataRow","label":"Komposisi cash-in 2026","values":[
+        {"_type":"dataValue","seriesKey":"qris","value":9.3},
+        {"_type":"dataValue","seriesKey":"other","value":90.7}
+      ]}
+    ],
+    "evidenceStatus": "measured",
+    "source": "AstraPay cash-in analytics",
+    "period": "2026",
+    "methodNote": "Angka 90.7% merupakan sisa yang dihitung dari share QRIS Top Up sebesar 9.3%. Chart ini menunjukkan komposisi channel, bukan incremental lift yang disebabkan oleh fitur.",
+    "theme": "light"
+  },
+  {
+    "_type": "image",
+    "asset": {"_type":"reference","_ref":"image-062935c8bc22e82b0c7a9cfe55ca973f876ed93f-1672x941-png"},
+    "ratio": "auto",
+    "width": "wide",
+    "alt": "Outcome cash-in QRIS Top Up setelah implementasi"
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Placeholder · data post-launch",
+    "title": "Tambahkan adoption curve ketika raw data sudah tersedia",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Evidence saat ini membuktikan skala pada satu titik, tetapi belum memperlihatkan bagaimana adopsinya berkembang."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Kalau data bulanan tersedia, tambahkan trend dari launch sampai 2026 menggunakan share QRIS Top Up atau jumlah transaksi sukses. View kedua yang berguna adalah funnel operasional dari QR dibuat sampai dibayar, termasuk expiry dan failure rate."}]}
+    ],
+    "callout": "Data yang dibutuhkan: share channel atau volume transaksi per bulan, conversion dari QR dibuat ke paid, expiry rate, serta failure atau delayed-callback rate.",
+    "width": "normal",
+    "theme": "light"
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Refleksi",
+    "title": "Interaksi yang paling sederhana datang dari model yang sudah dikenal",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Fitur ini tidak membutuhkan bahasa pembayaran baru. Yang dibutuhkan adalah perilaku yang sudah familiar, lalu diterapkan pada momen cash-in yang berbeda."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Flow yang terlihat user bisa tetap kecil karena desainnya juga membahas state transaksi di belakang layar. Kombinasi itu lebih penting daripada menambah lebih banyak screen."}]}
+    ],
+    "width": "narrow",
+    "theme": "light"
+  }
+]
