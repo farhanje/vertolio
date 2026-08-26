@@ -72,6 +72,27 @@ function withLanguageCookies(req, response = NextResponse.next()) {
   return response
 }
 
+function withoutGoogleTranslate(req) {
+  const response = NextResponse.next()
+
+  response.cookies.set('googtrans', '', {
+    path: '/',
+    maxAge: 0,
+    expires: new Date(0),
+    sameSite: 'lax',
+  })
+
+  const hostname = req.nextUrl.hostname
+  if (hostname === 'farhanje.com' || hostname.endsWith('.farhanje.com')) {
+    response.headers.append(
+      'Set-Cookie',
+      'googtrans=; Path=/; Domain=.farhanje.com; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax',
+    )
+  }
+
+  return response
+}
+
 export function middleware(req) {
   const {pathname} = req.nextUrl
 
@@ -87,7 +108,7 @@ export function middleware(req) {
     const user = process.env.STUDIO_USER
     const pass = process.env.STUDIO_PASS
     if (!hasBasicAuth(req, user, pass)) return unauthorized('Studio')
-    return withLanguageCookies(req)
+    return withoutGoogleTranslate(req)
   }
 
   if (pathname.startsWith('/research-admin') || pathname === '/api/research/export') {
