@@ -3,8 +3,17 @@ import { deskTool } from 'sanity/desk';
 import { visionTool } from '@sanity/vision';
 import { schemaTypes } from './sanity/schemaTypes';
 
-const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
-const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'production';
+// Sanity Studio is built as a standalone Vite app. NEXT_PUBLIC_* variables are
+// a Next.js convention and are not guaranteed to be available to `sanity build`,
+// so keep the public Sanity project coordinates as a safe build-time fallback.
+const projectId =
+  process.env.SANITY_STUDIO_PROJECT_ID ||
+  process.env.NEXT_PUBLIC_SANITY_PROJECT_ID ||
+  'iq6vjwu7';
+const dataset =
+  process.env.SANITY_STUDIO_DATASET ||
+  process.env.NEXT_PUBLIC_SANITY_DATASET ||
+  'production';
 
 const structure = (S) =>
   S.list()
