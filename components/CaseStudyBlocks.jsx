@@ -36,6 +36,7 @@ export function ComparisonBlock({eyebrow, title, description, left, right, theme
             {item.imageUrl ? <div className={styles.comparisonMedia}><img src={item.imageUrl} alt={item.alt || item.title || ''} /></div> : null}
             {item.description ? <p>{item.description}</p> : null}
             {item.note ? <small>{item.note}</small> : null}
+            {item.linkHref && item.linkLabel ? <a className={styles.itemLink} href={item.linkHref}>{item.linkLabel}</a> : null}
           </article>
         ))}
       </div>
@@ -54,13 +55,16 @@ export function EvidenceGrid({eyebrow, title, description, metrics = [], theme =
         {description ? <p>{description}</p> : null}
       </header>
       <div className={styles.metricGrid} style={{'--metric-columns': Math.max(2, Math.min(4, Number(columns) || 3))}}>
-        {valid.map((metric, index) => (
-          <article key={metric._key || index}>
-            {metric.value ? <strong>{metric.value}</strong> : null}
-            {metric.label ? <span>{metric.label}</span> : null}
-            {metric.context ? <small>{metric.context}</small> : null}
-          </article>
-        ))}
+        {valid.map((metric, index) => {
+          const longValue = String(metric?.value || '').length > 8
+          return (
+            <article key={metric._key || index}>
+              {metric.value ? <strong className={longValue ? styles.metricValueLong : undefined}>{metric.value}</strong> : null}
+              {metric.label ? <span>{metric.label}</span> : null}
+              {metric.context ? <small>{metric.context}</small> : null}
+            </article>
+          )
+        })}
       </div>
       {valid.some((metric) => metric.note) ? <div className={styles.notes}>{valid.map((metric, index) => metric.note ? <p key={metric._key || index}>{metric.note}</p> : null)}</div> : null}
     </section>
