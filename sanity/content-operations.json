@@ -1,26 +1,5 @@
 {
   "version": 1,
   "verifyWrite": false,
-  "operations": [
-    {
-      "id": "revamp-linked-savings-positioning-others-v1-20260827",
-      "type": "patchProjectBySlug",
-      "targetId": "drafts.projectRevamp-bb0c00c669bbd6ff47eb",
-      "slug": "portfolio-revamp-70abaad4",
-      "set": {
-        "title": "Menempatkan Produk Tabungan di Dalam E-Wallet",
-        "titleEn": "Positioning Savings Inside an E-Wallet",
-        "summary": "Research menunjukkan bahwa balance e-wallet tetap dipersepsikan sebagai uang untuk dibelanjakan. Saya menggunakan temuan itu untuk menentukan positioning, hierarchy produk, dan arah branding agar linked savings balance terasa berbeda tanpa menjanjikan capability saving yang belum tersedia.",
-        "summaryEn": "Research showed that e-wallet balance was still perceived as money to spend. I used that finding to shape the product positioning, hierarchy, and branding direction so the linked savings balance could feel distinct without promising saving capabilities the product did not yet offer.",
-        "cardStat": {
-          "value": "4",
-          "label": "prinsip positioning dari research",
-          "labelEn": "research-led positioning principles"
-        },
-        "featured": false
-      },
-      "bodyFile": "sanity/revamps/linked-savings-positioning-v1.id.json",
-      "bodyEnFile": "sanity/revamps/linked-savings-positioning-v1.en.json"
-    }
-  ]
+  "operations": []
 }
