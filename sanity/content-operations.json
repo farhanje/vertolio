@@ -3,14 +3,24 @@
   "verifyWrite": false,
   "operations": [
     {
-      "id": "revamp-project-5a2574be-clone-others-20260827",
-      "type": "cloneProjectById",
-      "sourceId": "5a2574be-64f5-420b-863c-9baa066662d7",
+      "id": "revamp-kyc-hook-copy-others-v1-20260827",
+      "type": "patchProjectBySlug",
+      "targetId": "drafts.projectRevamp-41587a1e5cdaa181a1a0",
       "slug": "portfolio-revamp-5a2574be",
-      "organizationId": "f09035ed-9382-4a39-a764-927e4f630afb",
       "set": {
+        "title": "Menguji Apa yang Membuat User Memulai KYC",
+        "titleEn": "Testing What Makes Users Start KYC",
+        "summary": "Menguji tiga framing benefit KYC langsung di production. Ketiganya significantly mengungguli legacy copy. Monetary Highlight kemudian dipilih karena paling sesuai dengan objective untuk meningkatkan KYC Start dan progression, sementara final difference antara A, B, dan C tidak statistically significant.",
+        "summaryEn": "Tested three KYC value framings directly in production. All three significantly outperformed the legacy copy. Monetary Highlight was selected because it best matched the objective of increasing KYC entry and progression, while the final difference between A, B, and C was not statistically significant.",
+        "cardStat": {
+          "value": "3 / 3",
+          "label": "variant baru mengungguli legacy",
+          "labelEn": "new variants beat legacy"
+        },
         "featured": false
-      }
+      },
+      "bodyFile": "sanity/revamps/kyc-hook-copy-production-v1.id.json",
+      "bodyEnFile": "sanity/revamps/kyc-hook-copy-production-v1.en.json"
     }
   ]
 }
