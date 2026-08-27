@@ -1,0 +1,158 @@
+[
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Context",
+    "title": "The OCR vendor was changing, but the KYC flow could not break with it",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Free usage of the existing OCR vendor ended in September 2025. KYC still needed identity extraction from October onward, but replacing the vendor should not force a rebuild of a flow that was already running in production."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Vertex AI was already available inside AstraPay. The useful question was whether it could behave like a dependable product dependency rather than a model demo."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"I worked with the developer on the prompt, response structure, document detection, and the tradeoff between extraction quality and inference cost."}]}
+    ],
+    "callout": "The migration would only be useful if the application could keep relying on the same kind of response.",
+    "width": "wide",
+    "theme": "light"
+  },
+  {
+    "_type": "comparison",
+    "eyebrow": "System contract",
+    "title": "A model can read an ID correctly and still be hard to use in production",
+    "description": "The product did not need a conversational answer. It needed a stable response that could populate an existing form without extra interpretation.",
+    "left": {
+      "_type": "comparisonSide",
+      "label": "Free-form model output",
+      "title": "Readable for a person",
+      "description": "The response may contain explanations, markdown, different field names, or extra text. That is manageable in a chat, but fragile when application logic depends on it.",
+      "note": "Accuracy alone was not enough."
+    },
+    "right": {
+      "_type": "comparisonSide",
+      "label": "Product contract",
+      "title": "Predictable for the application",
+      "description": "The model returns strict JSON using a schema aligned with the previous OCR response. Missing information follows defined behavior instead of being guessed.",
+      "note": "The underlying model could change without rebuilding the main identity form.",
+      "linkLabel": "Try the OCR flow",
+      "linkHref": "#interactive-vertex-ai-ocr"
+    },
+    "theme": "light"
+  },
+  {
+    "_type": "evidenceGrid",
+    "eyebrow": "Response design",
+    "title": "The response had a few non-negotiable rules",
+    "description": "These rules made the model output usable by the KYC application instead of leaving interpretation to the client.",
+    "columns": 4,
+    "metrics": [
+      {"_type":"evidenceMetric","value":"JSON","label":"response format","context":"No markdown, code block, or explanatory text"},
+      {"_type":"evidenceMetric","value":"Compatible","label":"existing OCR schema","context":"Kept integration changes limited"},
+      {"_type":"evidenceMetric","value":"documentType","label":"document detection","context":"KTP, SIM, Passport, or Unknown"},
+      {"_type":"evidenceMetric","value":"0–100","label":"matchRate","context":"A signal for how closely extraction reflects the image"}
+    ],
+    "theme": "light"
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Prompt design",
+    "title": "The prompt was written for a product response, not for a good-looking answer",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"We defined the required fields and their formats, then specified what should happen when information could not be found. The model was also instructed not to fill gaps with details that were not visible in the document."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"I iterated on the prompt with the developer until the response was consistent enough to map into the existing identity form. That consistency mattered because every unusual output would otherwise become another edge case in the app."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"The new fields also gave the product more context. documentType could inform downstream handling, while matchRate created room for more cautious treatment when extraction looked uncertain."}]}
+    ],
+    "callout": "The prompt was useful when its output became boring and predictable enough for the application to trust.",
+    "width": "wide",
+    "theme": "dark"
+  },
+  {
+    "_type": "interactivePrototype",
+    "anchorId": "interactive-vertex-ai-ocr",
+    "preset": "kyc-ocr-vertex-ai-flow-en",
+    "eyebrow": "Interactive walkthrough",
+    "title": "Try the OCR flow with KTP or SIM",
+    "description": "This reconstructed flow shows where the model sits inside the existing KYC experience. The screens are illustrative. The contract, document routing, and correction behavior reflect the product logic described in the project.",
+    "theme": "dark",
+    "device": "phone",
+    "analyticsPrefix": "kyc_ocr_vertex_ai"
+  },
+  {
+    "_type": "comparison",
+    "eyebrow": "Document support",
+    "title": "The migration also created room for more than one identity document",
+    "description": "documentType let the product distinguish the uploaded document without building a separate extraction pipeline for every case.",
+    "left": {
+      "_type": "comparisonSide",
+      "label": "Earlier flow",
+      "title": "KTP was the main capture path",
+      "description": "The previous integration was built around the existing KYC identity flow and did not expose document type as part of the OCR response.",
+      "note": "Changing document handling would have required more logic around the old contract."
+    },
+    "right": {
+      "_type": "comparisonSide",
+      "label": "After migration",
+      "title": "The OCR response knows what it is reading",
+      "description": "The structured response identifies the document type. SIM was later enabled as an alternative identity document in KYC using the same foundation.",
+      "note": "KTP and SIM can share the same overall capture pattern."
+    },
+    "theme": "light"
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Cost and model choice",
+    "title": "Accuracy had to make sense at production volume",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Vertex AI introduced an inference cost for every OCR request. We compared model configurations using token usage, model pricing, and the expected KYC volume."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"One evaluated scenario was estimated at about USD 0.00102135 per request, roughly IDR 16 at the time. That figure was useful as a scale check, not as a reason to automatically choose the cheapest configuration."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"The model still needed to extract data well enough to reduce manual correction. A cheaper request would not help if users had to repair more fields afterward."}]}
+    ],
+    "callout": "Model cost was evaluated together with the quality of the prefilled form.",
+    "width": "normal",
+    "theme": "light"
+  },
+  {
+    "_type": "evidenceGrid",
+    "eyebrow": "Outcome",
+    "title": "The migration improved the form without forcing a new KYC journey",
+    "description": "The implementation changed the OCR layer while keeping the experience familiar for users and the surrounding application.",
+    "columns": 3,
+    "metrics": [
+      {"_type":"evidenceMetric","value":"~10%","label":"lower user edit rate","context":"Estimated reduction after the new OCR was implemented"},
+      {"_type":"evidenceMetric","value":"KTP + SIM","label":"identity documents supported","context":"SIM was added as an alternative document"},
+      {"_type":"evidenceMetric","value":"~Rp16","label":"estimated request cost","context":"One model scenario evaluated during cost planning"}
+    ],
+    "theme": "light"
+  },
+  {
+    "_type": "dataVisualization",
+    "eyebrow": "Post-implementation",
+    "title": "The normalized edit-rate index moved from 100 to about 90",
+    "description": "The source result is an estimated reduction of around 10%. The chart normalizes the earlier edit rate to 100 because the absolute edit-rate percentages are not shown in this case study.",
+    "takeaway": "Users needed fewer corrections after OCR prefill, which is the outcome that mattered more than extraction accuracy in isolation.",
+    "chartType": "bar",
+    "dataSource": "manual",
+    "series": [
+      {"_type":"dataSeries","key":"index","label":"Normalized user edit-rate index"}
+    ],
+    "rows": [
+      {"_type":"dataRow","label":"Previous OCR","values":[{"_type":"dataValue","seriesKey":"index","value":100}]},
+      {"_type":"dataRow","label":"Vertex AI OCR","values":[{"_type":"dataValue","seriesKey":"index","value":90}]}
+    ],
+    "yLabel": "Normalized edit-rate index",
+    "baseline": 100,
+    "baselineLabel": "Previous OCR = 100",
+    "evidenceStatus": "estimated",
+    "source": "Internal KYC OCR analysis",
+    "period": "After Vertex AI OCR implementation",
+    "methodNote": "The project records an estimated user edit-rate reduction of around 10%. The values 100 and 90 are a normalized visualization of that relative change and are not the absolute edit-rate percentages.",
+    "theme": "light"
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "What I would measure next",
+    "title": "Aggregate edit rate is useful, but field-level correction would tell us more",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"A next iteration should separate correction rates by field and document type. That would show whether errors concentrate around names, dates, addresses, or a particular document instead of hiding everything inside one edit-rate number."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"I would also compare matchRate with actual user corrections. If the signal tracks real extraction quality, it can support more selective review behavior. If it does not, it should not influence the product simply because the model provides it."}]}
+    ],
+    "width": "normal",
+    "theme": "light"
+  }
+]
