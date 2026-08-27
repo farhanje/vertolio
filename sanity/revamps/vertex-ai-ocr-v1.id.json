@@ -1,0 +1,158 @@
+[
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Konteks",
+    "title": "Vendor OCR berubah, flow KYC tidak boleh ikut berantakan",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Free usage dari vendor OCR yang dipakai sebelumnya berakhir pada September 2025. Mulai Oktober, KYC tetap membutuhkan extraction data identitas tanpa membuat flow yang sudah berjalan harus dibangun ulang."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Vertex AI sudah tersedia di environment AstraPay. Pertanyaannya bukan sekadar apakah model bisa membaca KTP, tapi apakah hasilnya cukup konsisten untuk dipakai aplikasi setiap hari."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Saya bekerja dengan developer untuk menyusun prompt, response structure, document detection, serta tradeoff antara kualitas extraction dan inference cost."}]}
+    ],
+    "callout": "Migrasi baru berguna kalau aplikasi tetap bisa bergantung pada contract response yang konsisten.",
+    "width": "wide",
+    "theme": "light"
+  },
+  {
+    "_type": "comparison",
+    "eyebrow": "System contract",
+    "title": "Model bisa membaca dokumen dengan benar tapi tetap sulit dipakai di production",
+    "description": "Aplikasi tidak membutuhkan jawaban yang enak dibaca. Aplikasi membutuhkan response yang stabil supaya existing form bisa terisi tanpa interpretation tambahan.",
+    "left": {
+      "_type": "comparisonSide",
+      "label": "Free-form model output",
+      "title": "Mudah dipahami manusia",
+      "description": "Response bisa berisi explanation, markdown, field name yang berubah, atau text tambahan. Hal seperti ini masih wajar di chat, tapi rapuh kalau application logic bergantung pada formatnya.",
+      "note": "Accuracy saja belum cukup."
+    },
+    "right": {
+      "_type": "comparisonSide",
+      "label": "Product contract",
+      "title": "Predictable untuk aplikasi",
+      "description": "Model mengembalikan strict JSON dengan schema yang tetap mengikuti response OCR lama. Informasi yang tidak ditemukan juga punya behavior yang jelas dan tidak ditebak oleh model.",
+      "note": "Model bisa diganti tanpa membangun ulang identity form utama.",
+      "linkLabel": "Coba flow OCR",
+      "linkHref": "#interactive-vertex-ai-ocr"
+    },
+    "theme": "light"
+  },
+  {
+    "_type": "evidenceGrid",
+    "eyebrow": "Response design",
+    "title": "Ada beberapa aturan yang tidak boleh berubah",
+    "description": "Aturan ini membuat output model bisa langsung dipakai KYC tanpa menambah banyak interpretation di sisi aplikasi.",
+    "columns": 4,
+    "metrics": [
+      {"_type":"evidenceMetric","value":"JSON","label":"format response","context":"Tanpa markdown, code block, atau explanation tambahan"},
+      {"_type":"evidenceMetric","value":"Compatible","label":"existing OCR schema","context":"Perubahan integration tetap terbatas"},
+      {"_type":"evidenceMetric","value":"documentType","label":"document detection","context":"KTP, SIM, Passport, atau Unknown"},
+      {"_type":"evidenceMetric","value":"0–100","label":"matchRate","context":"Signal seberapa dekat hasil extraction dengan isi image"}
+    ],
+    "theme": "light"
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Prompt design",
+    "title": "Prompt dibuat untuk menghasilkan response produk, bukan jawaban yang terlihat pintar",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Kami menentukan field yang dibutuhkan dan format nilainya, lalu mengatur behavior saat informasi tidak ditemukan. Model juga diminta tidak mengisi bagian yang tidak terlihat di dokumen dengan asumsi sendiri."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Saya melakukan iterasi prompt bersama developer sampai response cukup konsisten untuk langsung dipetakan ke identity form. Setiap output yang tidak konsisten akan berubah menjadi edge case baru di aplikasi."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Field tambahan juga memberi context yang sebelumnya tidak tersedia. documentType bisa membantu downstream handling, sedangkan matchRate membuka ruang untuk treatment yang lebih hati-hati saat hasil extraction terlihat kurang meyakinkan."}]}
+    ],
+    "callout": "Prompt menjadi berguna ketika output-nya cukup membosankan dan predictable untuk dipercaya aplikasi.",
+    "width": "wide",
+    "theme": "dark"
+  },
+  {
+    "_type": "interactivePrototype",
+    "anchorId": "interactive-vertex-ai-ocr",
+    "preset": "kyc-ocr-vertex-ai-flow-id",
+    "eyebrow": "Interactive walkthrough",
+    "title": "Coba flow OCR dengan KTP atau SIM",
+    "description": "Flow ini direkonstruksi untuk menunjukkan posisi model di dalam KYC yang sudah ada. Screen bersifat ilustratif. Contract, document routing, dan correction behavior mengikuti product logic yang dibahas di project ini.",
+    "theme": "dark",
+    "device": "phone",
+    "analyticsPrefix": "kyc_ocr_vertex_ai"
+  },
+  {
+    "_type": "comparison",
+    "eyebrow": "Document support",
+    "title": "Migrasi ini juga membuka dukungan untuk lebih dari satu dokumen identitas",
+    "description": "documentType membuat produk bisa membedakan dokumen yang dibaca tanpa membuat OCR pipeline terpisah untuk setiap jenis dokumen.",
+    "left": {
+      "_type": "comparisonSide",
+      "label": "Flow sebelumnya",
+      "title": "KTP menjadi jalur capture utama",
+      "description": "Integration lama dibangun mengikuti flow identitas KYC yang sudah ada dan belum memberikan document type sebagai bagian dari OCR response.",
+      "note": "Perubahan document handling membutuhkan logic tambahan di sekitar contract lama."
+    },
+    "right": {
+      "_type": "comparisonSide",
+      "label": "Setelah migrasi",
+      "title": "OCR response mengetahui dokumen yang sedang dibaca",
+      "description": "Structured response mengidentifikasi jenis dokumen. SIM kemudian bisa ditambahkan sebagai alternatif dokumen identitas dengan foundation yang sama.",
+      "note": "KTP dan SIM tetap memakai pola capture yang serupa."
+    },
+    "theme": "light"
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Cost dan model choice",
+    "title": "Accuracy tetap harus masuk akal saat dipakai pada volume production",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Vertex AI memiliki inference cost pada setiap OCR request. Kami membandingkan beberapa configuration dari token usage, model pricing, dan perkiraan volume KYC."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Salah satu scenario yang dihitung berada di sekitar USD 0.00102135 per request, atau kurang lebih Rp16 pada saat itu. Angka tersebut membantu melihat skala biaya, bukan menjadi alasan untuk otomatis memilih configuration termurah."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Extraction tetap harus cukup baik untuk mengurangi manual correction. Request yang lebih murah tidak banyak membantu kalau user justru perlu memperbaiki lebih banyak field setelahnya."}]}
+    ],
+    "callout": "Model cost dinilai bersama kualitas prefilled form yang diterima user.",
+    "width": "normal",
+    "theme": "light"
+  },
+  {
+    "_type": "evidenceGrid",
+    "eyebrow": "Outcome",
+    "title": "OCR berubah tanpa memaksa user belajar flow KYC baru",
+    "description": "Implementation mengganti OCR layer sambil menjaga experience utama tetap familiar untuk user dan aplikasi di sekitarnya.",
+    "columns": 3,
+    "metrics": [
+      {"_type":"evidenceMetric","value":"~10%","label":"user edit rate lebih rendah","context":"Estimated reduction setelah OCR baru diimplementasikan"},
+      {"_type":"evidenceMetric","value":"KTP dan SIM","label":"dokumen identitas yang didukung","context":"SIM ditambahkan sebagai alternatif dokumen"},
+      {"_type":"evidenceMetric","value":"~Rp16","label":"estimated request cost","context":"Salah satu model scenario saat cost planning"}
+    ],
+    "theme": "light"
+  },
+  {
+    "_type": "dataVisualization",
+    "eyebrow": "Post-implementation",
+    "title": "Normalized edit-rate index turun dari 100 menjadi sekitar 90",
+    "description": "Hasil yang tersedia adalah estimated reduction sekitar 10%. Chart ini menormalkan edit rate sebelumnya menjadi 100 karena absolute edit-rate percentage tidak ditampilkan di case study ini.",
+    "takeaway": "User membutuhkan lebih sedikit correction setelah OCR mengisi form. Ini lebih relevan untuk product experience dibanding melihat extraction accuracy saja.",
+    "chartType": "bar",
+    "dataSource": "manual",
+    "series": [
+      {"_type":"dataSeries","key":"index","label":"Normalized user edit-rate index"}
+    ],
+    "rows": [
+      {"_type":"dataRow","label":"OCR sebelumnya","values":[{"_type":"dataValue","seriesKey":"index","value":100}]},
+      {"_type":"dataRow","label":"Vertex AI OCR","values":[{"_type":"dataValue","seriesKey":"index","value":90}]}
+    ],
+    "yLabel": "Normalized edit-rate index",
+    "baseline": 100,
+    "baselineLabel": "OCR sebelumnya = 100",
+    "evidenceStatus": "estimated",
+    "source": "Internal KYC OCR analysis",
+    "period": "Setelah implementasi Vertex AI OCR",
+    "methodNote": "Project mencatat estimated reduction user edit rate sekitar 10%. Nilai 100 dan 90 hanya dipakai untuk memvisualisasikan relative change tersebut dan bukan absolute edit-rate percentage.",
+    "theme": "light"
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Pengukuran berikutnya",
+    "title": "Aggregate edit rate berguna, tapi correction per field akan memberi jawaban yang lebih jelas",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Iterasi berikutnya sebaiknya memisahkan correction rate per field dan document type. Dari sana kita bisa melihat apakah error lebih sering muncul di nama, tanggal, alamat, atau jenis dokumen tertentu."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Saya juga akan membandingkan matchRate dengan correction yang benar-benar dilakukan user. Kalau signal tersebut sejalan dengan kualitas extraction, baru layak dipakai untuk treatment yang lebih selektif di produk."}]}
+    ],
+    "width": "normal",
+    "theme": "light"
+  }
+]
