@@ -3,14 +3,24 @@
   "verifyWrite": false,
   "operations": [
     {
-      "id": "revamp-project-7f4e81a7-clone-others-20260827",
-      "type": "cloneProjectById",
-      "sourceId": "7f4e81a7-8296-42ae-9a98-eec3ed850b1b",
+      "id": "revamp-vertex-ai-ocr-others-v1-20260827",
+      "type": "patchProjectBySlug",
+      "targetId": "drafts.projectRevamp-ba0a9c0df47475747914",
       "slug": "portfolio-revamp-7f4e81a7",
-      "organizationId": "f09035ed-9382-4a39-a764-927e4f630afb",
       "set": {
+        "title": "Memindahkan OCR KYC ke Vertex AI Tanpa Membangun Ulang Flow",
+        "titleEn": "Moving KYC OCR to Vertex AI Without Rebuilding the Flow",
+        "summary": "Mengganti OCR KYC dengan Vertex AI sambil mempertahankan contract yang sudah dipakai existing flow. Saya ikut menyusun prompt, strict JSON response, document detection, dan cost tradeoff. Setelah implementasi, user edit rate diperkirakan turun sekitar 10% dan SIM bisa digunakan sebagai alternatif dokumen identitas.",
+        "summaryEn": "Replaced the KYC OCR layer with Vertex AI while preserving the contract already used by the existing flow. I worked on the prompt, strict JSON response, document detection, and cost tradeoffs. After implementation, user edit rate was estimated to fall by around 10%, and SIM became available as an alternative identity document.",
+        "cardStat": {
+          "value": "~10%",
+          "label": "estimated lower user edit rate",
+          "labelEn": "estimated lower user edit rate"
+        },
         "featured": false
-      }
+      },
+      "bodyFile": "sanity/revamps/vertex-ai-ocr-v1.id.json",
+      "bodyEnFile": "sanity/revamps/vertex-ai-ocr-v1.en.json"
     }
   ]
 }
