@@ -115,7 +115,7 @@
     "columns": 3,
     "metrics": [
       {"_type":"evidenceMetric","value":"~10%","label":"lower user edit rate","context":"Estimated reduction after the new OCR was implemented"},
-      {"_type":"evidenceMetric","value":"KTP + SIM","label":"identity documents supported","context":"SIM was added as an alternative document"},
+      {"_type":"evidenceMetric","value":"KTP and SIM","label":"identity documents supported","context":"SIM was added as an alternative document"},
       {"_type":"evidenceMetric","value":"~Rp16","label":"estimated request cost","context":"One model scenario evaluated during cost planning"}
     ],
     "theme": "light"
