@@ -1,0 +1,150 @@
+[
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Context",
+    "title": "Sebelum mengubah flow KYC lebih jauh, kami menguji apakah pesan di entry point sudah kehilangan daya tarik",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Conversion KYC saat itu berada di kisaran 30–33%, dan homepage menjadi salah satu entry point utama menuju flow. Copy di area ini juga sudah cukup lama tidak berubah."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Sebelum mengubah interaksi lebih jauh, saya ingin menjawab pertanyaan yang lebih sederhana terlebih dahulu: apakah pesan yang ada sudah memberi alasan yang cukup kuat untuk memulai verifikasi?"}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Experiment dijalankan langsung di mobile production dari 12 September sampai 1 Oktober 2025 agar hasilnya mencerminkan actual KYC behavior, bukan hanya preference user."}]}
+    ],
+    "callout": "Yang kami ubah adalah alasan yang disampaikan kepada user, sementara pengalaman di sekitar entry KYC tetap relatif sama.",
+    "width": "wide",
+    "theme": "light"
+  },
+  {
+    "_type": "evidenceGrid",
+    "eyebrow": "Experiment setup",
+    "title": "Tiga hypothesis, bukan sekadar tiga versi wording",
+    "description": "Setiap variant mewakili alasan yang berbeda bagi user untuk merasa KYC layak dimulai.",
+    "columns": 3,
+    "metrics": [
+      {"_type":"evidenceMetric","value":"A","label":"Feature Highlight","context":"Menekankan fitur dan benefit yang terbuka setelah KYC"},
+      {"_type":"evidenceMetric","value":"B","label":"General Highlight","context":"Menggunakan value proposition yang lebih luas dan sederhana"},
+      {"_type":"evidenceMetric","value":"C","label":"Monetary Highlight","context":"Menekankan benefit finansial dan kebutuhan transaksi"}
+    ],
+    "theme": "light"
+  },
+  {
+    "_type": "artifactExplorer",
+    "eyebrow": "Experiment artifacts",
+    "title": "Lihat variant dan hasil production test",
+    "description": "Artifact pertama menunjukkan perubahan pada entry message. Artifact kedua menunjukkan hasil yang dipakai untuk menentukan direction yang akan di-rollout.",
+    "theme": "dark",
+    "tabs": [
+      {
+        "_type": "artifactTab",
+        "kind": "image",
+        "label": "Variants",
+        "title": "Interaksi tetap familiar, framing benefit yang berubah",
+        "description": "Copy lama tetap menjadi control, sementara A, B, dan C menguji alasan yang berbeda untuk memulai KYC.",
+        "image": {"_type":"image","asset":{"_type":"reference","_ref":"image-e781ed265956fa9da8b36142c804a634e916c4a9-1528x906-png"}},
+        "alt": "Experiment copy homepage KYC dengan control dan tiga messaging variant",
+        "caption": "Control serta Feature, General, dan Monetary Highlight."
+      },
+      {
+        "_type": "artifactTab",
+        "kind": "image",
+        "label": "Results",
+        "title": "Perbedaannya lebih jelas terhadap legacy daripada antar tiga variant baru",
+        "description": "Ketiga pendekatan baru mengungguli copy lama. Pemilihan A, B, atau C tetap membutuhkan pembacaan terhadap objective experiment dan hasil significance test.",
+        "image": {"_type":"image","asset":{"_type":"reference","_ref":"image-416bad609efc7ab50e5230e26a4743ddf5e42f67-1448x1086-png"}},
+        "alt": "Hasil production experiment copy KYC untuk control dan tiga variant",
+        "caption": "Hasil production test yang digunakan untuk memilih rollout direction."
+      }
+    ]
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Measurement",
+    "title": "Lebih banyak klik belum cukup untuk menyebut satu variant lebih baik",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Experiment dilakukan di production karena yang ingin kami ukur adalah behavior. Saya tidak berhenti di KYC Start, tetapi melihat progression sampai tahap berikutnya dan submission."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Ini penting karena pesan yang menghasilkan lebih banyak entry belum tentu lebih baik untuk produk jika user tambahan tersebut tidak melanjutkan flow."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Karena itu experiment perlu menjawab dua hal: apakah framing baru lebih baik dari legacy, dan apakah salah satu framing baru punya bukti yang cukup kuat untuk dijadikan default."}]}
+    ],
+    "width": "normal",
+    "theme": "light"
+  },
+  {
+    "_type": "evidenceGrid",
+    "eyebrow": "Statistical read",
+    "title": "Evidence terkuatnya bukan satu angka CVR tertinggi",
+    "description": "Memisahkan hasil significant dari perbedaan descriptive membantu kami tidak melebih-lebihkan hasil experiment.",
+    "columns": 3,
+    "metrics": [
+      {"_type":"evidenceMetric","value":"3 / 3","label":"variant baru mengungguli legacy","context":"significantly better pada funnel stage yang diukur"},
+      {"_type":"evidenceMetric","value":"C > A","label":"KYC Start","context":"Variant C significantly better dibanding Variant A pada entry stage"},
+      {"_type":"evidenceMetric","value":"No sig. diff","label":"final A vs B vs C","context":"Variant B tertinggi secara descriptive, tetapi tidak ada perbedaan final yang significant di antara ketiganya"}
+    ],
+    "theme": "light"
+  },
+  {
+    "_type": "comparison",
+    "eyebrow": "Decision",
+    "title": "Final CVR tertinggi secara descriptive tidak otomatis menjadi winner",
+    "description": "Rollout direction harus mengikuti objective experiment, bukan sekadar memilih metric yang kebetulan paling tinggi secara angka.",
+    "left": {
+      "_type": "comparisonSide",
+      "label": "Variant B",
+      "title": "Final CVR tertinggi secara descriptive",
+      "description": "General Highlight mencatat final conversion tertinggi di antara variant baru.",
+      "note": "Tidak ada perbedaan final yang statistically significant antara A, B, dan C. Menyebut B sebagai proven winner akan melebih-lebihkan evidence."
+    },
+    "right": {
+      "_type": "comparisonSide",
+      "label": "Variant C · Shipped",
+      "title": "KYC Start lebih kuat tanpa downside berarti di funnel berikutnya",
+      "description": "Monetary Highlight lebih sesuai dengan objective awal untuk meningkatkan volume user yang masuk dan bergerak melalui KYC.",
+      "note": "C significantly mengungguli A pada KYC Start, relatif mirip dengan B, dan tidak menunjukkan downside berarti pada tahap selanjutnya."
+    },
+    "theme": "light"
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Product decision",
+    "title": "Kami memilih framing yang paling sesuai dengan pekerjaan entry point",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Dalam experiment ini, homepage punya satu pekerjaan utama: membantu lebih banyak user memahami kenapa KYC layak dimulai tanpa merusak progression di tahap berikutnya."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Variant C membuat value finansial dari verifikasi terasa lebih konkret. Behavior pada KYC Start lebih sesuai dengan objective tersebut dibanding sekadar mengejar final CVR tertinggi secara descriptive."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Karena itu Monetary Highlight menggantikan legacy copy di production."}]}
+    ],
+    "callout": "Copy mengubah keputusan user untuk masuk ke flow, walaupun interaksi di sekitarnya hampir tidak berubah.",
+    "width": "wide",
+    "theme": "dark"
+  },
+  {
+    "_type": "dataVisualization",
+    "eyebrow": "Broader rollout context",
+    "title": "Setelah rollout, conversion KYC berada di atas periode sebelumnya dan sempat mencapai peak yang lebih tinggi",
+    "description": "Angka ini adalah context setelah copy rollout, bukan causal effect dari copy experiment saja. Autosave dan flexible KYC flow juga menjadi bagian dari experience pada broader improvement period.",
+    "takeaway": "Production copy test secara langsung mendukung framing baru dibanding legacy. Uplift 5–11% pada periode berikutnya berasal dari broader KYC improvement cycle dan tidak seharusnya diklaim sebagai dampak copy saja.",
+    "chartType": "bar",
+    "dataSource": "manual",
+    "series": [
+      {"_type":"dataSeries","key":"uplift","label":"Uplift vs previous period","suffix":"%"}
+    ],
+    "rows": [
+      {"_type":"dataRow","label":"Settled baseline","values":[{"_type":"dataValue","seriesKey":"uplift","value":5}]},
+      {"_type":"dataRow","label":"Peak observed","values":[{"_type":"dataValue","seriesKey":"uplift","value":11}]}
+    ],
+    "yLabel": "Conversion uplift",
+    "evidenceStatus": "descriptive",
+    "source": "Internal KYC analytics",
+    "period": "Broader improvement period after the copy rollout",
+    "methodNote": "Copy experiment berjalan 12 September sampai 1 Oktober 2025. Pergerakan conversion setelahnya beriringan dengan perubahan KYC lain, termasuk Autosave dan flexible flow, sehingga full uplift tidak dapat diatribusikan ke messaging saja.",
+    "theme": "light"
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "What the experiment established",
+    "title": "Kesimpulan yang lebih sempit justru membuat evidence-nya lebih kuat",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Experiment ini secara langsung menunjukkan bahwa semua messaging approach baru mengungguli legacy framing pada funnel stage yang diukur."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Experiment ini juga menunjukkan kenapa descriptive ranking dan statistical evidence perlu dipisahkan saat memilih winner. B terlihat paling tinggi pada final CVR, sementara C menjadi keputusan yang lebih sesuai dengan objective awal untuk entry volume."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Bagi saya, pelajaran terbesarnya adalah bahwa copy di entry point ikut membentuk product behavior. Cara value dijelaskan bisa mengubah keputusan user untuk memulai flow bahkan sebelum structural redesign dilakukan."}]}
+    ],
+    "width": "normal",
+    "theme": "light"
+  }
+]
