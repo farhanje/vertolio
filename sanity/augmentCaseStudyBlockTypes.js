@@ -5,6 +5,8 @@ const PROTOTYPE_PRESETS = [
   {title: 'QRIS Top Up · English', value: 'qris-top-up-flow-en'},
   {title: 'KYB AI Pre-check · Indonesian', value: 'kyb-ai-precheck-flow-id'},
   {title: 'KYB AI Pre-check · English', value: 'kyb-ai-precheck-flow-en'},
+  {title: 'KYC OCR Vertex AI · Indonesian', value: 'kyc-ocr-vertex-ai-flow-id'},
+  {title: 'KYC OCR Vertex AI · English', value: 'kyc-ocr-vertex-ai-flow-en'},
 ]
 
 function augmentInteractivePrototype(type) {
