@@ -1,0 +1,150 @@
+[
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Konteks",
+    "title": "Produk tabungan di dalam e-wallet belum tentu terasa seperti tabungan",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Produk ini membuat rekening tabungan lebih mudah diakses dari AstraPay. Tantangan utamanya justru muncul saat user mencoba memahami fungsi uang tersebut di dalam environment e-wallet."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Dari research, balance e-wallet sudah punya peran yang cukup jelas. User melihatnya sebagai uang yang siap dipakai untuk transaksi sehari-hari."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Kalau produk tabungan ditempatkan terlalu dekat dengan balance utama, user bisa melihatnya sebagai wallet yang sama dengan benefit tambahan. Aksesnya memang mudah, tapi posisi produknya menjadi kurang jelas."}]}
+    ],
+    "callout": "Produk perlu terasa berbeda dari spending money tanpa memberi kesan bahwa fiturnya sudah selengkap produk tabungan khusus.",
+    "width": "wide",
+    "theme": "light"
+  },
+  {
+    "_type": "artifactExplorer",
+    "eyebrow": "Research dan benchmark",
+    "title": "Lihat evidence yang membentuk positioning",
+    "description": "Research melihat bagaimana user memahami uang di e-wallet, apa yang membuat tabungan terasa lebih nyata, dan bagaimana produk sejenis diposisikan di market.",
+    "theme": "dark",
+    "tabs": [
+      {
+        "_type": "artifactTab",
+        "kind": "image",
+        "label": "Mental model wallet",
+        "title": "Balance e-wallet tetap dibaca sebagai uang belanja",
+        "description": "Environment e-wallet membentuk persepsi user sebelum mereka sempat membaca penjelasan produk baru.",
+        "image": {"_type":"image","asset":{"_type":"reference","_ref":"image-21d3687c84306f848ee651035913885578d5c8b6-1672x941-png"}},
+        "alt": "Sintesis research tentang persepsi user terhadap balance e-wallet",
+        "caption": "Kami mulai dari mental model yang sudah dibawa user ke AstraPay."
+      },
+      {
+        "_type": "artifactTab",
+        "kind": "image",
+        "label": "Saving cues",
+        "title": "Separation membuat uang terasa lebih sengaja disimpan",
+        "description": "Nama yang berbeda, balance yang terpisah, hierarchy yang jelas, atau aturan penggunaan dapat membantu user melihat uang tersebut sebagai dana yang disisihkan.",
+        "image": {"_type":"image","asset":{"_type":"reference","_ref":"image-58693f3f2d015d9e0c51e5e7a0df617cb125e44c-1672x941-png"}},
+        "alt": "Sintesis research tentang elemen yang membuat produk terasa seperti tabungan",
+        "caption": "Label tabungan saja belum cukup untuk membentuk mental account yang berbeda."
+      },
+      {
+        "_type": "artifactTab",
+        "kind": "image",
+        "label": "Competitor benchmark",
+        "title": "Adoption sering datang dari value yang praktis",
+        "description": "Produk sejenis tidak selalu dipakai karena user ingin menabung. Kemudahan aktivasi, promo, dan integrasi dengan transaksi harian juga ikut mendorong adoption.",
+        "image": {"_type":"image","asset":{"_type":"reference","_ref":"image-c1fc900d7691fc87f092a2036a23609c59073d5b-1619x972-png"}},
+        "alt": "Benchmark kompetitor untuk produk tabungan yang terhubung dengan digital wallet",
+        "caption": "Product story perlu relevan untuk pengelolaan uang sehari-hari, bukan hanya saving intent."
+      }
+    ]
+  },
+  {
+    "_type": "comparison",
+    "eyebrow": "Positioning",
+    "title": "Kalau terlalu menyatu dengan wallet, produknya kehilangan alasan untuk terasa berbeda",
+    "description": "Interface dan brand perlu menunjukkan bahwa balance ini punya fungsi berbeda walaupun tetap mudah diakses dari ecosystem yang sama.",
+    "left": {
+      "_type": "comparisonSide",
+      "label": "Terlalu menyatu",
+      "title": "Terlihat seperti wallet dengan benefit tambahan",
+      "description": "Kalau tampilan dan perilakunya terlalu mirip dengan balance utama, bunga atau benefit lain bisa terasa hanya sebagai fitur tambahan dari spending money.",
+      "note": "Mudah dipahami secara operasional, tapi posisi finansial produknya lemah."
+    },
+    "right": {
+      "_type": "comparisonSide",
+      "label": "Separation yang jelas",
+      "title": "Terasa seperti uang dengan fungsi yang berbeda",
+      "description": "Balance terpisah, naming, dan visual hierarchy membantu user memahami perbedaannya tanpa membuat akses dari AstraPay terasa rumit.",
+      "note": "Perbedaannya perlu muncul dari struktur produk, bukan dari copy saja."
+    },
+    "theme": "light"
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Batas positioning",
+    "title": "Kami juga tidak ingin menjanjikan pengalaman menabung yang belum tersedia",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Saat itu produknya belum memiliki saving goals, automated saving, budgeting, atau fitur money management yang lebih dalam. Positioning yang terlalu kuat sebagai saving tool bisa membentuk ekspektasi yang belum bisa dipenuhi."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Saya mendorong posisi yang tetap membedakan balance ini dari uang sehari-hari, tapi tetap sesuai dengan capability produk yang memang tersedia."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Benchmark kompetitor ikut membantu. Easy activation dan integrasi dengan transaksi yang sudah familiar bisa menjadi value yang kuat tanpa harus membuat semua komunikasi berpusat pada janji menabung."
+      }]}
+    ],
+    "width": "normal",
+    "theme": "light"
+  },
+  {
+    "_type": "evidenceGrid",
+    "eyebrow": "Arah produk",
+    "title": "Research kemudian dipakai sebagai empat prinsip kerja",
+    "description": "Prinsip ini menjadi pegangan saat membahas produk dan branding bersama tim partner.",
+    "columns": 4,
+    "metrics": [
+      {"_type":"evidenceMetric","value":"Separate","label":"Balance perlu punya identitas sendiri","context":"Cukup berbeda dari uang untuk transaksi harian"},
+      {"_type":"evidenceMetric","value":"Connected","label":"Akses tetap terasa familiar","context":"Masih jelas menjadi bagian dari ecosystem AstraPay"},
+      {"_type":"evidenceMetric","value":"Grounded","label":"Jangan overclaim soal saving","context":"Promise harus sesuai dengan capability produk"},
+      {"_type":"evidenceMetric","value":"Visible","label":"Hierarchy harus terlihat di interface","context":"Perbedaan tidak boleh bergantung pada naming dan copy saja"}
+    ],
+    "theme": "light"
+  },
+  {
+    "_type": "comparison",
+    "eyebrow": "Language dan hierarchy",
+    "title": "Perbedaannya tetap harus terbaca saat user tidak membaca copy",
+    "description": "Naming membantu menjelaskan hubungan antarproduk, tapi interface tetap perlu menunjukkan perbedaannya sejak awal.",
+    "left": {
+      "_type": "comparisonSide",
+      "label": "Mengandalkan copy",
+      "title": "Menjelaskan bahwa ini adalah produk tabungan",
+      "description": "Berguna untuk onboarding dan edukasi, tapi mudah gagal kalau kedua balance masih terlihat seperti satu kumpulan uang.",
+      "note": "Pemahaman terlalu bergantung pada user yang membaca."
+    },
+    "right": {
+      "_type": "comparisonSide",
+      "label": "Mengandalkan struktur",
+      "title": "Buat perbedaannya terlihat sebelum dijelaskan",
+      "description": "Hierarchy balance, naming, dan product identity bekerja bersama supaya user bisa membedakan wallet balance dan linked savings balance.",
+      "note": "Copy kemudian membantu menjelaskan perbedaan yang sudah terlihat dari interface."
+    },
+    "theme": "light"
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Joint branding workshop",
+    "title": "Diskusi branding dimulai dari posisi produknya",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Saya membawa hasil research dan benchmark ke workshop bersama tim partner. Kami membahas bagaimana AstraPay, partner brand, dan nama produk sebaiknya muncul di dalam satu experience."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Positioning tadi dipakai untuk menilai branding hierarchy dan beberapa visual direction. Arah logo baru relevan kalau membantu produk terasa berbeda tanpa memutus hubungannya dengan kedua brand di belakangnya."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Arah yang lolos kemudian dibawa ke review partner dan leadership dengan alasan yang lebih jelas tentang bagaimana produk seharusnya tampil."
+      }]}
+    ],
+    "callout": "Workshop ini bukan dimulai dari memilih logo. Visual direction perlu mendukung positioning produk yang sudah bisa dipertanggungjawabkan.",
+    "width": "wide",
+    "theme": "dark"
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Outcome",
+    "title": "Research memberi tempat yang lebih jelas untuk produk ini di AstraPay",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Project ini menghasilkan arah yang lebih jelas tentang bagaimana linked savings product perlu tampil berdampingan dengan balance utama. Keduanya perlu punya identity dan hierarchy yang berbeda karena fungsi uangnya juga berbeda."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Research juga memberi batas yang lebih sehat untuk product story. Kami tetap bisa bicara soal financial value dan convenience tanpa memberi kesan bahwa produknya sudah punya seluruh fitur saving yang lebih advanced."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Hasilnya kemudian dipakai sebagai dasar untuk product framing, branding architecture, dan visual direction yang dibawa ke review berikutnya."
+      }]}
+    ],
+    "width": "normal",
+    "theme": "light"
+  }
+]
