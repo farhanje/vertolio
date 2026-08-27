@@ -1,0 +1,150 @@
+[
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Context",
+    "title": "Before redesigning more of KYC, we tested whether the entry message was already losing people",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"KYC conversion was sitting around 30–33%, and the homepage was one of the main entry points into the flow. The copy there had been unchanged for some time."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Before changing more of the interaction, I wanted to isolate a simpler question: was the existing message giving users a strong enough reason to start verification?"}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"We ran the experiment directly in the live mobile product from 12 September to 1 October 2025 so the result would reflect actual KYC behavior rather than stated preference."}]}
+    ],
+    "callout": "The experiment changed the reason presented to users, while keeping the surrounding KYC entry experience largely the same.",
+    "width": "wide",
+    "theme": "light"
+  },
+  {
+    "_type": "evidenceGrid",
+    "eyebrow": "Experiment setup",
+    "title": "Three hypotheses, not three cosmetic rewrites",
+    "description": "Each variant represented a different reason a user might decide that KYC was worth starting.",
+    "columns": 3,
+    "metrics": [
+      {"_type":"evidenceMetric","value":"A","label":"Feature Highlight","context":"Lead with features and benefits unlocked after KYC"},
+      {"_type":"evidenceMetric","value":"B","label":"General Highlight","context":"Use a broader and simpler value proposition"},
+      {"_type":"evidenceMetric","value":"C","label":"Monetary Highlight","context":"Lead with financial and transactional benefits"}
+    ],
+    "theme": "light"
+  },
+  {
+    "_type": "artifactExplorer",
+    "eyebrow": "Experiment artifacts",
+    "title": "Inspect the variants and the production result",
+    "description": "The first artifact shows how the entry message changed. The second shows the result used to decide what should ship.",
+    "theme": "dark",
+    "tabs": [
+      {
+        "_type": "artifactTab",
+        "kind": "image",
+        "label": "Variants",
+        "title": "The interaction stayed familiar while the value framing changed",
+        "description": "The existing homepage message remained as the control, while A, B, and C tested different reasons to begin KYC.",
+        "image": {"_type":"image","asset":{"_type":"reference","_ref":"image-e781ed265956fa9da8b36142c804a634e916c4a9-1528x906-png"}},
+        "alt": "KYC homepage copy experiment showing the control and three messaging variants",
+        "caption": "Control plus Feature, General, and Monetary Highlight variants."
+      },
+      {
+        "_type": "artifactTab",
+        "kind": "image",
+        "label": "Results",
+        "title": "The result was clearer against legacy than between the three new variants",
+        "description": "All three new approaches beat the legacy message. The choice among A, B, and C required a closer look at the experiment objective and significance tests.",
+        "image": {"_type":"image","asset":{"_type":"reference","_ref":"image-416bad609efc7ab50e5230e26a4743ddf5e42f67-1448x1086-png"}},
+        "alt": "Production KYC copy experiment result across control and three variants",
+        "caption": "Production result used to select the rollout direction."
+      }
+    ]
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Measurement",
+    "title": "A click was not enough to call a variant better",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"The test ran in production because the goal was behavioral. I looked beyond the first KYC entry and followed performance through later funnel stages, including progression and submission."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"That distinction mattered. A message can create more starts and still be worse for the product if the additional users fail to progress."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"The experiment therefore needed to answer two different questions: whether the new framing beat legacy, and whether one of the new framings was strong enough to justify becoming the default."}]}
+    ],
+    "width": "normal",
+    "theme": "light"
+  },
+  {
+    "_type": "evidenceGrid",
+    "eyebrow": "Statistical read",
+    "title": "The strongest evidence was not a single winning percentage",
+    "description": "Separating significant results from descriptive differences prevented us from overstating the test.",
+    "columns": 3,
+    "metrics": [
+      {"_type":"evidenceMetric","value":"3 / 3","label":"new variants beat legacy","context":"significantly better across the measured funnel stages"},
+      {"_type":"evidenceMetric","value":"C > A","label":"KYC Start","context":"Variant C was significantly better than Variant A at the entry stage"},
+      {"_type":"evidenceMetric","value":"No sig. diff","label":"final A vs B vs C","context":"Variant B was descriptively highest, but the final difference among the three was not statistically significant"}
+    ],
+    "theme": "light"
+  },
+  {
+    "_type": "comparison",
+    "eyebrow": "Decision",
+    "title": "The highest descriptive final CVR did not automatically win",
+    "description": "The rollout choice had to follow the experiment objective, not whichever single metric happened to be numerically highest.",
+    "left": {
+      "_type": "comparisonSide",
+      "label": "Variant B",
+      "title": "Highest final CVR descriptively",
+      "description": "General Highlight ended with the highest final conversion number among the new variants.",
+      "note": "There was no statistically significant final difference between A, B, and C, so treating B as the proven winner would overstate the evidence."
+    },
+    "right": {
+      "_type": "comparisonSide",
+      "label": "Variant C · Shipped",
+      "title": "Stronger KYC Start volume with no meaningful downstream downside",
+      "description": "Monetary Highlight aligned more directly with the original objective of increasing the volume of users entering and progressing through KYC.",
+      "note": "C significantly beat A at KYC Start, performed similarly to B, and did not show a meaningful downside later in the funnel."
+    },
+    "theme": "light"
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Product decision",
+    "title": "We shipped the framing that best matched the job of the entry point",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"The homepage had one job in this experiment: help more eligible users understand why KYC was worth entering, without damaging progression further down the flow."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Variant C made the financial value of verification more concrete. Its stronger KYC Start behavior matched that job better than simply optimizing for the highest descriptive final CVR."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"That is why Monetary Highlight replaced the legacy homepage copy in production."}]}
+    ],
+    "callout": "Copy changed the decision to enter the flow, even though the surrounding interaction barely changed.",
+    "width": "wide",
+    "theme": "dark"
+  },
+  {
+    "_type": "dataVisualization",
+    "eyebrow": "Broader rollout context",
+    "title": "KYC later settled above the previous period, with a higher peak during the broader improvement cycle",
+    "description": "These numbers are context after the copy rollout, not the isolated causal effect of the copy experiment. Autosave and the flexible KYC flow also became part of the experience during the broader improvement period.",
+    "takeaway": "The production copy test directly supports the new framing over legacy. The later 5–11% uplift range belongs to the combined KYC improvement period and should not be credited to copy alone.",
+    "chartType": "bar",
+    "dataSource": "manual",
+    "series": [
+      {"_type":"dataSeries","key":"uplift","label":"Uplift vs previous period","suffix":"%"}
+    ],
+    "rows": [
+      {"_type":"dataRow","label":"Settled baseline","values":[{"_type":"dataValue","seriesKey":"uplift","value":5}]},
+      {"_type":"dataRow","label":"Peak observed","values":[{"_type":"dataValue","seriesKey":"uplift","value":11}]}
+    ],
+    "yLabel": "Conversion uplift",
+    "evidenceStatus": "descriptive",
+    "source": "Internal KYC analytics",
+    "period": "Broader improvement period after the copy rollout",
+    "methodNote": "The copy experiment ran from 12 September to 1 October 2025. The later conversion movement coincided with additional KYC changes, including Autosave and the flexible flow, so the full uplift cannot be attributed to messaging alone.",
+    "theme": "light"
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "What the experiment established",
+    "title": "The useful result was narrower, and stronger, than claiming that copy caused the full conversion uplift",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"The experiment directly showed that every new messaging approach outperformed the legacy framing across the measured funnel stages."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"It also showed why descriptive ranking and statistical evidence should be separated when choosing a winner. B looked strongest on final CVR, while C was the better decision against the original entry-volume objective."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"The larger lesson for me was that entry copy is part of product behavior. It can change whether users understand the value of entering a flow before any structural redesign happens."}]}
+    ],
+    "width": "normal",
+    "theme": "light"
+  }
+]
