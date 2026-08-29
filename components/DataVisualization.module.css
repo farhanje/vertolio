@@ -85,10 +85,10 @@
 .visual {
   position: relative;
   min-width: 0;
-  margin-top: 14px;
   min-height: 260px;
-  background: var(--dv-panel);
+  margin-top: 14px;
   border: 1px solid var(--dv-line);
+  background: var(--dv-panel);
   overflow: hidden;
 }
 
@@ -97,6 +97,9 @@
   min-width: 0;
   overflow-x: auto;
   overscroll-behavior-inline: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  touch-action: pan-x pan-y;
 }
 
 .svg {
@@ -114,7 +117,9 @@
 .axisLabel { font-size: 11px; font-weight: 650; }
 .baselineText { font-size: 10px; }
 .baseline { stroke: var(--dv-fg); stroke-width: 1; stroke-dasharray: 5 5; opacity: .5; vector-effect: non-scaling-stroke; }
-.point { cursor: crosshair; }
+.point,
+.mark { cursor: crosshair; }
+.mark:focus { outline: none; filter: drop-shadow(0 0 2px var(--dv-fg)); }
 
 .tooltip {
   position: absolute;
@@ -126,7 +131,7 @@
   display: flex;
   flex-direction: column;
   gap: 3px;
-  padding: 10px 12px;
+  padding: 10px 34px 10px 12px;
   border: 1px solid var(--dv-line);
   background: var(--dv-bg);
   box-shadow: 0 10px 28px rgba(0,0,0,.12);
@@ -138,6 +143,23 @@
 .tooltip small { color: var(--dv-muted); }
 .tooltip strong { color: var(--dv-fg); font-size: 12px; }
 
+.tooltipClose {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--dv-muted);
+  font: inherit;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
 .funnel,
 .composition {
   min-width: 0;
@@ -145,6 +167,16 @@
   display: flex;
   flex-direction: column;
   gap: 18px;
+}
+
+.funnelRow {
+  min-width: 0;
+  cursor: crosshair;
+}
+
+.funnelRow:focus-visible {
+  outline: 2px solid var(--dv-fg);
+  outline-offset: 4px;
 }
 
 .funnelMeta {
@@ -170,8 +202,9 @@
 }
 
 .compositionLabel { color: var(--dv-muted); font-size: 12px; overflow-wrap: anywhere; }
-.compositionBar { display: flex; min-width: 0; min-height: 30px; overflow: hidden; background: var(--dv-line); }
-.compositionBar button { min-width: 2px; border: 0; padding: 0; cursor: crosshair; }
+.compositionBar { display: flex; min-width: 0; min-height: 32px; overflow: hidden; background: var(--dv-line); }
+.compositionBar button { min-width: 4px; border: 0; padding: 0; cursor: crosshair; touch-action: manipulation; }
+.compositionBar button:focus-visible { outline: 2px solid var(--dv-fg); outline-offset: -3px; }
 
 .takeaway {
   display: grid;
@@ -195,8 +228,8 @@
 }
 
 .tableDetails { margin-top: 18px; border-top: 1px solid var(--dv-line); padding-top: 13px; }
-.tableDetails summary { width: fit-content; max-width: 100%; cursor: pointer; color: var(--dv-muted); font-size: 11px; font-weight: 650; }
-.tableScroll { margin-top: 12px; overflow-x: auto; }
+.tableDetails summary { width: fit-content; max-width: 100%; cursor: pointer; color: var(--dv-muted); font-size: 11px; font-weight: 650; touch-action: manipulation; }
+.tableScroll { margin-top: 12px; overflow-x: auto; overscroll-behavior-inline: contain; -webkit-overflow-scrolling: touch; }
 .tableScroll table { width: 100%; border-collapse: collapse; font-size: 11px; }
 .tableScroll th,
 .tableScroll td { padding: 8px 10px; border-bottom: 1px solid var(--dv-line); text-align: right; white-space: nowrap; }
@@ -212,23 +245,47 @@
 .error { padding: 40px 20px; text-align: center; }
 .error { color: #a33 !important; }
 
-@container (max-width: 620px) {
+/* Tablet and narrow embedding contexts. */
+@container (max-width: 760px) {
   .header { grid-template-columns: 1fr; gap: 12px; }
   .meta { max-width: none; text-align: left; }
   .takeaway { grid-template-columns: 1fr; gap: 7px; }
   .compositionRow { grid-template-columns: 1fr; gap: 6px; }
-  .visual { min-height: 220px; }
-  .svg { min-width: 520px; }
+  .visual { min-height: 230px; }
+  .svg { min-width: 500px; }
 }
 
-@container (max-width: 420px) {
-  .svg { min-width: 460px; }
-  .funnelMeta { align-items: flex-start; flex-direction: column; gap: 4px; }
+/* Phone. Charts scroll only a little wider than the viewport and tooltips move to the bottom. */
+@container (max-width: 520px) {
+  .shell { margin: 30px -12px; padding: 18px 14px; }
+  .header h3 { font-size: clamp(24px, 8vw, 32px); }
+  .header p { font-size: 13px; }
+  .legend { gap: 10px; font-size: 10px; }
+  .visual { min-height: 210px; }
+  .svg { min-width: 440px; }
+  .funnel,
+  .composition { padding: 18px 12px; gap: 15px; }
+  .funnelMeta { align-items: flex-start; flex-direction: column; gap: 3px; }
+  .tooltip {
+    top: auto;
+    right: 10px;
+    bottom: 10px;
+    left: 10px;
+    min-width: 0;
+    max-width: none;
+  }
+  .takeaway p { font-size: 17px; }
 }
 
-@media (max-width: 520px) {
-  .shell { margin-left: -12px; margin-right: -12px; padding: 18px 14px; }
-  .funnel, .composition { padding: 18px 12px; }
+@media (max-width: 640px) {
+  .shell { margin-left: -12px; margin-right: -12px; }
+}
+
+@media (hover: none), (pointer: coarse) {
+  .point,
+  .mark,
+  .funnelRow,
+  .compositionBar button { cursor: pointer; }
 }
 
 @media (prefers-reduced-motion: reduce) {
