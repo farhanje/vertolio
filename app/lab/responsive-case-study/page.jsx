@@ -12,9 +12,24 @@ const playgroundViewports = [
   {key: 'phone', label: 'Phone', size: '390 × 844', className: styles.phone},
 ]
 
-const realCaseViewports = [
-  {key: 'qris-tablet', label: 'QRIS case · Tablet', size: '768 × 1024', className: styles.tablet},
-  {key: 'qris-phone', label: 'QRIS case · Phone', size: '390 × 844', className: styles.phone},
+const tabletPhone = [
+  {key: 'tablet', label: 'Tablet', size: '768 × 1024', className: styles.tablet},
+  {key: 'phone', label: 'Phone', size: '390 × 844', className: styles.phone},
+]
+
+const realCases = [
+  {
+    key: 'qris',
+    title: 'QRIS Top Up',
+    src: '/work/qris-top-up-revamp',
+    description: 'Covers real media dimensions, Artifact Explorer, Interactive Prototype, Basic Flowchart, DataViz, long copy, and mobile navigation.',
+  },
+  {
+    key: 'kyc',
+    title: 'KYC Autosave',
+    src: '/work/kyc-autosave-flow-a-b-test-revamp',
+    description: 'Covers Journey Map, research artifacts, Interactive Prototype, Swimlane Flowchart, evidence blocks, and nested responsive behavior.',
+  },
 ]
 
 export default function ResponsiveCaseStudyLab() {
@@ -24,7 +39,7 @@ export default function ResponsiveCaseStudyLab() {
         <div className="kicker"><span className="dot" /> Portfolio system / responsive QA</div>
         <h1>Three real viewports.</h1>
         <p>
-          The block playground and a real portfolio case are rendered at exact desktop, tablet, and phone widths. Each preview also measures document width, so an accidental tablet-sized canvas on phone is reported as overflow instead of relying on visual inspection alone.
+          The block playground and real portfolio cases are rendered at exact desktop, tablet, and phone widths. Each preview also measures document width, so an accidental tablet-sized canvas on phone is reported as overflow instead of relying on visual inspection alone.
         </p>
       </header>
 
@@ -45,23 +60,25 @@ export default function ResponsiveCaseStudyLab() {
         </div>
       </section>
 
-      <section className={styles.group}>
-        <header className={styles.groupHeader}>
-          <span>Real-content canary</span>
-          <h2>QRIS Top Up</h2>
-          <p>This catches page-shell overflow, real media dimensions, long copy, navigation, and nested artifact behavior that an isolated component demo can miss.</p>
-        </header>
-        <div className={styles.grid}>
-          {realCaseViewports.map((viewport) => (
-            <ViewportPreview
-              key={viewport.key}
-              viewport={viewport}
-              src="/work/qris-top-up-revamp"
-              title={`${viewport.label} real QRIS case preview`}
-            />
-          ))}
-        </div>
-      </section>
+      {realCases.map((project) => (
+        <section key={project.key} className={styles.group}>
+          <header className={styles.groupHeader}>
+            <span>Real-content canary</span>
+            <h2>{project.title}</h2>
+            <p>{project.description}</p>
+          </header>
+          <div className={styles.grid}>
+            {tabletPhone.map((viewport) => (
+              <ViewportPreview
+                key={`${project.key}-${viewport.key}`}
+                viewport={{...viewport, label: `${project.title} · ${viewport.label}`}}
+                src={project.src}
+                title={`${project.title} ${viewport.label} responsive preview`}
+              />
+            ))}
+          </div>
+        </section>
+      ))}
     </main>
   )
 }
