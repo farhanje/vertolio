@@ -124,7 +124,8 @@ export default function InteractivePrototype({
         <div className={styles.stepList} aria-label="Prototype screens">
           {visibleSteps.map((step, index) => {
             const key = step.key || String(index)
-            const isActive = key === activeKey || step.navGroup === current.navGroup
+            const sharesActiveGroup = Boolean(step.navGroup && current.navGroup && step.navGroup === current.navGroup)
+            const isActive = key === activeKey || sharesActiveGroup
             return (
               <button
                 key={key}
