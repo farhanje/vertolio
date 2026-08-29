@@ -1,6 +1,7 @@
 .shell {
   container-type: inline-size;
   min-width: 0;
+  max-width: 100%;
   margin: 44px 0;
   border: 1px solid rgba(17, 17, 17, 0.12);
   border-radius: 24px;
@@ -59,6 +60,7 @@
 .scroller {
   position: relative;
   width: 100%;
+  max-width: 100%;
   overflow-x: auto;
   overscroll-behavior-inline: contain;
   -webkit-overflow-scrolling: touch;
@@ -360,16 +362,17 @@
   .verticalLaneLabel { min-height: 96px; padding: 16px 18px; }
 }
 
-/* Phone */
+/* Phone. Basic flows reorient in the component. Wide branch maps and swimlanes scroll only inside this frame. */
 @media (max-width: 640px) {
   .shell {
-    margin: 32px -12px;
+    margin: 32px 0;
     border-radius: 18px;
   }
 
   .header { padding: 22px 16px 20px; }
   .title { font-size: clamp(24px, 8vw, 34px); }
   .description { font-size: 13px; line-height: 1.58; }
+  .scroller { scrollbar-gutter: auto; }
   .canvas { padding-top: 16px; padding-bottom: 20px; }
   .verticalCanvas { padding: 18px 12px 22px; }
   .verticalSwimlaneCanvas { padding-top: 0; padding-left: 0; padding-right: 0; }
