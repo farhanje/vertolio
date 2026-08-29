@@ -130,6 +130,7 @@ export default function Flowchart({
   title,
   description,
   mode = 'basic',
+  direction = 'horizontal',
   lanes = [],
   nodes = [],
   edges = [],
@@ -140,6 +141,7 @@ export default function Flowchart({
   const nodeRefs = useRef(new Map())
   const [geometry, setGeometry] = useState([])
   const markerId = `flow-arrow-${useId().replace(/:/g, '')}`
+  const isVertical = direction === 'vertical'
 
   const validLanes = useMemo(
     () => lanes.filter((lane) => lane?.key && lane?.label),
@@ -158,8 +160,8 @@ export default function Flowchart({
       .filter((node) => node?.key && node?.label)
       .map((node) => ({
         ...node,
-        column: clampInteger(node.column, 1, 12, 1),
-        row: isSwimlane
+        stage: clampInteger(node.column, 1, 12, 1),
+        branch: isSwimlane
           ? (laneIndex.get(node.laneKey) || 1)
           : clampInteger(node.row, 1, 8, 1),
       }))
@@ -172,10 +174,10 @@ export default function Flowchart({
     [edges, nodeKeys],
   )
 
-  const columnCount = Math.max(1, ...validNodes.map((node) => node.column))
-  const rowCount = isSwimlane
+  const stageCount = Math.max(1, ...validNodes.map((node) => node.stage))
+  const branchCount = isSwimlane
     ? validLanes.length
-    : Math.max(1, ...validNodes.map((node) => node.row))
+    : Math.max(1, ...validNodes.map((node) => node.branch))
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -212,18 +214,42 @@ export default function Flowchart({
       observer?.disconnect()
       window.removeEventListener('resize', measure)
     }
-  }, [validNodes, validEdges, columnCount, rowCount, isSwimlane])
+  }, [validNodes, validEdges, stageCount, branchCount, isSwimlane, isVertical])
 
   if (!validNodes.length) return null
 
-  const laneOffset = isSwimlane ? 1 : 0
-  const laneWidth = isSwimlane ? 196 : 0
-  const columnWidth = 238
-  const minWidth = Math.max(720, laneWidth + columnCount * columnWidth)
-  const gridTemplateColumns = isSwimlane
-    ? `196px repeat(${columnCount}, minmax(224px, 1fr))`
-    : `repeat(${columnCount}, minmax(224px, 1fr))`
-  const gridTemplateRows = `repeat(${rowCount}, minmax(188px, auto))`
+  let minWidth
+  let gridTemplateColumns
+  let gridTemplateRows
+
+  if (isVertical) {
+    minWidth = Math.max(620, branchCount * 238)
+    gridTemplateColumns = `repeat(${branchCount}, minmax(224px, 1fr))`
+    gridTemplateRows = isSwimlane
+      ? `116px repeat(${stageCount}, minmax(188px, auto))`
+      : `repeat(${stageCount}, minmax(188px, auto))`
+  } else {
+    const laneWidth = isSwimlane ? 196 : 0
+    minWidth = Math.max(720, laneWidth + stageCount * 238)
+    gridTemplateColumns = isSwimlane
+      ? `196px repeat(${stageCount}, minmax(224px, 1fr))`
+      : `repeat(${stageCount}, minmax(224px, 1fr))`
+    gridTemplateRows = `repeat(${branchCount}, minmax(188px, auto))`
+  }
+
+  const nodePosition = (node) => {
+    if (isVertical) {
+      return {
+        gridColumn: node.branch,
+        gridRow: node.stage + (isSwimlane ? 1 : 0),
+      }
+    }
+
+    return {
+      gridColumn: node.stage + (isSwimlane ? 1 : 0),
+      gridRow: node.branch,
+    }
+  }
 
   return (
     <section className={cx(styles.shell, theme === 'dark' ? styles.dark : styles.light)}>
@@ -236,11 +262,16 @@ export default function Flowchart({
       <div className={styles.scroller}>
         <div
           ref={canvasRef}
-          className={cx(styles.canvas, isSwimlane && styles.swimlaneCanvas)}
+          className={cx(
+            styles.canvas,
+            isSwimlane && styles.swimlaneCanvas,
+            isVertical && styles.verticalCanvas,
+            isVertical && isSwimlane && styles.verticalSwimlaneCanvas,
+          )}
           style={{minWidth, gridTemplateColumns, gridTemplateRows}}
           aria-label={title || 'Flowchart'}
         >
-          {isSwimlane ? validLanes.map((lane, index) => (
+          {isSwimlane && !isVertical ? validLanes.map((lane, index) => (
             <div
               className={styles.laneBand}
               key={`${lane.key}-band`}
@@ -249,11 +280,22 @@ export default function Flowchart({
             />
           )) : null}
 
+          {isSwimlane && isVertical ? validLanes.map((lane, index) => (
+            <div
+              className={cx(styles.laneBand, styles.verticalLaneBand)}
+              key={`${lane.key}-band`}
+              style={{gridColumn:index + 1, gridRow:'1 / -1'}}
+              aria-hidden="true"
+            />
+          )) : null}
+
           {isSwimlane ? validLanes.map((lane, index) => (
             <div
-              className={styles.laneLabel}
+              className={cx(styles.laneLabel, isVertical && styles.verticalLaneLabel)}
               key={lane.key}
-              style={{gridColumn:1, gridRow:index + 1}}
+              style={isVertical
+                ? {gridColumn:index + 1, gridRow:1}
+                : {gridColumn:1, gridRow:index + 1}}
             >
               <strong>{lane.label}</strong>
               {lane.description ? <span>{lane.description}</span> : null}
@@ -298,7 +340,7 @@ export default function Flowchart({
             <div
               className={styles.nodeSlot}
               key={node.key}
-              style={{gridColumn:node.column + laneOffset, gridRow:node.row}}
+              style={nodePosition(node)}
             >
               <article
                 ref={(element) => {
