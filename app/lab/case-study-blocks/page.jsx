@@ -1,5 +1,6 @@
 import ArtifactExplorer from '../../../components/ArtifactExplorer'
 import DataVisualization from '../../../components/DataVisualization'
+import Flowchart from '../../../components/Flowchart'
 import {ComparisonBlock, EvidenceGrid, NarrativeSection} from '../../../components/CaseStudyBlocks'
 
 export const metadata = {
@@ -95,13 +96,72 @@ const scatterViz = {
   methodNote: 'Illustrative only. A correlation block should explicitly distinguish association from causal evidence.',
 }
 
+const verticalBasic = {
+  eyebrow: 'Vertical flow · basic',
+  title: 'Long sequences can read top to bottom',
+  description: 'Stage controls vertical order. Branch position moves alternate outcomes into another column.',
+  direction: 'vertical',
+  mode: 'basic',
+  theme: 'dark',
+  nodes: [
+    {key: 'submit', label: 'Submit request', description: 'The user finishes the required inputs.', badge: 'start', kind: 'start', column: 1, row: 1, emphasis: true},
+    {key: 'validate', label: 'Validate required data', description: 'The product checks whether the request is ready for review.', badge: 'rule', kind: 'system', column: 2, row: 1},
+    {key: 'review', label: 'Review the request', description: 'The request reaches the decision point.', badge: 'review', kind: 'process', column: 3, row: 1},
+    {key: 'decision', label: 'Ready to approve?', description: 'The decision can resolve or ask for another change.', badge: 'decision', kind: 'decision', column: 4, row: 1},
+    {key: 'approved', label: 'Approve', description: 'The main path resolves successfully.', badge: 'end', kind: 'end', column: 5, row: 1, emphasis: true},
+    {key: 'changes', label: 'Ask for changes', description: 'The alternate outcome stays visually separate.', badge: 'branch', kind: 'process', column: 5, row: 2},
+    {key: 'fix', label: 'Update the request', description: 'The user can address the issue before trying again.', badge: 'action', kind: 'process', column: 6, row: 2},
+  ],
+  edges: [
+    {from: 'submit', to: 'validate', emphasis: true},
+    {from: 'validate', to: 'review'},
+    {from: 'review', to: 'decision'},
+    {from: 'decision', to: 'approved', label: 'yes', emphasis: true},
+    {from: 'decision', to: 'changes', label: 'revise', style: 'dashed'},
+    {from: 'changes', to: 'fix', style: 'dashed'},
+  ],
+}
+
+const verticalSwimlane = {
+  eyebrow: 'Vertical flow · swimlane',
+  title: 'Actors become columns while the process moves downward',
+  description: 'Useful for approvals, operational handoffs, and long journeys where ownership matters at every step.',
+  direction: 'vertical',
+  mode: 'swimlane',
+  theme: 'light',
+  lanes: [
+    {key: 'user', label: 'User', description: 'Starts and receives the outcome'},
+    {key: 'product', label: 'Product', description: 'Validates and controls state'},
+    {key: 'ops', label: 'Operations', description: 'Performs the manual review'},
+  ],
+  nodes: [
+    {key: 'send', label: 'Send request', badge: 'action', kind: 'start', laneKey: 'user', column: 1},
+    {key: 'check', label: 'Check completeness', badge: 'system', kind: 'system', laneKey: 'product', column: 2},
+    {key: 'ops-review', label: 'Review case', badge: 'review', kind: 'process', laneKey: 'ops', column: 3, emphasis: true},
+    {key: 'resolve', label: 'Resolve state', badge: 'system', kind: 'decision', laneKey: 'product', column: 4},
+    {key: 'result', label: 'See outcome', badge: 'end', kind: 'end', laneKey: 'user', column: 5, emphasis: true},
+  ],
+  edges: [
+    {from: 'send', to: 'check', emphasis: true},
+    {from: 'check', to: 'ops-review'},
+    {from: 'ops-review', to: 'resolve'},
+    {from: 'resolve', to: 'result', emphasis: true},
+  ],
+}
+
 export default function CaseStudyBlocksLab() {
+  const explorerTabs = [
+    {_key: 'trend', label: 'Trend', title: 'Quantitative outcome', description: 'A DataViz block can live inside the explorer.', kind: 'data', dataViz: lineViz},
+    {_key: 'funnel', label: 'Funnel', title: 'Behavioral progression', description: 'Different evidence can be inspected in the same artifact room.', kind: 'data', dataViz: funnelViz},
+    {_key: 'prototype', label: 'Prototype', title: 'Product behavior', description: 'The same explorer can switch from evidence to a clickable product artifact.', kind: 'prototype', prototype},
+  ]
+
   return (
     <main className="container" style={{padding: '54px 0 100px'}}>
       <div style={{maxWidth: 820, marginBottom: 36}}>
         <div className="kicker"><span className="dot" /> Portfolio system / block playground</div>
         <h1 style={{fontSize: 'clamp(42px, 6vw, 78px)'}}>Narrative, artifact, evidence.</h1>
-        <p className="lead">A visual QA page for the new Sanity case-study builder. All numbers on this page are illustrative.</p>
+        <p className="lead">A visual QA page for the Sanity case-study builder. All numbers on this page are illustrative.</p>
       </div>
 
       <NarrativeSection
@@ -118,20 +178,32 @@ export default function CaseStudyBlocksLab() {
         eyebrow="Comparison block"
         title="Use side-by-side structure when the contrast is the point."
         description="This is for before/after, Flow A/B, first-time/returning, or competing system states."
-        left={{label: 'Flow A', title: 'Serial', description: 'Guide → identity → selfie → form. One prescribed sequence.'}}
-        right={{label: 'Flow B', title: 'Resumable', description: 'Review → choose task → autosave → return → remaining task.'}}
+        left={{label: 'Flow A', title: 'Serial', description: 'Guide, identity, selfie, form. One prescribed sequence.'}}
+        right={{label: 'Flow B', title: 'Resumable', description: 'Review, choose task, autosave, return, remaining task.'}}
       />
 
       <ArtifactExplorer
         eyebrow="Artifact explorer"
-        title="Parallel views without a wall of scrolling"
-        description="Tabs are for scenarios and evidence views, not for hiding the main narrative."
+        title="Horizontal tabs for quick peer comparison"
+        description="Use the horizontal version when labels are short and the reader is switching between a small number of equivalent views."
+        tabs={explorerTabs}
+      />
+
+      <ArtifactExplorer
+        eyebrow="Artifact explorer · vertical"
+        title="Vertical tabs turn the explorer into an index"
+        description="The left rail gives longer labels and larger artifact sets more room while preserving most of the page width for the active artifact."
+        layout="vertical"
+        theme="dark"
         tabs={[
-          {_key: 'trend', label: 'Trend', title: 'Quantitative outcome', description: 'A DataViz block can live inside the explorer.', kind: 'data', dataViz: lineViz},
-          {_key: 'funnel', label: 'Funnel', title: 'Behavioral progression', description: 'Different evidence can be inspected in the same artifact room.', kind: 'data', dataViz: funnelViz},
-          {_key: 'prototype', label: 'Prototype', title: 'Product behavior', description: 'The same explorer can switch from evidence to a clickable product artifact.', kind: 'prototype', prototype},
+          {...explorerTabs[0], label: 'Quantitative trend'},
+          {...explorerTabs[1], label: 'Behavioral progression'},
+          {...explorerTabs[2], label: 'Interactive behavior'},
         ]}
       />
+
+      <Flowchart {...verticalBasic} />
+      <Flowchart {...verticalSwimlane} />
 
       <EvidenceGrid
         eyebrow="Evidence grid · illustrative"
