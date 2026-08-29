@@ -5,19 +5,26 @@ const CASE_STUDY_BLOCK_TYPES = new Set([
   'comparison',
   'dataVisualization',
   'evidenceGrid',
+  'processMap',
 ])
 
 function normalizeBodyField(field) {
   if (!Array.isArray(field?.of)) return field
 
+  const normalized = field.of.map((member) => {
+    if (member?.type === 'object' && CASE_STUDY_BLOCK_TYPES.has(member?.name)) {
+      return {type: member.name}
+    }
+    return member
+  })
+
+  if (!normalized.some((member) => member?.type === 'processMap')) {
+    normalized.push({type: 'processMap'})
+  }
+
   return {
     ...field,
-    of: field.of.map((member) => {
-      if (member?.type === 'object' && CASE_STUDY_BLOCK_TYPES.has(member?.name)) {
-        return {type: member.name}
-      }
-      return member
-    }),
+    of: normalized,
   }
 }
 
