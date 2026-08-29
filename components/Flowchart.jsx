@@ -36,45 +36,93 @@ function rectPoint(rect, canvasRect, side) {
   return {x:cx, y:cy}
 }
 
+function longestSegmentMidpoint(points) {
+  let best = null
+
+  for (let index = 0; index < points.length - 1; index += 1) {
+    const a = points[index]
+    const b = points[index + 1]
+    const length = Math.hypot(b.x - a.x, b.y - a.y)
+    const horizontal = Math.abs(b.x - a.x) >= Math.abs(b.y - a.y)
+
+    if (!best || (horizontal && !best.horizontal) || (horizontal === best.horizontal && length > best.length)) {
+      best = {
+        length,
+        horizontal,
+        x:(a.x + b.x) / 2,
+        y:(a.y + b.y) / 2,
+      }
+    }
+  }
+
+  return best || {x:points[0]?.x || 0, y:points[0]?.y || 0, horizontal:true}
+}
+
+function pointsToPath(points) {
+  if (!points.length) return ''
+  return points.reduce((path, point, index) => {
+    if (index === 0) return `M ${point.x} ${point.y}`
+    return `${path} L ${point.x} ${point.y}`
+  }, '')
+}
+
 function edgeGeometry(fromRect, toRect, canvasRect) {
   const fromCenter = rectPoint(fromRect, canvasRect, 'center')
   const toCenter = rectPoint(toRect, canvasRect, 'center')
   const dx = toCenter.x - fromCenter.x
   const dy = toCenter.y - fromCenter.y
+  const sameColumn = Math.abs(dx) < Math.max(fromRect.width, toRect.width) * 0.48
+  const sameRow = Math.abs(dy) < Math.max(fromRect.height, toRect.height) * 0.42
+  let points
 
-  let start
-  let end
-  let path
-
-  if (dx > 40) {
-    start = rectPoint(fromRect, canvasRect, 'right')
-    end = rectPoint(toRect, canvasRect, 'left')
-    const bend = Math.max(34, (end.x - start.x) * 0.42)
-    path = `M ${start.x} ${start.y} C ${start.x + bend} ${start.y}, ${end.x - bend} ${end.y}, ${end.x} ${end.y}`
-  } else if (Math.abs(dy) > 36) {
+  if (sameColumn && !sameRow) {
     const down = dy > 0
-    start = rectPoint(fromRect, canvasRect, down ? 'bottom' : 'top')
-    end = rectPoint(toRect, canvasRect, down ? 'top' : 'bottom')
-    const bend = Math.max(30, Math.abs(end.y - start.y) * 0.42)
-    const direction = down ? 1 : -1
-    path = `M ${start.x} ${start.y} C ${start.x} ${start.y + direction * bend}, ${end.x} ${end.y - direction * bend}, ${end.x} ${end.y}`
+    const start = rectPoint(fromRect, canvasRect, down ? 'bottom' : 'top')
+    const end = rectPoint(toRect, canvasRect, down ? 'top' : 'bottom')
+    points = [start, end]
+  } else if (dx >= 0) {
+    const start = rectPoint(fromRect, canvasRect, 'right')
+    const end = rectPoint(toRect, canvasRect, 'left')
+
+    if (sameRow) {
+      points = [start, end]
+    } else {
+      const available = Math.max(1, end.x - start.x)
+      const corridorX = Math.min(
+        end.x - 30,
+        start.x + Math.max(34, Math.min(72, available * 0.34)),
+      )
+      points = [
+        start,
+        {x:corridorX, y:start.y},
+        {x:corridorX, y:end.y},
+        end,
+      ]
+    }
   } else {
-    start = rectPoint(fromRect, canvasRect, 'left')
-    end = rectPoint(toRect, canvasRect, 'right')
-    const loopX = Math.max(start.x, end.x) + 54
-    path = `M ${start.x} ${start.y} C ${loopX} ${start.y}, ${loopX} ${end.y}, ${end.x} ${end.y}`
+    const start = rectPoint(fromRect, canvasRect, 'bottom')
+    const end = rectPoint(toRect, canvasRect, 'bottom')
+    const corridorY = Math.max(start.y, end.y) + 34
+    points = [
+      start,
+      {x:start.x, y:corridorY},
+      {x:end.x, y:corridorY},
+      end,
+    ]
   }
 
+  const labelPoint = longestSegmentMidpoint(points)
+
   return {
-    path,
-    labelX: (start.x + end.x) / 2,
-    labelY: (start.y + end.y) / 2,
+    path:pointsToPath(points),
+    labelX:labelPoint.x,
+    labelY:labelPoint.y - (labelPoint.horizontal ? 12 : 0),
   }
 }
 
 function edgeLabelWidth(label) {
   const length = String(label || '').length
-  return Math.min(190, Math.max(64, length * 6.4 + 20))
+  return Math.min(184, Math.max(62, length * 6.1 + 20))
 }
 
 export default function Flowchart({
@@ -169,11 +217,13 @@ export default function Flowchart({
   if (!validNodes.length) return null
 
   const laneOffset = isSwimlane ? 1 : 0
-  const minWidth = Math.max(680, (isSwimlane ? 174 : 0) + columnCount * 205)
+  const laneWidth = isSwimlane ? 196 : 0
+  const columnWidth = 238
+  const minWidth = Math.max(720, laneWidth + columnCount * columnWidth)
   const gridTemplateColumns = isSwimlane
-    ? `174px repeat(${columnCount}, minmax(188px, 1fr))`
-    : `repeat(${columnCount}, minmax(188px, 1fr))`
-  const gridTemplateRows = `repeat(${rowCount}, minmax(142px, auto))`
+    ? `196px repeat(${columnCount}, minmax(224px, 1fr))`
+    : `repeat(${columnCount}, minmax(224px, 1fr))`
+  const gridTemplateRows = `repeat(${rowCount}, minmax(188px, auto))`
 
   return (
     <section className={cx(styles.shell, theme === 'dark' ? styles.dark : styles.light)}>
