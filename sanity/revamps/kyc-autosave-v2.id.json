@@ -1,0 +1,339 @@
+[
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Konteks",
+    "title": "KYC perlu bisa dilanjutkan tanpa memaksa user mengulang dari awal",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Flow KYC sebelumnya berjalan dalam satu urutan. KTP diselesaikan lebih dulu, lalu Selfie, kemudian user melanjutkan ke data diri dan submission."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Saat Autosave mulai dikembangkan, menyimpan progress saja belum cukup. Struktur flow juga perlu berubah supaya task yang sudah selesai tetap berguna ketika user keluar, kembali, atau ingin memperbaiki satu bagian saja."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Saya merancang dua arah flow, menyiapkan usability test, menganalisis hasil behavioral dan survey, lalu menerjemahkan keputusan tersebut menjadi aturan produk yang bisa dibawa ke implementation."}]}
+    ],
+    "callout": "Autosave baru terasa berguna ketika progress yang tersimpan ikut mengubah cara flow bekerja.",
+    "width": "wide",
+    "theme": "light"
+  },
+  {
+    "_type": "evidenceGrid",
+    "eyebrow": "Peran saya",
+    "title": "Scope saya mencakup eksperimen sampai aturan implementation",
+    "description": "Saya menangani flow design, research setup, analisis, dan detail behavior yang perlu dijaga saat konsep masuk production.",
+    "columns": 4,
+    "metrics": [
+      {"_type":"evidenceMetric","value":"Flow design","label":"merancang Flow A dan Flow B","context":"menguji urutan tetap dibanding task-based flow"},
+      {"_type":"evidenceMetric","value":"Research","label":"menyiapkan usability test","context":"task di Maze dan post-test survey"},
+      {"_type":"evidenceMetric","value":"Analysis","label":"membaca behavioral dan survey data","context":"termasuk SUS, misclick, confidence, dan feedback terbuka"},
+      {"_type":"evidenceMetric","value":"Delivery","label":"menentukan behavior Autosave","context":"progress state, retake, resume, dan submission"}
+    ],
+    "theme": "light"
+  },
+  {
+    "_type": "processMap",
+    "eyebrow": "User journey",
+    "title": "Journey berubah ketika progress tidak lagi bergantung pada satu sesi",
+    "description": "Journey ini menunjukkan kebutuhan user dari mulai upgrade sampai submission, termasuk saat proses ditinggalkan lalu dilanjutkan lagi.",
+    "mode": "journey",
+    "stages": [
+      {"_type":"processStage","key":"entry","label":"Mulai upgrade","caption":"Memahami apa yang perlu disiapkan"},
+      {"_type":"processStage","key":"review","label":"Tinjauan","caption":"Melihat task dan progress"},
+      {"_type":"processStage","key":"first-task","label":"Task pertama","caption":"Menyelesaikan KTP atau Selfie"},
+      {"_type":"processStage","key":"return","label":"Kembali lagi","caption":"Melanjutkan progress tersimpan"},
+      {"_type":"processStage","key":"remaining","label":"Task tersisa","caption":"Menyelesaikan bagian yang belum selesai"},
+      {"_type":"processStage","key":"submit","label":"Submission","caption":"Mengirim KYC untuk verifikasi"}
+    ],
+    "lanes": [
+      {"_type":"processLane","label":"Tujuan user","description":"Apa yang ingin dicapai","cells":[
+        {"_type":"processCell","stageKey":"entry","text":"Tahu apa yang dibutuhkan sebelum mulai"},
+        {"_type":"processCell","stageKey":"review","text":"Tahu bagian mana yang sudah dan belum selesai"},
+        {"_type":"processCell","stageKey":"first-task","text":"Selesaikan satu task dengan yakin"},
+        {"_type":"processCell","stageKey":"return","text":"Lanjut tanpa kehilangan pekerjaan sebelumnya","emphasis":true},
+        {"_type":"processCell","stageKey":"remaining","text":"Fokus hanya pada task yang tersisa"},
+        {"_type":"processCell","stageKey":"submit","text":"Kirim sekali ketika semua data siap"}
+      ]},
+      {"_type":"processLane","label":"Yang dilakukan","description":"Aksi utama di interface","cells":[
+        {"_type":"processCell","stageKey":"entry","text":"Baca benefit dan requirement upgrade"},
+        {"_type":"processCell","stageKey":"review","text":"Pilih KTP atau Selfie dari halaman Tinjauan"},
+        {"_type":"processCell","stageKey":"first-task","text":"Ambil foto lalu konfirmasi hasil"},
+        {"_type":"processCell","stageKey":"return","text":"Buka KYC lagi dan melihat task sebelumnya tetap selesai"},
+        {"_type":"processCell","stageKey":"remaining","text":"Kerjakan task yang masih aktif"},
+        {"_type":"processCell","stageKey":"submit","text":"Cek data akhir lalu lanjutkan verifikasi"}
+      ]},
+      {"_type":"processLane","label":"Risiko pengalaman","description":"Hal yang bisa membuat user ragu atau mengulang","cells":[
+        {"_type":"processCell","stageKey":"entry","text":"Requirement baru terlihat setelah proses berjalan"},
+        {"_type":"processCell","stageKey":"review","text":"Urutan wajib membuat user tidak bisa menyesuaikan dengan kondisi saat itu"},
+        {"_type":"processCell","stageKey":"first-task","text":"Tidak jelas kapan progress dianggap tersimpan"},
+        {"_type":"processCell","stageKey":"return","text":"User khawatir harus memulai lagi","emphasis":true},
+        {"_type":"processCell","stageKey":"remaining","text":"Task yang sudah selesai ikut terulang"},
+        {"_type":"processCell","stageKey":"submit","text":"Status progress tidak konsisten dengan data yang dikirim"}
+      ]},
+      {"_type":"processLane","label":"Respons desain","description":"Bagaimana flow menjawab kebutuhan tersebut","cells":[
+        {"_type":"processCell","stageKey":"entry","text":"Tampilkan dua task sebelum user masuk ke KYC"},
+        {"_type":"processCell","stageKey":"review","text":"Gunakan Tinjauan sebagai hub progress"},
+        {"_type":"processCell","stageKey":"first-task","text":"Simpan hasil per task setelah dikonfirmasi"},
+        {"_type":"processCell","stageKey":"return","text":"Restore state setiap task saat user kembali","emphasis":true},
+        {"_type":"processCell","stageKey":"remaining","text":"Biarkan task selesai tetap tersimpan dan task lain tetap actionable"},
+        {"_type":"processCell","stageKey":"submit","text":"Satukan semua task di final review sebelum proses berikutnya"}
+      ]}
+    ],
+    "note": "Journey berfokus pada pengalaman KTP dan Selfie karena dua task inilah yang menjadi inti eksperimen Autosave.",
+    "theme": "light"
+  },
+  {
+    "_type": "comparison",
+    "eyebrow": "Eksplorasi flow",
+    "title": "Kami menguji urutan tetap dibanding task hub yang fleksibel",
+    "description": "Kedua konsep menyimpan progress. Perbedaannya ada pada seberapa besar flow ikut berubah setelah progress bisa disimpan.",
+    "left": {
+      "_type": "comparisonSide",
+      "label": "Flow A",
+      "title": "Urutan tetap dipertahankan",
+      "description": "User mengikuti sequence yang sudah ditentukan dan guide tetap menjadi langkah wajib sebelum pindah ke task berikutnya.",
+      "image": {"_type":"image","asset":{"_type":"reference","_ref":"image-cdf0a6d13ec7dfb31641372ef1ba6e2900475d91-2782x958-png"}},
+      "alt": "Flow A KYC dengan urutan tetap",
+      "note": "Autosave bekerja di dalam pola lama."
+    },
+    "right": {
+      "_type": "comparisonSide",
+      "label": "Flow B",
+      "title": "Tinjauan menjadi task hub",
+      "description": "User melihat status KTP dan Selfie dari satu halaman, memilih task yang ingin dikerjakan, lalu kembali ke hub setelah satu bagian selesai.",
+      "image": {"_type":"image","asset":{"_type":"reference","_ref":"image-38add15b7840025fa4e2366532ec557d86c02a5e-2450x838-png"}},
+      "alt": "Flow B KYC dengan halaman Tinjauan sebagai task hub",
+      "note": "Autosave ikut mengubah struktur interaksi.",
+      "linkLabel": "Coba Flow B",
+      "linkHref": "#interactive-kyc-autosave"
+    },
+    "theme": "light"
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Pertanyaan riset",
+    "title": "Fleksibilitas perlu diuji karena kontrol tambahan juga menambah keputusan",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Flow B memberi user kebebasan memilih task dan membuat progress lebih terlihat. Struktur ini juga menambah pilihan yang sebelumnya tidak ada."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Saya ingin memastikan perubahan tersebut tidak membuat KYC terasa lebih rumit. Karena itu kedua flow diuji sebagai experience yang bisa dijalankan sampai selesai, bukan hanya dibandingkan sebagai wireframe."}]}
+    ],
+    "width": "normal",
+    "theme": "light"
+  },
+  {
+    "_type": "evidenceGrid",
+    "eyebrow": "Metode",
+    "title": "Randomized usability test dengan 30 responden",
+    "description": "Test berjalan secara unmoderated di Maze dan dilanjutkan dengan survey setelah task selesai.",
+    "columns": 4,
+    "metrics": [
+      {"_type":"evidenceMetric","value":"30","label":"responden","context":"total sampel studi"},
+      {"_type":"evidenceMetric","value":"15 dan 15","label":"pembagian kelompok","context":"Flow A dan Flow B"},
+      {"_type":"evidenceMetric","value":"Unmoderated","label":"format test","context":"task-based usability study"},
+      {"_type":"evidenceMetric","value":"Maze dan survey","label":"sumber data","context":"behavioral dan self-reported"}
+    ],
+    "theme": "light"
+  },
+  {
+    "_type": "artifactExplorer",
+    "eyebrow": "Research evidence",
+    "title": "Buka setup dan hasil studi",
+    "description": "Artifact ini memisahkan setup penelitian dari hasil usability supaya pembaca bisa melihat evidence tanpa memutus alur utama case study.",
+    "theme": "dark",
+    "tabs": [
+      {
+        "_type": "artifactTab",
+        "kind": "image",
+        "label": "Study setup",
+        "title": "Randomized test untuk dua flow",
+        "description": "Responden menjalankan salah satu flow di Maze lalu mengisi post-test survey.",
+        "image": {"_type":"image","asset":{"_type":"reference","_ref":"image-0a7571ebab8eb65611eb2be0f37c529d156ce361-1672x941-png"}},
+        "alt": "Setup randomized usability test untuk Flow A dan Flow B",
+        "caption": "N 30 dengan pembagian 15 responden untuk setiap flow."
+      },
+      {
+        "_type": "artifactTab",
+        "kind": "image",
+        "label": "SUS",
+        "title": "SUS tidak menunjukkan perbedaan signifikan",
+        "description": "Hasil inferential tidak memberi dasar untuk menyebut salah satu flow lebih usable secara statistik.",
+        "image": {"_type":"image","asset":{"_type":"reference","_ref":"image-61b90adb7feca6c69eeb2e9650fe33231997f6e1-1672x941-png"}},
+        "alt": "Hasil SUS Flow A dan Flow B",
+        "caption": "Perbedaan antarflow tidak signifikan secara statistik."
+      },
+      {
+        "_type": "artifactTab",
+        "kind": "image",
+        "label": "Behavioral signals",
+        "title": "Behavioral dan perception data dibaca sebagai sinyal deskriptif",
+        "description": "Misclick, confidence, dan feedback membantu membaca arah desain setelah hasil inferential tidak menunjukkan pemenang.",
+        "image": {"_type":"image","asset":{"_type":"reference","_ref":"image-2eb0b07161eaa173276814bdea760247ecee03ae-1672x941-png"}},
+        "alt": "Behavioral dan perception result untuk Flow A dan Flow B",
+        "caption": "Sinyal deskriptif dipakai bersama feedback terbuka dan kebutuhan produk."
+      }
+    ]
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Membaca hasil",
+    "title": "Studi tidak menghasilkan pemenang statistik",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"SUS dan total misclick tidak menunjukkan perbedaan signifikan antara Flow A dan Flow B. Beberapa perception metrics juga mengikuti pola yang sama."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Saya kemudian membaca data deskriptif dan feedback terbuka tanpa menaikkan statusnya menjadi bukti inferential. Flow B menunjukkan tren misclick yang lebih rendah, confidence yang lebih stabil, dan feedback yang lebih mendukung progress hub."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Dari sisi produk, Flow B juga lebih konsisten dengan Autosave karena task memang disimpan secara independen. Tidak ada usability penalty yang berarti untuk mempertahankan struktur fleksibel tersebut."}]}
+    ],
+    "callout": "Flow B dipilih karena evidence cukup aman untuk dibawa ke production dan struktur produknya lebih cocok dengan Autosave.",
+    "width": "wide",
+    "theme": "light"
+  },
+  {
+    "_type": "comparison",
+    "eyebrow": "Batas klaim",
+    "title": "Keputusan produk tetap dipisahkan dari klaim statistik",
+    "description": "Hasil test membantu memilih arah, tetapi tidak mendukung pernyataan bahwa Flow B terbukti lebih baik secara statistik.",
+    "left": {
+      "_type": "comparisonSide",
+      "label": "Tidak didukung data",
+      "title": "Flow B adalah pemenang A B test",
+      "description": "Tidak ada perbedaan signifikan pada SUS maupun total misclick. Hasil tersebut tidak cukup untuk menyebut Flow B sebagai winner.",
+      "note": "Inferential result tetap non-significant."
+    },
+    "right": {
+      "_type": "comparisonSide",
+      "label": "Didukung untuk keputusan",
+      "title": "Flow B layak menjadi baseline production",
+      "description": "Usability tidak memburuk secara berarti. Behavioral trend, feedback, dan kebutuhan Autosave memberi dasar yang cukup untuk melanjutkan flow ini.",
+      "note": "Decision confidence datang dari keseluruhan evidence."
+    },
+    "theme": "light"
+  },
+  {
+    "_type": "interactivePrototype",
+    "anchorId": "interactive-kyc-autosave",
+    "preset": "kyc-autosave-flow-b-id",
+    "eyebrow": "Interactive prototype",
+    "title": "Coba Flow B dari KTP atau Selfie lebih dulu",
+    "description": "Prototype ini menunjukkan behavior yang kemudian menjadi dasar Autosave. Pilih task pertama, kembali ke Tinjauan dengan progress tersimpan, lalu lanjutkan task yang tersisa.",
+    "theme": "dark",
+    "device": "phone",
+    "analyticsPrefix": "kyc_autosave_revamp"
+  },
+  {
+    "_type": "processMap",
+    "eyebrow": "Service blueprint",
+    "title": "Autosave perlu konsisten dari interface sampai state yang disimpan",
+    "description": "Blueprint ini memperlihatkan bagaimana user action, UI state, persistence, dan proses verifikasi saling terhubung setelah Flow B dipilih.",
+    "mode": "serviceBlueprint",
+    "stages": [
+      {"_type":"processStage","key":"entry","label":"Entry","caption":"Masuk ke upgrade KYC"},
+      {"_type":"processStage","key":"review","label":"Tinjauan","caption":"Membaca task state"},
+      {"_type":"processStage","key":"capture","label":"Capture","caption":"Menyelesaikan satu task"},
+      {"_type":"processStage","key":"resume","label":"Resume","caption":"Restore progress"},
+      {"_type":"processStage","key":"complete","label":"Complete","caption":"Semua required task selesai"},
+      {"_type":"processStage","key":"submit","label":"Submit","caption":"Masuk ke verification"}
+    ],
+    "lanes": [
+      {"_type":"processLane","label":"User","description":"Aksi yang terlihat dari sisi user","cells":[
+        {"_type":"processCell","stageKey":"entry","text":"Mulai upgrade setelah memahami task yang dibutuhkan"},
+        {"_type":"processCell","stageKey":"review","text":"Pilih KTP atau Selfie"},
+        {"_type":"processCell","stageKey":"capture","text":"Ambil foto dan konfirmasi hasil"},
+        {"_type":"processCell","stageKey":"resume","text":"Kembali ke KYC dan lanjut dari task tersisa"},
+        {"_type":"processCell","stageKey":"complete","text":"Review dua task yang sudah selesai"},
+        {"_type":"processCell","stageKey":"submit","text":"Lanjut ke data diri dan final submission"}
+      ]},
+      {"_type":"processLane","label":"Frontstage UI","description":"State yang perlu terlihat di interface","cells":[
+        {"_type":"processCell","stageKey":"entry","text":"Requirement dan benefit upgrade"},
+        {"_type":"processCell","stageKey":"review","text":"Dua task dengan status masing-masing","emphasis":true},
+        {"_type":"processCell","stageKey":"capture","text":"Capture, preview, dan retake"},
+        {"_type":"processCell","stageKey":"resume","text":"Task selesai tetap ditandai selesai","emphasis":true},
+        {"_type":"processCell","stageKey":"complete","text":"CTA aktif setelah requirement lengkap"},
+        {"_type":"processCell","stageKey":"submit","text":"Processing state setelah data dikirim"}
+      ]},
+      {"_type":"processLane","label":"Client state","description":"Behavior Autosave di aplikasi","cells":[
+        {"_type":"processCell","stageKey":"entry","text":"Baca state KYC yang sudah ada jika tersedia"},
+        {"_type":"processCell","stageKey":"review","text":"Render state setiap task secara independen"},
+        {"_type":"processCell","stageKey":"capture","text":"Simpan task setelah hasil dikonfirmasi","emphasis":true},
+        {"_type":"processCell","stageKey":"resume","text":"Restore task yang sudah tersimpan"},
+        {"_type":"processCell","stageKey":"complete","text":"Validasi semua required task sebelum lanjut"},
+        {"_type":"processCell","stageKey":"submit","text":"Hapus state lokal setelah submission berhasil"}
+      ]},
+      {"_type":"processLane","label":"Backstage","description":"Proses yang tidak perlu dipikirkan user","cells":[
+        {"_type":"processCell","stageKey":"entry","text":"Siapkan KYC case dan eligibility"},
+        {"_type":"processCell","stageKey":"review","text":"Pastikan task state terhubung ke case yang sama"},
+        {"_type":"processCell","stageKey":"capture","text":"Terima payload task untuk dipakai di proses berikutnya"},
+        {"_type":"processCell","stageKey":"resume","text":"Pertahankan case yang sama ketika user kembali"},
+        {"_type":"processCell","stageKey":"complete","text":"Gabungkan required data sebelum submission"},
+        {"_type":"processCell","stageKey":"submit","text":"Kirim data ke proses verification dan review"}
+      ]},
+      {"_type":"processLane","label":"Design rules","description":"Aturan yang menjaga behavior tetap konsisten","cells":[
+        {"_type":"processCell","stageKey":"entry","text":"Jelaskan task sebelum meminta user mulai"},
+        {"_type":"processCell","stageKey":"review","text":"Tinjauan menjadi source of truth untuk progress","emphasis":true},
+        {"_type":"processCell","stageKey":"capture","text":"Retake hanya mengubah task yang dipilih"},
+        {"_type":"processCell","stageKey":"resume","text":"Task tersimpan tidak boleh berubah menjadi incomplete tanpa aksi user"},
+        {"_type":"processCell","stageKey":"complete","text":"Semua required task harus konsisten sebelum CTA aktif"},
+        {"_type":"processCell","stageKey":"submit","text":"Progress lama tidak boleh muncul setelah submission selesai"}
+      ]}
+    ],
+    "note": "Blueprint menunjukkan behavior utama yang perlu sinkron agar Autosave terasa sebagai satu sistem, bukan sekadar penyimpanan lokal.",
+    "theme": "dark"
+  },
+  {
+    "_type": "evidenceGrid",
+    "eyebrow": "Design specification",
+    "title": "Empat aturan yang saya bawa ke implementation",
+    "description": "Aturan ini menjaga Flow B tetap predictable ketika user mengambil ulang foto, keluar dari KYC, atau kembali di sesi berikutnya.",
+    "columns": 4,
+    "metrics": [
+      {"_type":"evidenceMetric","value":"Per task","label":"progress disimpan terpisah","context":"KTP dan Selfie punya state masing-masing"},
+      {"_type":"evidenceMetric","value":"Tinjauan","label":"menjadi source of truth","context":"status lengkap dan belum lengkap terlihat dari satu hub"},
+      {"_type":"evidenceMetric","value":"Retake","label":"hanya mengubah task terkait","context":"task lain tidak perlu diulang"},
+      {"_type":"evidenceMetric","value":"Submit","label":"membersihkan progress lama","context":"state tersimpan tidak muncul kembali setelah proses selesai"}
+    ],
+    "theme": "light"
+  },
+  {
+    "_type": "evidenceGrid",
+    "eyebrow": "Outcome",
+    "title": "Hasil studi dan outcome production dibaca secara terpisah",
+    "description": "Studi langsung mendukung keputusan Flow B. Perubahan conversion setelahnya terjadi saat beberapa improvement KYC berjalan bersamaan.",
+    "columns": 4,
+    "metrics": [
+      {"_type":"evidenceMetric","value":"Flow B","label":"baseline production","context":"dipilih setelah usability study"},
+      {"_type":"evidenceMetric","value":"n.s.","label":"SUS dan total misclick","context":"tidak ada perbedaan signifikan"},
+      {"_type":"evidenceMetric","value":"11%","label":"peak uplift KYC","context":"terjadi pada periode improvement KYC yang lebih luas","note":"Tidak diatribusikan ke Autosave saja."},
+      {"_type":"evidenceMetric","value":"5%","label":"uplift yang lebih stabil","context":"dibanding periode sebelumnya","note":"Homepage copy dan perubahan KYC lain juga sudah berjalan."}
+    ],
+    "theme": "light"
+  },
+  {
+    "_type": "dataVisualization",
+    "eyebrow": "Broader KYC outcome",
+    "title": "Conversion bergerak naik setelah rangkaian improvement KYC masuk production",
+    "description": "Chart ini memberi konteks setelah Flow B diimplementasikan. Angka tersebut berasal dari periode yang juga mencakup perubahan KYC lain.",
+    "takeaway": "Flow B ikut membentuk fondasi experience yang dipakai pada periode tersebut, tetapi uplift conversion tidak bisa dipisahkan sebagai dampak Autosave saja.",
+    "chartType": "bar",
+    "dataSource": "manual",
+    "series": [
+      {"_type":"dataSeries","key":"uplift","label":"Uplift dibanding periode sebelumnya","suffix":"%"}
+    ],
+    "rows": [
+      {"_type":"dataRow","label":"Periode sebelumnya","values":[{"_type":"dataValue","seriesKey":"uplift","value":0}]},
+      {"_type":"dataRow","label":"Baseline periode improvement","values":[{"_type":"dataValue","seriesKey":"uplift","value":5}]},
+      {"_type":"dataRow","label":"Peak periode improvement","values":[{"_type":"dataValue","seriesKey":"uplift","value":11}]}
+    ],
+    "yLabel": "Uplift conversion",
+    "baseline": 0,
+    "baselineLabel": "Periode sebelumnya",
+    "evidenceStatus": "derived",
+    "source": "Internal KYC conversion tracking",
+    "period": "Periode improvement KYC setelah implementation",
+    "methodNote": "Nilai 5% dan 11% menggambarkan baseline dan peak uplift pada rangkaian improvement KYC yang lebih luas. Homepage copy dan perubahan lain sudah berjalan pada periode yang sama, sehingga chart ini tidak digunakan sebagai causal estimate untuk Autosave.",
+    "theme": "light"
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Refleksi",
+    "title": "Hasil non-significant tetap bisa menghasilkan keputusan produk yang kuat",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Studi ini tidak memberi winner statistik. Justru itu yang membuat batas keputusan menjadi lebih jelas. Flow B bisa diteruskan karena usability tidak memburuk secara berarti dan behavior-nya sesuai dengan cara Autosave perlu bekerja."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Untuk iterasi berikutnya, saya akan mengukur resume rate, frekuensi retake per task, dan completion setelah user kembali. Data tersebut bisa memisahkan manfaat persistence dari perubahan KYC lain yang berjalan pada periode yang sama."}]}
+    ],
+    "width": "normal",
+    "theme": "light"
+  }
+]
