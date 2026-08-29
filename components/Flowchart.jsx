@@ -1,6 +1,6 @@
 'use client'
 
-import {useEffect, useMemo, useRef, useState} from 'react'
+import {useEffect, useId, useMemo, useRef, useState} from 'react'
 import styles from './Flowchart.module.css'
 
 function cx(...values) {
@@ -91,6 +91,7 @@ export default function Flowchart({
   const canvasRef = useRef(null)
   const nodeRefs = useRef(new Map())
   const [geometry, setGeometry] = useState([])
+  const markerId = `flow-arrow-${useId().replace(/:/g, '')}`
 
   const validLanes = useMemo(
     () => lanes.filter((lane) => lane?.key && lane?.label),
@@ -173,7 +174,6 @@ export default function Flowchart({
     ? `174px repeat(${columnCount}, minmax(188px, 1fr))`
     : `repeat(${columnCount}, minmax(188px, 1fr))`
   const gridTemplateRows = `repeat(${rowCount}, minmax(142px, auto))`
-  const markerId = `flow-arrow-${theme === 'dark' ? 'dark' : 'light'}`
 
   return (
     <section className={cx(styles.shell, theme === 'dark' ? styles.dark : styles.light)}>
@@ -263,7 +263,6 @@ export default function Flowchart({
               >
                 <div className={styles.nodeTopline}>
                   <span>{node.badge || node.kind || 'process'}</span>
-                  <span>{node.key}</span>
                 </div>
                 <strong>{node.label}</strong>
                 {node.description ? <p>{node.description}</p> : null}
