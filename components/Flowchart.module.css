@@ -1,4 +1,6 @@
 .shell {
+  container-type: inline-size;
+  min-width: 0;
   margin: 44px 0;
   border: 1px solid rgba(17, 17, 17, 0.12);
   border-radius: 24px;
@@ -30,9 +32,7 @@
   color: #626262;
 }
 
-.dark .eyebrow {
-  color: #9a9a9a;
-}
+.dark .eyebrow { color: #9a9a9a; }
 
 .title {
   margin: 0;
@@ -40,11 +40,10 @@
   line-height: 1.08;
   letter-spacing: -0.035em;
   color: #111;
+  overflow-wrap: anywhere;
 }
 
-.dark .title {
-  color: #f7f7f7;
-}
+.dark .title { color: #f7f7f7; }
 
 .description {
   max-width: 760px;
@@ -52,23 +51,24 @@
   font-size: 15px;
   line-height: 1.65;
   color: #656565;
+  overflow-wrap: anywhere;
 }
 
-.dark .description {
-  color: #b6b6b6;
-}
+.dark .description { color: #b6b6b6; }
 
 .scroller {
+  position: relative;
   width: 100%;
   overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  -webkit-overflow-scrolling: touch;
   border-top: 1px solid rgba(17, 17, 17, 0.1);
-  overscroll-behavior-x: contain;
   scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  touch-action: pan-x pan-y;
 }
 
-.dark .scroller {
-  border-top-color: rgba(255, 255, 255, 0.14);
-}
+.dark .scroller { border-top-color: rgba(255, 255, 255, 0.14); }
 
 .canvas {
   position: relative;
@@ -78,19 +78,17 @@
   padding: 26px 28px 30px;
 }
 
-.swimlaneCanvas {
-  padding-left: 0;
-}
-
-.verticalCanvas {
-  padding: 30px 34px 34px;
-}
-
+.swimlaneCanvas { padding-left: 0; }
+.verticalCanvas { padding: 30px 34px 34px; }
 .verticalSwimlaneCanvas {
   padding-top: 0;
   padding-left: 0;
   padding-right: 0;
 }
+
+.compactCanvas { padding-top: 20px; padding-bottom: 24px; }
+.compactCanvas.verticalCanvas { padding: 20px 20px 24px; }
+.compactCanvas.verticalSwimlaneCanvas { padding-top: 0; padding-left: 0; padding-right: 0; }
 
 .laneBand {
   position: relative;
@@ -104,13 +102,8 @@
   background: rgba(255, 255, 255, 0.018);
 }
 
-.laneBand:nth-of-type(even) {
-  background: rgba(17, 17, 17, 0.026);
-}
-
-.dark .laneBand:nth-of-type(even) {
-  background: rgba(255, 255, 255, 0.032);
-}
+.laneBand:nth-of-type(even) { background: rgba(17, 17, 17, 0.026); }
+.dark .laneBand:nth-of-type(even) { background: rgba(255, 255, 255, 0.032); }
 
 .verticalLaneBand {
   border-right: 1px solid rgba(17, 17, 17, 0.09);
@@ -153,34 +146,27 @@
   border-bottom: 1px solid rgba(17, 17, 17, 0.1);
 }
 
-.dark .verticalLaneLabel {
-  border-color: rgba(255, 255, 255, 0.11);
-}
+.dark .verticalLaneLabel { border-color: rgba(255, 255, 255, 0.11); }
 
 .laneLabel strong {
   font-size: 14px;
   line-height: 1.25;
   color: #222;
+  overflow-wrap: anywhere;
 }
 
-.dark .laneLabel strong {
-  color: #f2f2f2;
-}
+.dark .laneLabel strong { color: #f2f2f2; }
 
 .laneLabel span {
   max-width: 150px;
   font-size: 11px;
   line-height: 1.5;
   color: #707070;
+  overflow-wrap: anywhere;
 }
 
-.verticalLaneLabel span {
-  max-width: 190px;
-}
-
-.dark .laneLabel span {
-  color: #b8b8b8;
-}
+.verticalLaneLabel span { max-width: 190px; }
+.dark .laneLabel span { color: #b8b8b8; }
 
 .nodeSlot {
   position: relative;
@@ -193,9 +179,9 @@
   padding: 30px 22px;
 }
 
-.verticalCanvas .nodeSlot {
-  padding: 30px 28px;
-}
+.verticalCanvas .nodeSlot { padding: 30px 28px; }
+.compactCanvas .nodeSlot { min-height: 164px; padding: 24px 18px; }
+.compactCanvas.verticalCanvas .nodeSlot { padding: 22px 16px; }
 
 .node {
   position: relative;
@@ -210,9 +196,9 @@
   box-shadow: 0 1px 0 rgba(17, 17, 17, 0.02);
 }
 
-.verticalCanvas .node {
-  width: min(100%, 210px);
-}
+.verticalCanvas .node { width: min(100%, 210px); }
+.compactCanvas .node,
+.compactCanvas.verticalCanvas .node { width: min(100%, 174px); }
 
 .dark .node {
   border-color: rgba(255, 255, 255, 0.22);
@@ -234,31 +220,27 @@
   color: #777;
 }
 
-.dark .nodeTopline {
-  color: #a1a1a1;
-}
+.dark .nodeTopline { color: #a1a1a1; }
 
 .node strong {
   display: block;
   font-size: 14px;
   line-height: 1.32;
   color: #161616;
+  overflow-wrap: anywhere;
 }
 
-.dark .node strong {
-  color: #f3f3f3;
-}
+.dark .node strong { color: #f3f3f3; }
 
 .node p {
   margin: 8px 0 0;
   font-size: 11px;
   line-height: 1.52;
   color: #666;
+  overflow-wrap: anywhere;
 }
 
-.dark .node p {
-  color: #b9b9b9;
-}
+.dark .node p { color: #b9b9b9; }
 
 .nodeStart,
 .nodeEnd {
@@ -279,9 +261,7 @@
   background: rgba(17, 17, 17, 0.035);
 }
 
-.dark .nodeSystem {
-  background: #202020;
-}
+.dark .nodeSystem { background: #202020; }
 
 .nodeEmphasis {
   border-width: 2px;
@@ -304,9 +284,7 @@
   color: #8a8a8a;
 }
 
-.dark .edges {
-  color: #858585;
-}
+.dark .edges { color: #858585; }
 
 .edgePath {
   fill: none;
@@ -317,9 +295,7 @@
   opacity: 0.72;
 }
 
-.edgeDashed {
-  stroke-dasharray: 6 7;
-}
+.edgeDashed { stroke-dasharray: 6 7; }
 
 .edgeEmphasis {
   stroke-width: 2.15;
@@ -327,13 +303,8 @@
   color: #222;
 }
 
-.dark .edgeEmphasis {
-  color: #e8e8e8;
-}
-
-.arrowHead {
-  fill: currentColor;
-}
+.dark .edgeEmphasis { color: #e8e8e8; }
+.arrowHead { fill: currentColor; }
 
 .edgeLabelBg {
   fill: rgba(255, 255, 255, 0.98);
@@ -352,9 +323,7 @@
   letter-spacing: 0.012em;
 }
 
-.dark .edgeLabel {
-  fill: #d0d0d0;
-}
+.dark .edgeLabel { fill: #d0d0d0; }
 
 .note {
   margin: 0;
@@ -363,6 +332,7 @@
   font-size: 12px;
   line-height: 1.55;
   color: #666;
+  overflow-wrap: anywhere;
 }
 
 .dark .note {
@@ -382,56 +352,44 @@
   border: 0;
 }
 
-@media (max-width: 720px) {
+/* Tablet */
+@media (max-width: 1023px) {
+  .header { padding: 26px 24px 24px; }
+  .note { padding: 16px 24px 20px; }
+  .laneLabel { min-height: 164px; padding: 18px; }
+  .verticalLaneLabel { min-height: 96px; padding: 16px 18px; }
+}
+
+/* Phone */
+@media (max-width: 640px) {
   .shell {
-    margin: 32px 0;
+    margin: 32px -12px;
     border-radius: 18px;
   }
 
-  .header {
-    padding: 22px 20px 20px;
-  }
-
-  .canvas {
-    padding-top: 18px;
-    padding-bottom: 22px;
-  }
-
-  .verticalCanvas {
-    padding: 20px 18px 24px;
-  }
-
-  .verticalSwimlaneCanvas {
-    padding-top: 0;
-    padding-left: 0;
-    padding-right: 0;
-  }
-
-  .laneLabel {
-    min-height: 172px;
-    padding: 18px;
-  }
-
-  .verticalLaneLabel {
-    min-height: 104px;
-    padding: 16px 18px;
-  }
-
-  .nodeSlot {
-    min-height: 172px;
-    padding: 24px 18px;
-  }
-
-  .verticalCanvas .nodeSlot {
-    padding: 24px 16px;
-  }
-
+  .header { padding: 22px 16px 20px; }
+  .title { font-size: clamp(24px, 8vw, 34px); }
+  .description { font-size: 13px; line-height: 1.58; }
+  .canvas { padding-top: 16px; padding-bottom: 20px; }
+  .verticalCanvas { padding: 18px 12px 22px; }
+  .verticalSwimlaneCanvas { padding-top: 0; padding-left: 0; padding-right: 0; }
+  .laneLabel { min-height: 154px; padding: 16px 14px; }
+  .verticalLaneLabel { min-height: 88px; padding: 14px; }
+  .laneLabel strong { font-size: 13px; }
+  .laneLabel span { font-size: 10px; }
+  .nodeSlot,
+  .compactCanvas .nodeSlot { min-height: 154px; padding: 20px 12px; }
+  .verticalCanvas .nodeSlot,
+  .compactCanvas.verticalCanvas .nodeSlot { padding: 20px 10px; }
   .node,
-  .verticalCanvas .node {
-    width: 178px;
-  }
+  .verticalCanvas .node,
+  .compactCanvas .node,
+  .compactCanvas.verticalCanvas .node { width: min(100%, 166px); padding: 15px 15px 16px; }
+  .node strong { font-size: 13px; }
+  .node p { font-size: 10.5px; }
+  .note { padding: 15px 16px 18px; font-size: 11px; }
+}
 
-  .note {
-    padding: 16px 20px 20px;
-  }
+@media (prefers-reduced-motion: reduce) {
+  .scroller { scroll-behavior: auto; }
 }
