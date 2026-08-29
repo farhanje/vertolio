@@ -3,7 +3,7 @@ const contentSecurityPolicy = [
   "default-src 'self'",
   "base-uri 'self'",
   "object-src 'none'",
-  "frame-ancestors 'none'",
+  "frame-ancestors 'self'",
   "form-action 'self'",
   "img-src 'self' data: blob: https://cdn.sanity.io https://*.googleusercontent.com https://*.gstatic.com https://translate.google.com https://translate.googleapis.com https://www.google.com",
   "media-src 'self' blob: https://cdn.sanity.io",
@@ -20,7 +20,7 @@ const contentSecurityPolicy = [
 const securityHeaders = [
   {key: 'X-Content-Type-Options', value: 'nosniff'},
   {key: 'Referrer-Policy', value: 'no-referrer'},
-  {key: 'X-Frame-Options', value: 'DENY'},
+  {key: 'X-Frame-Options', value: 'SAMEORIGIN'},
   {key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload'},
   {key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), payment=(), usb=()'},
   {key: 'Content-Security-Policy', value: contentSecurityPolicy},
