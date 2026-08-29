@@ -147,7 +147,7 @@ export default function InteractivePrototype({
           <span>{current.counter || String(current.__index + 1).padStart(2, '0')}</span>
         </div>
 
-        <div className={styles.stage}>
+        <div className={cx(styles.stage, device === 'browser' ? styles.browserStage : styles.phoneStage)}>
           <div className={cx(styles.deviceFrame, device === 'browser' ? styles.browserDevice : styles.phoneDevice)}>
             {device === 'phone' ? <span className={styles.phoneSpeaker} aria-hidden="true" /> : null}
             {device === 'browser' ? (
