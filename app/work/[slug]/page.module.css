@@ -1,0 +1,110 @@
+.page {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.heroGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+  gap: var(--g);
+  align-items: start;
+}
+
+.heroPrimary,
+.heroMeta,
+.bodyColumn,
+.tocColumn {
+  min-width: 0;
+}
+
+.heroMeta {
+  padding-top: 10px;
+}
+
+.contentGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: var(--g);
+  align-items: start;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.bodyColumn {
+  width: 100%;
+  max-width: 100%;
+  margin-top: -16px;
+}
+
+.bodyColumn :global(.prose) {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.bodyColumn :global(.prose > *),
+.bodyColumn :global(.notranslate),
+.bodyColumn :global(figure),
+.bodyColumn :global(.figure),
+.bodyColumn :global(.figure-media),
+.bodyColumn :global(.carousel) {
+  min-width: 0;
+}
+
+.bodyColumn :global(img),
+.bodyColumn :global(video),
+.bodyColumn :global(iframe),
+.bodyColumn :global(svg) {
+  max-width: 100%;
+}
+
+/* Tablet gets its own composition rather than inheriting the desktop 8/4 split. */
+@media (max-width: 1023px) {
+  .heroGrid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 22px;
+  }
+
+  .heroMeta {
+    padding-top: 0;
+  }
+
+  .contentGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .tocColumn {
+    display: none;
+  }
+}
+
+/* Phone is a separate layout tier. Nothing here may establish a tablet-sized canvas. */
+@media (max-width: 640px) {
+  .page {
+    width: calc(100% - (var(--pad) * 2));
+  }
+
+  .heroGrid {
+    gap: 18px;
+  }
+
+  .heroPrimary,
+  .heroMeta,
+  .bodyColumn {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .bodyColumn {
+    margin-top: -10px;
+  }
+
+  .bodyColumn :global(.prose) {
+    overflow-wrap: anywhere;
+  }
+
+  .bodyColumn :global(.prose p),
+  .bodyColumn :global(.prose li) {
+    max-width: 100%;
+  }
+}
