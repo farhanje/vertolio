@@ -1,6 +1,6 @@
 'use client'
 
-import {useMemo, useState} from 'react'
+import {useMemo, useRef, useState} from 'react'
 import {urlFor} from '../lib/sanity.image'
 import Lightbox from './Lightbox'
 import styles from './Carousel.module.css'
@@ -17,6 +17,8 @@ export default function Carousel({slides = [], title, ratio = '16:9'}) {
   const items = useMemo(() => (slides || []).filter(Boolean), [slides])
   const [i, setI] = useState(0)
   const [open, setOpen] = useState(false)
+  const touchStart = useRef(null)
+  const touchMoved = useRef(false)
 
   if (!items.length) return null
 
@@ -27,12 +29,49 @@ export default function Carousel({slides = [], title, ratio = '16:9'}) {
   const src = builder ? builder.width(2200).quality(85).auto('format').url() : null
   const aspect = ratioToAspect(ratio)
 
+  const onTouchStart = (event) => {
+    const touch = event.touches?.[0]
+    touchStart.current = touch ? {x: touch.clientX, y: touch.clientY} : null
+    touchMoved.current = false
+  }
+
+  const onTouchMove = (event) => {
+    if (!touchStart.current) return
+    const touch = event.touches?.[0]
+    if (!touch) return
+    const dx = touch.clientX - touchStart.current.x
+    const dy = touch.clientY - touchStart.current.y
+    if (Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(dy)) touchMoved.current = true
+  }
+
+  const onTouchEnd = (event) => {
+    if (!touchStart.current) return
+    const touch = event.changedTouches?.[0]
+    if (!touch) return
+    const dx = touch.clientX - touchStart.current.x
+    const dy = touch.clientY - touchStart.current.y
+    touchStart.current = null
+
+    if (Math.abs(dx) >= 44 && Math.abs(dx) > Math.abs(dy) * 1.2) {
+      if (dx < 0) next()
+      else prev()
+      return
+    }
+
+    if (!touchMoved.current) setOpen(true)
+  }
+
   return (
     <figure className="figure">
       {title ? <div className="figure-title">{title}</div> : null}
 
-      <div className={styles.carousel}>
-        <button className={`${styles.nav} ${styles.left}`} onClick={prev} aria-label="Previous">‹</button>
+      <div
+        className={styles.carousel}
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+      >
+        {items.length > 1 ? <button className={`${styles.nav} ${styles.left}`} onClick={prev} aria-label="Previous">‹</button> : null}
         <button
           type="button"
           className={styles.frame}
@@ -42,7 +81,7 @@ export default function Carousel({slides = [], title, ratio = '16:9'}) {
         >
           {src ? <img className={styles.image} src={src} alt={current?.alt || ''} /> : null}
         </button>
-        <button className={`${styles.nav} ${styles.right}`} onClick={next} aria-label="Next">›</button>
+        {items.length > 1 ? <button className={`${styles.nav} ${styles.right}`} onClick={next} aria-label="Next">›</button> : null}
       </div>
 
       <div className={styles.meta}>
