@@ -47,23 +47,42 @@
 
 .header p { margin: 12px 0 0 !important; }
 
-.tabs {
-  display: flex;
-  overflow-x: auto;
+.explorerBody {
   border-top: 1px solid var(--ae-line);
-  border-bottom: 1px solid var(--ae-line);
+}
+
+.horizontalBody {
+  display: block;
+}
+
+.verticalBody {
+  display: grid;
+  grid-template-columns: minmax(190px, 248px) minmax(0, 1fr);
+  min-height: 420px;
+}
+
+.tabs {
   scrollbar-width: thin;
 }
 
+.horizontalTabs {
+  display: flex;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--ae-line);
+}
+
+.verticalTabs {
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
+  border-right: 1px solid var(--ae-line);
+}
+
 .tabs button {
-  flex: 0 0 auto;
-  min-width: 160px;
   display: flex;
   gap: 10px;
   align-items: center;
-  padding: 14px 18px;
   border: 0;
-  border-right: 1px solid var(--ae-line);
   background: transparent;
   color: var(--ae-muted);
   font: inherit;
@@ -72,10 +91,43 @@
   cursor: pointer;
 }
 
+.horizontalTabs button {
+  flex: 0 0 auto;
+  min-width: 160px;
+  padding: 14px 18px;
+  border-right: 1px solid var(--ae-line);
+}
+
+.verticalTabs button {
+  position: relative;
+  width: 100%;
+  min-height: 64px;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--ae-line);
+}
+
+.verticalTabs button::after {
+  content: '';
+  position: absolute;
+  top: 12px;
+  bottom: 12px;
+  right: -1px;
+  width: 2px;
+  background: transparent;
+}
+
 .tabs button span {
+  flex: 0 0 auto;
   font-size: 9px;
   letter-spacing: .08em;
   opacity: .7;
+}
+
+.tabs button strong {
+  color: inherit;
+  font-size: inherit;
+  font-weight: 650;
+  line-height: 1.35;
 }
 
 .tabs button:hover,
@@ -84,8 +136,22 @@
   background: rgba(127,127,127,.06) !important;
 }
 
+.verticalTabs .tabActive::after {
+  background: var(--ae-fg);
+}
+
+.tabs button:focus-visible {
+  outline: 2px solid var(--ae-fg);
+  outline-offset: -3px;
+}
+
 .panel {
+  min-width: 0;
   padding: clamp(18px,3vw,30px);
+}
+
+.verticalBody .panel {
+  padding: clamp(22px,3.2vw,36px);
 }
 
 .panelIntro {
@@ -124,9 +190,44 @@
 
 .panel :global(.prose) { max-width: none; }
 
+@media (max-width:760px) {
+  .verticalBody {
+    display: block;
+    min-height: 0;
+  }
+
+  .verticalTabs {
+    flex-direction: row;
+    overflow-x: auto;
+    border-right: 0;
+    border-bottom: 1px solid var(--ae-line);
+  }
+
+  .verticalTabs button {
+    flex: 0 0 auto;
+    width: auto;
+    min-width: 150px;
+    min-height: 0;
+    padding: 14px 16px;
+    border-right: 1px solid var(--ae-line);
+    border-bottom: 0;
+  }
+
+  .verticalTabs button::after {
+    top: auto;
+    right: 12px;
+    bottom: -1px;
+    left: 12px;
+    width: auto;
+    height: 2px;
+  }
+}
+
 @media (max-width:520px) {
   .shell { margin-left:-12px; margin-right:-12px; }
   .header { padding:18px 14px; }
-  .panel { padding:14px; }
-  .tabs button { min-width: 140px; padding:12px 14px; }
+  .panel,
+  .verticalBody .panel { padding:14px; }
+  .horizontalTabs button { min-width: 140px; padding:12px 14px; }
+  .verticalTabs button { min-width: 140px; padding:12px 14px; }
 }
