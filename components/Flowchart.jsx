@@ -3,6 +3,8 @@
 import {useEffect, useId, useMemo, useRef, useState} from 'react'
 import styles from './Flowchart.module.css'
 
+const COMPACT_FLOW_WIDTH = 820
+
 function cx(...values) {
   return values.filter(Boolean).join(' ')
 }
@@ -137,11 +139,12 @@ export default function Flowchart({
   note,
   theme = 'light',
 }) {
+  const shellRef = useRef(null)
   const canvasRef = useRef(null)
   const nodeRefs = useRef(new Map())
   const [geometry, setGeometry] = useState([])
+  const [compact, setCompact] = useState(false)
   const markerId = `flow-arrow-${useId().replace(/:/g, '')}`
-  const isVertical = direction === 'vertical'
 
   const validLanes = useMemo(
     () => lanes.filter((lane) => lane?.key && lane?.label),
@@ -154,6 +157,18 @@ export default function Flowchart({
   )
 
   const isSwimlane = mode === 'swimlane' && validLanes.length > 0
+  const authoredVertical = direction === 'vertical'
+  const isVertical = authoredVertical || (!isSwimlane && compact)
+
+  useEffect(() => {
+    const shell = shellRef.current
+    if (!shell || typeof ResizeObserver === 'undefined') return undefined
+    const measure = () => setCompact(shell.getBoundingClientRect().width < COMPACT_FLOW_WIDTH)
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(shell)
+    return () => observer.disconnect()
+  }, [])
 
   const validNodes = useMemo(() => {
     return nodes
@@ -214,27 +229,29 @@ export default function Flowchart({
       observer?.disconnect()
       window.removeEventListener('resize', measure)
     }
-  }, [validNodes, validEdges, stageCount, branchCount, isSwimlane, isVertical])
+  }, [validNodes, validEdges, stageCount, branchCount, isSwimlane, isVertical, compact])
 
   if (!validNodes.length) return null
 
+  const cellWidth = compact ? 184 : 224
+  const laneWidth = compact ? 152 : 196
+  const rowHeight = compact ? 164 : 188
   let minWidth
   let gridTemplateColumns
   let gridTemplateRows
 
   if (isVertical) {
-    minWidth = Math.max(320, branchCount * 238)
-    gridTemplateColumns = `repeat(${branchCount}, minmax(224px, 1fr))`
+    minWidth = Math.max(compact ? 300 : 320, branchCount * (cellWidth + 14))
+    gridTemplateColumns = `repeat(${branchCount}, minmax(${cellWidth}px, 1fr))`
     gridTemplateRows = isSwimlane
-      ? `116px repeat(${stageCount}, minmax(188px, auto))`
-      : `repeat(${stageCount}, minmax(188px, auto))`
+      ? `${compact ? 96 : 116}px repeat(${stageCount}, minmax(${rowHeight}px, auto))`
+      : `repeat(${stageCount}, minmax(${rowHeight}px, auto))`
   } else {
-    const laneWidth = isSwimlane ? 196 : 0
-    minWidth = Math.max(720, laneWidth + stageCount * 238)
+    minWidth = Math.max(compact ? 620 : 720, laneWidth + stageCount * (cellWidth + 14))
     gridTemplateColumns = isSwimlane
-      ? `196px repeat(${stageCount}, minmax(224px, 1fr))`
-      : `repeat(${stageCount}, minmax(224px, 1fr))`
-    gridTemplateRows = `repeat(${branchCount}, minmax(188px, auto))`
+      ? `${laneWidth}px repeat(${stageCount}, minmax(${cellWidth}px, 1fr))`
+      : `repeat(${stageCount}, minmax(${cellWidth}px, 1fr))`
+    gridTemplateRows = `repeat(${branchCount}, minmax(${rowHeight}px, auto))`
   }
 
   const nodePosition = (node) => {
@@ -252,7 +269,7 @@ export default function Flowchart({
   }
 
   return (
-    <section className={cx(styles.shell, theme === 'dark' ? styles.dark : styles.light)}>
+    <section ref={shellRef} className={cx(styles.shell, theme === 'dark' ? styles.dark : styles.light)}>
       <div className={styles.header}>
         <div className={styles.eyebrow}>{eyebrow}</div>
         {title ? <h3 className={styles.title}>{title}</h3> : null}
@@ -267,6 +284,7 @@ export default function Flowchart({
             isSwimlane && styles.swimlaneCanvas,
             isVertical && styles.verticalCanvas,
             isVertical && isSwimlane && styles.verticalSwimlaneCanvas,
+            compact && styles.compactCanvas,
           )}
           style={{minWidth, gridTemplateColumns, gridTemplateRows}}
           aria-label={title || 'Flowchart'}
