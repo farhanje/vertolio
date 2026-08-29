@@ -8,6 +8,7 @@ import normalizeProjectCaseStudyBlocks from './normalizeProjectCaseStudyBlocks'
 import augmentCaseStudyBlockTypes from './augmentCaseStudyBlockTypes'
 import {caseStudyBlockTypes} from './schemas/caseStudyBlocks'
 import {processMapTypes} from './schemas/processMap'
+import {flowchartTypes} from './schemas/flowchart'
 
 const normalizedProject = normalizeProjectCaseStudyBlocks(project)
 const augmentedCaseStudyBlockTypes = augmentCaseStudyBlockTypes(caseStudyBlockTypes)
@@ -17,6 +18,7 @@ export const schemaTypes = [
   organization,
   ...augmentedCaseStudyBlockTypes,
   ...processMapTypes,
+  ...flowchartTypes,
   normalizedProject,
   post,
   recruiterLink,
