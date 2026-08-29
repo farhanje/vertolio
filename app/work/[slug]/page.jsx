@@ -7,6 +7,7 @@ import BackSmart from '../../../components/BackSmart'
 import ContentEngagementTracker from '../../../components/ContentEngagementTracker'
 import {getLanguage} from '../../../lib/i18n.server'
 import {pickLocalized, uiCopy} from '../../../lib/i18n'
+import styles from './page.module.css'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
@@ -43,17 +44,17 @@ export default async function ProjectPage({ params }) {
   const bodyPick = pickLocalized(project?.body, project?.bodyEn, lang)
 
   return (
-    <main className="container" data-accent={accent}>
+    <main className={`container ${styles.page}`} data-accent={accent}>
       <ContentEngagementTracker contentType="project" slug={params.slug} contentId="content" />
 
       <section className="section tight">
-        <div className="grid12">
-          <div style={{ gridColumn: '1 / span 8' }}>
+        <div className={styles.heroGrid}>
+          <div className={styles.heroPrimary}>
             <div className="kicker"><span className="dot" /> <span className="notranslate">{project.organization?.name || 'Project'}</span></div>
             <h1 className={titlePick.nativeEnglish ? 'h1-tight notranslate' : 'h1-tight'}>{titlePick.value}</h1>
             {summaryPick.value && <p className={summaryPick.nativeEnglish ? 'lead notranslate' : 'lead'}>{summaryPick.value}</p>}
           </div>
-          <div style={{ gridColumn: '9 / span 4', paddingTop: 10 }}>
+          <div className={styles.heroMeta}>
             <div className="meta" style={{ marginTop: 0 }}>
               {rolePick.value && (
                 <span className={rolePick.nativeEnglish ? 'pill notranslate' : 'pill'}>
@@ -79,11 +80,13 @@ export default async function ProjectPage({ params }) {
       <div className="hr" />
 
       <section className="section">
-        <div className="content-grid">
-          <div id="content" className={bodyPick.nativeEnglish ? 'content-nudge notranslate' : 'content-nudge'}>
+        <div className={styles.contentGrid}>
+          <div id="content" className={`${styles.bodyColumn} ${bodyPick.nativeEnglish ? 'notranslate' : ''}`}>
             <RichText value={bodyPick.value} />
           </div>
-          <Toc contentId="content" lang={lang} />
+          <div className={styles.tocColumn}>
+            <Toc contentId="content" lang={lang} />
+          </div>
         </div>
       </section>
     </main>
