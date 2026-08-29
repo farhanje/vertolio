@@ -7,9 +7,14 @@
   container-type: inline-size;
   display: grid;
   grid-template-columns: minmax(260px, .82fr) minmax(420px, 1.18fr);
-  gap: clamp(28px, 4vw, 52px);
+  grid-template-areas:
+    "copy viewer"
+    "steps viewer";
+  grid-template-rows: auto 1fr;
+  gap: clamp(24px, 4vw, 52px);
   width: 100%;
   min-width: 0;
+  max-width: 100%;
   margin: 30px 0 38px;
   padding: clamp(22px, 3.5vw, 38px);
   border: 1px solid var(--prototype-line);
@@ -35,13 +40,12 @@
   --prototype-panel: rgba(11, 11, 11, .035);
 }
 
-.copy,
-.viewer { min-width: 0; }
+.copyHeader,
+.viewer,
+.stepList { min-width: 0; }
 
-.copy {
-  display: flex;
-  flex-direction: column;
-}
+.copyHeader { grid-area: copy; }
+.viewer { grid-area: viewer; }
 
 .eyebrow,
 .viewerTopline {
@@ -75,8 +79,9 @@
 }
 
 .stepList {
-  margin-top: auto;
-  padding-top: 34px;
+  grid-area: steps;
+  align-self: end;
+  padding-top: 24px;
   border-top: 1px solid var(--prototype-line);
 }
 
@@ -97,7 +102,7 @@
   font: inherit;
   cursor: pointer;
   touch-action: manipulation;
-  transition: color .15s ease, transform .15s ease;
+  transition: color .15s ease, transform .15s ease, background .15s ease;
 }
 
 .stepButton span:last-child { overflow-wrap: anywhere; }
@@ -298,22 +303,26 @@
 .controls button:hover:not(:disabled) { background: var(--prototype-panel); }
 .controls button:disabled { opacity: .28; cursor: default; }
 
-/* Tablet and narrow embedding contexts. Stack copy above the interactive stage. */
+/* Tablet and narrow embedding contexts. The screen is no longer squeezed beside the copy. */
 @container (max-width: 860px) {
   .shell {
-    grid-template-columns: 1fr;
-    gap: 24px;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "copy"
+      "viewer"
+      "steps";
+    grid-template-rows: auto auto auto;
+    gap: 22px;
   }
 
   .stepList {
-    margin-top: 22px;
+    align-self: stretch;
     padding-top: 14px;
     display: flex;
     gap: 8px;
     overflow-x: auto;
     overscroll-behavior-inline: contain;
     -webkit-overflow-scrolling: touch;
-    border-top: 1px solid var(--prototype-line);
     scrollbar-width: thin;
   }
 
@@ -332,28 +341,28 @@
   .phoneDevice { width: min(292px, 72%); }
 }
 
-/* Phone. Preserve the interaction, reduce surrounding chrome. */
+/* Phone. The prototype screen is the hero, and the step index becomes a full-width vertical list below it. */
 @container (max-width: 520px) {
   .shell {
-    margin: 28px -12px 34px;
+    margin: 28px 0 34px;
     padding: 18px 14px;
     gap: 18px;
   }
 
   .title { font-size: clamp(24px, 8vw, 32px); }
   .description { font-size: 13px; }
-  .stepList { margin-top: 18px; }
-  .stepButton { min-height: 46px; padding: 10px 12px; }
+
+  .viewerTopline { padding-bottom: 9px; }
 
   .stage {
-    padding: 20px 8px;
+    padding: 18px 6px;
     border-left: 0;
     border-right: 0;
   }
 
-  .phoneStage { min-height: 400px; }
-  .browserStage { min-height: 245px; }
-  .phoneDevice { width: min(244px, 82%); border-width: 6px; border-radius: 30px; }
+  .phoneStage { min-height: 0; }
+  .browserStage { min-height: 0; }
+  .phoneDevice { width: min(260px, 88%); border-width: 6px; border-radius: 30px; }
   .browserDevice { width: 100%; border-radius: 6px; }
 
   .viewerBottom {
@@ -363,6 +372,31 @@
 
   .screenCopy { font-size: 11px; }
   .controls button { width: 44px; height: 44px; }
+
+  .stepList {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+    overflow: visible;
+    padding-top: 12px;
+  }
+
+  .stepButton {
+    width: 100%;
+    min-width: 0;
+    min-height: 52px;
+    display: grid;
+    grid-template-columns: 38px minmax(0, 1fr);
+    gap: 10px;
+    padding: 12px 8px;
+    border: 0;
+    border-bottom: 1px solid var(--prototype-line);
+    background: transparent;
+  }
+
+  .stepButton:first-child { border-top: 1px solid var(--prototype-line); }
+  .stepButtonActive { background: var(--prototype-panel); }
+  .stepButtonActive .stepNumber { color: var(--prototype-fg); }
 }
 
 /* Touch devices need visible interaction affordances because hover does not exist. */
@@ -373,10 +407,6 @@
     background: rgba(30, 84, 232, .06);
     box-shadow: inset 0 0 0 1px rgba(255,255,255,.18);
   }
-}
-
-@media (max-width: 640px) {
-  .shell { margin-left: -12px; margin-right: -12px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
