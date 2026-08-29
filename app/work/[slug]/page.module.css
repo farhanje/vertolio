@@ -115,17 +115,17 @@
     overflow-wrap: anywhere;
   }
 
-  /* On phone, portfolio blocks stay inside the content column. Scrolling belongs inside the artifact. */
-  .bodyColumn :global(.prose > section),
-  .bodyColumn :global(.prose > .notranslate > section),
+  /* Every story block stays in the phone column. Wider information scrolls inside its own component. */
+  .bodyColumn :global(section),
   .bodyColumn :global(.prose > figure) {
     max-width: 100%;
     margin-left: 0 !important;
     margin-right: 0 !important;
   }
 
-  .bodyColumn :global(.prose > .notranslate) {
+  .bodyColumn :global(.notranslate) {
     width: 100%;
+    min-width: 0;
     max-width: 100%;
   }
 
