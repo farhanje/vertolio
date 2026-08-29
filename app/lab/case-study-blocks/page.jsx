@@ -1,6 +1,8 @@
 import ArtifactExplorer from '../../../components/ArtifactExplorer'
 import DataVisualization from '../../../components/DataVisualization'
 import Flowchart from '../../../components/Flowchart'
+import InteractivePrototype from '../../../components/InteractivePrototype'
+import ProcessMap from '../../../components/ProcessMap'
 import {ComparisonBlock, EvidenceGrid, NarrativeSection} from '../../../components/CaseStudyBlocks'
 
 export const metadata = {
@@ -78,7 +80,7 @@ const funnelViz = {
 const scatterViz = {
   eyebrow: 'Relationship · illustrative',
   title: 'Correlation can be inspectable too',
-  description: 'Hover a point to inspect the observation. Method notes can state the boundary of the inference.',
+  description: 'Hover, focus, or tap a point to inspect the observation. Method notes can state the boundary of the inference.',
   chartType: 'scatter',
   evidenceStatus: 'derived',
   source: 'Illustrative observations',
@@ -94,6 +96,28 @@ const scatterViz = {
     {label: 'Day 6', x: 70, values: [{seriesKey: 'kyc', value: 38}]},
   ],
   methodNote: 'Illustrative only. A correlation block should explicitly distinguish association from causal evidence.',
+}
+
+const horizontalBasic = {
+  eyebrow: 'Responsive flow · basic',
+  title: 'Horizontal on desktop, vertical when space gets tight',
+  description: 'This is authored as a horizontal flow. The renderer changes its reading direction automatically for narrow containers.',
+  direction: 'horizontal',
+  mode: 'basic',
+  theme: 'light',
+  nodes: [
+    {key: 'entry', label: 'Enter flow', badge: 'start', kind: 'start', column: 1, row: 1, emphasis: true},
+    {key: 'input', label: 'Complete input', badge: 'action', kind: 'process', column: 2, row: 1},
+    {key: 'check', label: 'Check state', badge: 'rule', kind: 'decision', column: 3, row: 1},
+    {key: 'success', label: 'Continue', badge: 'end', kind: 'end', column: 4, row: 1, emphasis: true},
+    {key: 'retry', label: 'Fix the issue', badge: 'branch', kind: 'process', column: 4, row: 2},
+  ],
+  edges: [
+    {from: 'entry', to: 'input', emphasis: true},
+    {from: 'input', to: 'check'},
+    {from: 'check', to: 'success', label: 'ready', emphasis: true},
+    {from: 'check', to: 'retry', label: 'needs work', style: 'dashed'},
+  ],
 }
 
 const verticalBasic = {
@@ -149,6 +173,41 @@ const verticalSwimlane = {
   ],
 }
 
+const journeyStages = [
+  {_key: 's1', key: 'discover', label: 'Discover', description: 'Understand what is required'},
+  {_key: 's2', key: 'start', label: 'Start', description: 'Begin the task'},
+  {_key: 's3', key: 'leave', label: 'Pause', description: 'Leave before finishing'},
+  {_key: 's4', key: 'return', label: 'Return', description: 'Continue later'},
+  {_key: 's5', key: 'finish', label: 'Finish', description: 'Complete the remaining work'},
+]
+
+const journeyLanes = [
+  {
+    _key: 'l1',
+    label: 'User action',
+    description: 'What the person does',
+    cells: [
+      {_key: 'c11', stageKey: 'discover', text: 'Checks what is needed'},
+      {_key: 'c12', stageKey: 'start', text: 'Completes one task', emphasis: true},
+      {_key: 'c13', stageKey: 'leave', text: 'Closes the flow'},
+      {_key: 'c14', stageKey: 'return', text: 'Opens the flow again', emphasis: true},
+      {_key: 'c15', stageKey: 'finish', text: 'Finishes what remains'},
+    ],
+  },
+  {
+    _key: 'l2',
+    label: 'Product response',
+    description: 'What must stay consistent',
+    cells: [
+      {_key: 'c21', stageKey: 'discover', text: 'Shows requirements'},
+      {_key: 'c22', stageKey: 'start', text: 'Saves completed state'},
+      {_key: 'c23', stageKey: 'leave', text: 'Keeps progress intact'},
+      {_key: 'c24', stageKey: 'return', text: 'Restores the same state', emphasis: true},
+      {_key: 'c25', stageKey: 'finish', text: 'Unlocks the next step'},
+    ],
+  },
+]
+
 export default function CaseStudyBlocksLab() {
   const explorerTabs = [
     {_key: 'trend', label: 'Trend', title: 'Quantitative outcome', description: 'A DataViz block can live inside the explorer.', kind: 'data', dataViz: lineViz},
@@ -202,6 +261,20 @@ export default function CaseStudyBlocksLab() {
         ]}
       />
 
+      <InteractivePrototype {...prototype} />
+
+      <ProcessMap
+        eyebrow="Journey map · responsive"
+        title="The matrix stays comparable while the viewport gets smaller"
+        description="The first lane stays sticky and stages remain readable through controlled horizontal scrolling."
+        mode="journey"
+        stages={journeyStages}
+        lanes={journeyLanes}
+        note="This is illustrative QA content for the responsive process-map component."
+        theme="light"
+      />
+
+      <Flowchart {...horizontalBasic} />
       <Flowchart {...verticalBasic} />
       <Flowchart {...verticalSwimlane} />
 
