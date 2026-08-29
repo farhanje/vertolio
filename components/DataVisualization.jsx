@@ -19,6 +19,18 @@ function formatValue(value, series) {
   return `${series?.prefix || ''}${body}${series?.suffix || ''}`
 }
 
+function inspectable(entry, onHover) {
+  return {
+    role: 'button',
+    tabIndex: 0,
+    onMouseEnter: () => onHover(entry),
+    onMouseLeave: () => onHover(null),
+    onFocus: () => onHover(entry),
+    onBlur: () => onHover(null),
+    onClick: () => onHover(entry),
+  }
+}
+
 function parseCsv(text) {
   const rows = []
   let row = []
@@ -144,7 +156,8 @@ function CartesianChart({type, rows, series, xLabel, yLabel, baseline, baselineL
           const x = groupCenter - totalWidth / 2 + seriesIndex * (barWidth + barGap)
           const y = yPos(Math.max(value, 0))
           const baseY = yPos(Math.min(value, 0))
-          return <rect key={`${row._key}-${item.key}`} x={x} y={Math.min(y, baseY)} width={barWidth} height={Math.max(2, Math.abs(baseY - y))} rx="2" fill={PALETTE[seriesIndex % PALETTE.length]} onMouseEnter={() => onHover({row, series: item, value})} onMouseLeave={() => onHover(null)} />
+          const entry = {row, series: item, value}
+          return <rect key={`${row._key}-${item.key}`} x={x} y={Math.min(y, baseY)} width={barWidth} height={Math.max(2, Math.abs(baseY - y))} rx="2" fill={PALETTE[seriesIndex % PALETTE.length]} className={styles.mark} aria-label={`${row.label}, ${item.label || item.key}: ${formatValue(value, item)}`} {...inspectable(entry, onHover)} />
         })) : null}
 
         {type === 'line' ? series.map((item, seriesIndex) => {
@@ -152,7 +165,10 @@ function CartesianChart({type, rows, series, xLabel, yLabel, baseline, baselineL
           return (
             <g key={item.key}>
               <polyline points={points.map((p) => `${p.x},${p.y}`).join(' ')} fill="none" stroke={PALETTE[seriesIndex % PALETTE.length]} strokeWidth="2.5" vectorEffect="non-scaling-stroke" />
-              {points.map((point) => <circle key={point.row._key} cx={point.x} cy={point.y} r="5" fill={PALETTE[seriesIndex % PALETTE.length]} className={styles.point} onMouseEnter={() => onHover({row: point.row, series: item, value: point.value})} onMouseLeave={() => onHover(null)} />)}
+              {points.map((point) => {
+                const entry = {row: point.row, series: item, value: point.value}
+                return <circle key={point.row._key} cx={point.x} cy={point.y} r="5" fill={PALETTE[seriesIndex % PALETTE.length]} className={`${styles.point} ${styles.mark}`} aria-label={`${point.row.label}, ${item.label || item.key}: ${formatValue(point.value, item)}`} {...inspectable(entry, onHover)} />
+              })}
             </g>
           )
         }) : null}
@@ -161,7 +177,8 @@ function CartesianChart({type, rows, series, xLabel, yLabel, baseline, baselineL
           const xValue = Number(row.x)
           const value = Number(row[item.key])
           if (!Number.isFinite(xValue) || !Number.isFinite(value)) return null
-          return <circle key={`${row._key}-${item.key}`} cx={xPos(xValue)} cy={yPos(value)} r="6" fill={PALETTE[seriesIndex % PALETTE.length]} className={styles.point} onMouseEnter={() => onHover({row, series: item, value, xValue})} onMouseLeave={() => onHover(null)} />
+          const entry = {row, series: item, value, xValue}
+          return <circle key={`${row._key}-${item.key}`} cx={xPos(xValue)} cy={yPos(value)} r="6" fill={PALETTE[seriesIndex % PALETTE.length]} className={`${styles.point} ${styles.mark}`} aria-label={`${row.label}, ${item.label || item.key}: ${formatValue(value, item)}`} {...inspectable(entry, onHover)} />
         })) : null}
 
         {!isScatter ? rows.map((row, index) => {
@@ -191,8 +208,9 @@ function FunnelChart({rows, series, onHover}) {
       {rows.map((row) => {
         const value = Number(row[item?.key])
         if (!Number.isFinite(value)) return null
+        const entry = {row, series: item, value}
         return (
-          <div key={row._key} className={styles.funnelRow} onMouseEnter={() => onHover({row, series: item, value})} onMouseLeave={() => onHover(null)}>
+          <div key={row._key} className={styles.funnelRow} aria-label={`${row.label}: ${formatValue(value, item)}`} {...inspectable(entry, onHover)}>
             <div className={styles.funnelMeta}><span>{row.label}</span><strong>{formatValue(value, item)}</strong></div>
             <div className={styles.funnelTrack}><div className={styles.funnelBar} style={{width: `${Math.max(3, (value / max) * 100)}%`}} /></div>
           </div>
@@ -212,7 +230,10 @@ function CompositionChart({rows, series, onHover}) {
           <div key={row._key} className={styles.compositionRow}>
             <div className={styles.compositionLabel}>{row.label}</div>
             <div className={styles.compositionBar}>
-              {values.map((entry, index) => <button key={entry.item.key} type="button" style={{width: `${(Math.max(0, entry.value) / total) * 100}%`, background: PALETTE[index % PALETTE.length]}} aria-label={`${entry.item.label}: ${formatValue(entry.value, entry.item)}`} onMouseEnter={() => onHover({row, series: entry.item, value: entry.value})} onMouseLeave={() => onHover(null)} />)}
+              {values.map((entry, index) => {
+                const hoverEntry = {row, series: entry.item, value: entry.value}
+                return <button key={entry.item.key} type="button" style={{width: `${(Math.max(0, entry.value) / total) * 100}%`, background: PALETTE[index % PALETTE.length]}} aria-label={`${entry.item.label}: ${formatValue(entry.value, entry.item)}`} onMouseEnter={() => onHover(hoverEntry)} onMouseLeave={() => onHover(null)} onFocus={() => onHover(hoverEntry)} onBlur={() => onHover(null)} onClick={() => onHover(hoverEntry)} />
+              })}
             </div>
           </div>
         )
@@ -315,6 +336,7 @@ export default function DataVisualization({
 
         {hover ? (
           <div className={styles.tooltip}>
+            <button type="button" className={styles.tooltipClose} onClick={() => setHover(null)} aria-label="Close data tooltip">×</button>
             <span>{hover.row?.label}</span>
             <strong>{hover.series?.label || hover.series?.key}: {formatValue(hover.value, hover.series)}</strong>
             {hover.xValue != null ? <small>{xLabel || 'X'}: {hover.xValue}</small> : null}
