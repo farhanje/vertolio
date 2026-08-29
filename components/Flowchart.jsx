@@ -234,7 +234,7 @@ export default function Flowchart({
   if (!validNodes.length) return null
 
   const cellWidth = compact ? 184 : 224
-  const laneWidth = compact ? 152 : 196
+  const laneWidth = isSwimlane ? (compact ? 152 : 196) : 0
   const rowHeight = compact ? 164 : 188
   let minWidth
   let gridTemplateColumns
