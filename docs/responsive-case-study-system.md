@@ -1,0 +1,75 @@
+# Responsive Case Study System
+
+This document is the default behavior contract for reusable portfolio artifacts.
+
+## Viewport classes
+
+- Desktop: 1024px and above
+- Tablet: 641px to 1023px
+- Phone: 640px and below
+
+Container queries and ResizeObserver measurements may switch earlier when a block is nested inside a narrower Artifact Explorer panel. The component width is more important than the browser width.
+
+## Artifact Explorer
+
+Horizontal tabs stay horizontal on all viewports and become touch-scrollable when they do not fit.
+
+Vertical tabs are desktop-only as a visual layout. Below roughly 860px of component width they become a horizontal tab strip. Keyboard direction and aria-orientation must change with the visual layout.
+
+## Interactive Prototype
+
+Desktop uses a two-column artifact room when enough width is available.
+
+Tablet and narrower embedding contexts stack the explanation above the viewer. Screen navigation becomes a horizontal scroll strip.
+
+Phone reduces the surrounding chrome while keeping the actual screen inspectable. Phone and browser devices use different stage heights. Controls are at least 44px where possible.
+
+Hotspots receive a visible affordance on coarse-pointer devices because hover is unavailable.
+
+## Flowchart
+
+A Basic Horizontal flow automatically becomes vertical when its component is narrower than roughly 820px. Stage order is preserved and branch rows become branch columns.
+
+An authored Vertical Basic flow remains vertical at every width.
+
+Swimlanes do not auto-rotate because actor ownership can change meaning when lanes are rotated. Horizontal swimlanes remain horizontal and use touch scrolling with sticky lane labels. Vertical swimlanes retain actor columns and horizontally scroll when the set of actors cannot fit safely.
+
+Node and lane dimensions reduce at compact widths without collapsing text into unreadable cards.
+
+## Journey and Service Blueprint
+
+The matrix remains a matrix on all viewports because cross-stage comparison is the evidence. Tablet and phone reduce cell width and use touch scrolling. The lane-name column stays sticky.
+
+Phone uses a narrower lane column and scroll snapping between stage headers.
+
+## Data Visualization
+
+Desktop charts use the available width.
+
+Tablet reduces metadata density and allows the SVG to become slightly wider than the panel when labels need room.
+
+Phone uses controlled horizontal chart scrolling rather than shrinking labels until they become unreadable. Bars, points, funnel rows, and composition segments are keyboard-focusable or tappable. Touch tooltips render as a bottom card with an explicit close action.
+
+Tables remain horizontally scrollable.
+
+## Comparison and Evidence Grid
+
+Comparisons stay two-up through tablet where possible and stack below roughly 620px of component width.
+
+Metric grids reduce to two columns at tablet-like component widths and one column on narrow phones.
+
+## Carousel
+
+Desktop and tablet use arrows and dots.
+
+Phone keeps large touch controls and also supports horizontal swipe. Vertical page scrolling must not be blocked by the swipe gesture.
+
+## Narrative
+
+Narrative blocks keep normal editorial width on desktop and tablet. Phone uses a full-bleed artifact treatment with smaller padding and type scaling.
+
+## QA
+
+Use `/lab/responsive-case-study` before introducing a new reusable case-study pattern.
+
+The route renders `/lab/case-study-blocks` inside exact 1440px, 768px, and 390px iframe viewports. This allows media queries, container queries, ResizeObserver logic, touch-sized layout, overflow, and responsive navigation to be checked against three stable viewport classes.
