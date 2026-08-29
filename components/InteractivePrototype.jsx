@@ -116,30 +116,10 @@ export default function InteractivePrototype({
       aria-label={title || 'Interactive prototype'}
       onKeyDown={handleKeyDown}
     >
-      <div className={styles.copy}>
+      <div className={styles.copyHeader}>
         <div className={styles.eyebrow}>{eyebrow}</div>
         {title ? <h3 className={styles.title}>{title}</h3> : null}
         {description ? <p className={styles.description}>{description}</p> : null}
-
-        <div className={styles.stepList} aria-label="Prototype screens">
-          {visibleSteps.map((step, index) => {
-            const key = step.key || String(index)
-            const sharesActiveGroup = Boolean(step.navGroup && current.navGroup && step.navGroup === current.navGroup)
-            const isActive = key === activeKey || sharesActiveGroup
-            return (
-              <button
-                key={key}
-                type="button"
-                className={cx(styles.stepButton, isActive && styles.stepButtonActive)}
-                aria-current={isActive ? 'step' : undefined}
-                onClick={() => enter(key, {replaceHistory: false})}
-              >
-                <span className={styles.stepNumber}>{step.navNumber || String(index + 1).padStart(2, '0')}</span>
-                <span>{step.label || `Screen ${index + 1}`}</span>
-              </button>
-            )
-          })}
-        </div>
       </div>
 
       <div className={styles.viewer}>
@@ -200,6 +180,26 @@ export default function InteractivePrototype({
             </button>
           </div>
         </div>
+      </div>
+
+      <div className={styles.stepList} aria-label="Prototype screens">
+        {visibleSteps.map((step, index) => {
+          const key = step.key || String(index)
+          const sharesActiveGroup = Boolean(step.navGroup && current.navGroup && step.navGroup === current.navGroup)
+          const isActive = key === activeKey || sharesActiveGroup
+          return (
+            <button
+              key={key}
+              type="button"
+              className={cx(styles.stepButton, isActive && styles.stepButtonActive)}
+              aria-current={isActive ? 'step' : undefined}
+              onClick={() => enter(key, {replaceHistory: false})}
+            >
+              <span className={styles.stepNumber}>{step.navNumber || String(index + 1).padStart(2, '0')}</span>
+              <span>{step.label || `Screen ${index + 1}`}</span>
+            </button>
+          )
+        })}
       </div>
     </section>
   )
