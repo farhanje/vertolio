@@ -1,5 +1,30 @@
 {
   "version": 1,
   "verifyWrite": false,
-  "operations": []
+  "operations": [
+    {
+      "id": "revamp-kyc-autosave-flagship-v2-20260829",
+      "type": "patchProjectBySlug",
+      "targetId": "drafts.projectRevamp-aff8fddf4e433f82aa2d",
+      "slug": "kyc-autosave-flow-a-b-test-revamp",
+      "set": {
+        "title": "Membuat KYC Bisa Dilanjutkan Tanpa Mengulang dari Awal",
+        "titleEn": "Making KYC Resumable Without Starting Over",
+        "summary": "Saya merancang dan menguji perubahan KYC dari flow berurutan menjadi task-based flow dengan progress yang tersimpan. Randomized usability test dengan 30 responden tidak menemukan perbedaan signifikan pada SUS atau total misclick. Flow B tetap dipilih karena tidak menambah usability penalty yang berarti dan lebih cocok dengan behavior Autosave yang dibutuhkan saat implementation.",
+        "summaryEn": "I designed and tested a shift from sequential KYC to a task-based flow with persistent progress. A randomized usability study with 30 participants found no significant difference in SUS or total misclicks. Flow B still became the implementation baseline because it introduced no meaningful usability penalty and fit the behavior Autosave needed to support.",
+        "tags": ["KYC", "Interaction Design", "Usability Testing", "Systems Design", "Experimentation"],
+        "tagsEn": ["KYC", "Interaction Design", "Usability Testing", "Systems Design", "Experimentation"],
+        "role": "Product Designer",
+        "roleEn": "Product Designer",
+        "cardStat": {
+          "value": "Flow B",
+          "label": "baseline production setelah usability test N 30",
+          "labelEn": "production baseline after an N 30 usability study"
+        },
+        "featured": false
+      },
+      "bodyFile": "sanity/revamps/kyc-autosave-v2.id.json",
+      "bodyEnFile": "sanity/revamps/kyc-autosave-v2.en.json"
+    }
+  ]
 }
