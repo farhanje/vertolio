@@ -5,6 +5,8 @@ import InteractivePrototype from './InteractivePrototype'
 import DataVisualization from './DataVisualization'
 import styles from './ArtifactExplorer.module.css'
 
+const VERTICAL_MIN_WIDTH = 860
+
 export default function ArtifactExplorer({
   eyebrow = 'Artifact explorer',
   title,
@@ -15,13 +17,27 @@ export default function ArtifactExplorer({
 }) {
   const validTabs = tabs.filter((tab) => tab?.label)
   const [active, setActive] = useState(0)
+  const [compact, setCompact] = useState(false)
+  const shellRef = useRef(null)
   const tabsRef = useRef(null)
   const instanceId = useId().replace(/:/g, '')
-  const isVertical = layout === 'vertical'
+  const authoredVertical = layout === 'vertical'
+  const effectiveVertical = authoredVertical && !compact
 
   useEffect(() => {
     if (active > validTabs.length - 1) setActive(0)
   }, [active, validTabs.length])
+
+  useEffect(() => {
+    const shell = shellRef.current
+    if (!shell || !authoredVertical || typeof ResizeObserver === 'undefined') return undefined
+
+    const measure = () => setCompact(shell.getBoundingClientRect().width < VERTICAL_MIN_WIDTH)
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(shell)
+    return () => observer.disconnect()
+  }, [authoredVertical])
 
   if (!validTabs.length) return null
   const current = validTabs[active]
@@ -33,8 +49,8 @@ export default function ArtifactExplorer({
   }
 
   const moveTab = (event, index) => {
-    const previousKey = isVertical ? 'ArrowUp' : 'ArrowLeft'
-    const nextKey = isVertical ? 'ArrowDown' : 'ArrowRight'
+    const previousKey = effectiveVertical ? 'ArrowUp' : 'ArrowLeft'
+    const nextKey = effectiveVertical ? 'ArrowDown' : 'ArrowRight'
     let next = null
 
     if (event.key === previousKey) next = (index - 1 + validTabs.length) % validTabs.length
@@ -49,20 +65,20 @@ export default function ArtifactExplorer({
   }
 
   return (
-    <section className={`${styles.shell} ${theme === 'dark' ? styles.dark : styles.light}`}>
+    <section ref={shellRef} className={`${styles.shell} ${theme === 'dark' ? styles.dark : styles.light}`}>
       <header className={styles.header}>
         <div className={styles.eyebrow}>{eyebrow}</div>
         {title ? <h3>{title}</h3> : null}
         {description ? <p>{description}</p> : null}
       </header>
 
-      <div className={`${styles.explorerBody} ${isVertical ? styles.verticalBody : styles.horizontalBody}`}>
+      <div className={`${styles.explorerBody} ${effectiveVertical ? styles.verticalBody : styles.horizontalBody}`}>
         <div
           ref={tabsRef}
-          className={`${styles.tabs} ${isVertical ? styles.verticalTabs : styles.horizontalTabs}`}
+          className={`${styles.tabs} ${effectiveVertical ? styles.verticalTabs : styles.horizontalTabs}`}
           role="tablist"
           aria-label={title || 'Artifact explorer'}
-          aria-orientation={isVertical ? 'vertical' : 'horizontal'}
+          aria-orientation={effectiveVertical ? 'vertical' : 'horizontal'}
         >
           {validTabs.map((tab, index) => (
             <button
