@@ -1,0 +1,165 @@
+[
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Context",
+    "title": "Top up became awkward when the person funding it was already standing next to you",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"AstraPay already supported Virtual Account, bank transfer, and OTC top ups. Those methods worked when people planned the transaction and had time to open another channel."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"The gap was a more immediate situation. Someone needed AstraPay balance and another person nearby was ready to fund it. Looking up or sharing account details made that moment slower than it needed to be."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"I turned that brief into the interaction model, worked through the transaction states with engineering, and carried the feature into a flow that could sit inside the existing Top Up area."}]}
+    ],
+    "callout": "The useful question was not how to add another payment method. It was how to remove account-detail exchange from a top up between two people who were already together.",
+    "width": "wide",
+    "theme": "light"
+  },
+  {
+    "_type": "comparison",
+    "eyebrow": "Problem framing",
+    "title": "The existing top-up methods solved a different moment",
+    "description": "I separated a planned cash-in from a nearby person-to-person cash-in before deciding on the interaction.",
+    "left": {"_type":"comparisonSide","label":"Planned top up","title":"Follow account or payment details","description":"The user deliberately opens a bank, Virtual Account, or OTC route and completes the steps required by that channel.","note":"Useful when the transaction is planned."},
+    "right": {"_type":"comparisonSide","label":"Nearby top up","title":"Show something the payer can scan","description":"The person funding the balance is already present. A generated QR removes the need to exchange an account identifier.","note":"The interaction is built around proximity.","linkLabel":"Try the flow","linkHref":"#interactive-qris-top-up"},
+    "theme": "light"
+  },
+  {
+    "_type": "artifactExplorer",
+    "eyebrow": "From concept to delivery",
+    "title": "The interaction stayed small while the payment model became more explicit",
+    "description": "The early concept focused on removing number entry. Engineering alignment then mapped what had to happen after the QR was shown.",
+    "theme": "dark",
+    "tabs": [
+      {
+        "_type": "artifactTab",
+        "kind": "image",
+        "label": "Early concept",
+        "title": "Start with a QR instead of an account number",
+        "description": "The concept adapted a familiar QRIS presentation pattern to cash-in. The AstraPay user presents the QR and the funding person scans it.",
+        "image": {"_type":"image","asset":{"_type":"reference","_ref":"image-9514671c4a33c1e75c0029071115561547fd278d-1672x941-png"}},
+        "alt": "QRIS Top Up concept showing a displayed QR used for cash-in",
+        "caption": "The first design question was how little interaction was needed to complete the top up."
+      },
+      {
+        "_type": "artifactTab",
+        "kind": "image",
+        "label": "Engineering alignment",
+        "title": "The visible state had to follow the transaction state",
+        "description": "I worked with engineering on bill creation, status checks, callbacks, retries, and the conditions that could safely resolve the interface.",
+        "image": {"_type":"image","asset":{"_type":"reference","_ref":"image-57d594e4df85bf75a56470a0cae45c5480a6ed51-1672x941-png"}},
+        "alt": "QRIS Top Up engineering alignment and transaction sequence artifact",
+        "caption": "The payment sequence became part of the design because the UI could not invent its own version of transaction truth."
+      }
+    ]
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Interaction design",
+    "title": "I reused a payment behavior people already knew",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Merchant-presented QRIS already had a familiar rhythm. One side shows a QR, the other side scans and pays. QRIS Top Up reused that behavior while changing where the money ended up."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"The user flow could therefore stay inside the existing Top Up area. Choose QRIS, set the amount, show the QR, wait for payment, then show the resolved state."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"The interaction did not need a new navigation model. Most of the design work moved into what happened while the payment was waiting or when the result was not immediately clear."}]}
+    ],
+    "width": "normal",
+    "theme": "light"
+  },
+  {
+    "_type": "interactivePrototype",
+    "anchorId": "interactive-qris-top-up",
+    "eyebrow": "Interactive prototype",
+    "title": "Try the QRIS Top Up flow",
+    "description": "Follow the main top-up path, then inspect the expiry and recovery states that sit outside the happy path.",
+    "theme": "dark",
+    "device": "phone",
+    "preset": "qris-top-up-flow-en"
+  },
+  {
+    "_type": "flowchart",
+    "eyebrow": "Transaction state model",
+    "title": "The QR was simple. Resolving the payment state was not.",
+    "description": "This state model shows when the interface can wait, confirm success, close an expired bill, or recheck an unresolved transaction.",
+    "mode": "basic",
+    "theme": "dark",
+    "nodes": [
+      {"_type":"flowchartNode","key":"bill","label":"Create one bill","description":"The amount is tied to a single top-up transaction.","badge":"bill","kind":"start","column":1,"row":2},
+      {"_type":"flowchartNode","key":"qr","label":"Display QR","description":"The funding person scans the generated QR.","badge":"UI","kind":"process","column":2,"row":2,"emphasis":true},
+      {"_type":"flowchartNode","key":"waiting","label":"Wait for payment","description":"The UI stays pending while the bill is unresolved.","badge":"pending","kind":"system","column":3,"row":2},
+      {"_type":"flowchartNode","key":"state","label":"What state returns?","description":"Bill status or callback updates the same transaction.","badge":"decision","kind":"decision","column":4,"row":2},
+      {"_type":"flowchartNode","key":"paid","label":"Paid and balance updated","description":"Success appears only after payment resolves.","badge":"resolved","kind":"end","column":5,"row":1,"emphasis":true},
+      {"_type":"flowchartNode","key":"unresolved","label":"Status still unclear","description":"Do not ask the user to pay again yet.","badge":"recovery","kind":"system","column":5,"row":2},
+      {"_type":"flowchartNode","key":"expired","label":"Bill expired","description":"The old QR is no longer reused.","badge":"closed","kind":"end","column":5,"row":3},
+      {"_type":"flowchartNode","key":"recheck","label":"Recheck the same bill","description":"Recovery checks the existing transaction first.","badge":"status check","kind":"process","column":6,"row":2},
+      {"_type":"flowchartNode","key":"newbill","label":"Create a new QR if needed","description":"A fresh transaction starts after the old bill is closed.","badge":"new transaction","kind":"process","column":6,"row":3}
+    ],
+    "edges": [
+      {"_type":"flowchartEdge","from":"bill","to":"qr","style":"solid","emphasis":true},
+      {"_type":"flowchartEdge","from":"qr","to":"waiting","style":"solid","emphasis":true},
+      {"_type":"flowchartEdge","from":"waiting","to":"state","style":"solid"},
+      {"_type":"flowchartEdge","from":"state","to":"paid","label":"paid","style":"solid","emphasis":true},
+      {"_type":"flowchartEdge","from":"state","to":"unresolved","label":"not resolved","style":"solid"},
+      {"_type":"flowchartEdge","from":"state","to":"expired","label":"expired","style":"dashed"},
+      {"_type":"flowchartEdge","from":"unresolved","to":"recheck","style":"solid","emphasis":true},
+      {"_type":"flowchartEdge","from":"recheck","to":"state","style":"solid"},
+      {"_type":"flowchartEdge","from":"expired","to":"newbill","style":"dashed"}
+    ],
+    "note": "The diagram stays at product-state level. It shows the transaction behavior needed by the experience without exposing implementation detail that is not necessary for the case."
+  },
+  {
+    "_type": "evidenceGrid",
+    "eyebrow": "Design specification",
+    "title": "Four rules kept the payment state understandable and safe",
+    "description": "These rules were used to translate backend transaction behavior into user-facing states.",
+    "columns": 4,
+    "metrics": [
+      {"_type":"evidenceMetric","value":"One bill","label":"Keep one transaction identity","context":"Status checks and recovery refer to the same bill instead of creating another payment."},
+      {"_type":"evidenceMetric","value":"Pending","label":"Waiting is not success","context":"The interface does not confirm a top up while the payment is still unresolved."},
+      {"_type":"evidenceMetric","value":"Expired","label":"Close the old QR clearly","context":"An expired bill is not reused when the user starts again."},
+      {"_type":"evidenceMetric","value":"Recover","label":"Recheck before retrying payment","context":"A delayed result should not push the user into a duplicate transaction."}
+    ],
+    "theme": "light"
+  },
+  {
+    "_type": "evidenceGrid",
+    "eyebrow": "Outcome",
+    "title": "The new channel became a meaningful part of AstraPay cash-in",
+    "description": "The strongest post-launch evidence is the channel contribution recorded in 2026.",
+    "columns": 3,
+    "metrics": [
+      {"_type":"evidenceMetric","value":"9.3%","label":"share of 2026 cash-in","context":"measured QRIS Top Up contribution"},
+      {"_type":"evidenceMetric","value":"Top 2","label":"cash-in channel","context":"ranked among AstraPay's largest cash-in routes"},
+      {"_type":"evidenceMetric","value":"2026","label":"measurement period","context":"post-implementation evidence"}
+    ],
+    "theme": "light"
+  },
+  {
+    "_type": "dataVisualization",
+    "eyebrow": "Post-implementation",
+    "title": "QRIS Top Up represented 9.3% of cash-in",
+    "description": "The chart shows the documented channel share rather than an invented transaction funnel.",
+    "takeaway": "A feature designed for a specific nearby top-up moment grew into one of AstraPay's largest cash-in channels.",
+    "chartType": "composition",
+    "dataSource": "manual",
+    "series": [
+      {"_type":"dataSeries","key":"qris","label":"QRIS Top Up","suffix":"%"},
+      {"_type":"dataSeries","key":"other","label":"Other cash-in","suffix":"%"}
+    ],
+    "rows": [
+      {"_type":"dataRow","label":"2026 cash-in mix","values":[{"_type":"dataValue","seriesKey":"qris","value":9.3},{"_type":"dataValue","seriesKey":"other","value":90.7}]}
+    ],
+    "evidenceStatus": "measured",
+    "source": "AstraPay cash-in analytics",
+    "period": "2026",
+    "methodNote": "The 9.3% QRIS Top Up share is measured. The 90.7% remainder is derived from that figure. This chart describes channel composition and does not claim incremental lift caused by the feature.",
+    "theme": "light"
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Reflection",
+    "title": "The screen flow stayed short because the system states did more of the work",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"The useful design move was not adding more steps. It was applying an interaction people already understood to a different cash-in moment."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"The part that needed more care was transaction truth. Waiting, success, expiry, and recovery had to remain understandable to users while staying aligned with the payment state underneath."}]}
+    ],
+    "width": "narrow",
+    "theme": "light"
+  }
+]
