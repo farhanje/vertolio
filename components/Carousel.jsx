@@ -53,12 +53,18 @@ export default function Carousel({slides = [], title, ratio = '16:9'}) {
     touchStart.current = null
 
     if (Math.abs(dx) >= 44 && Math.abs(dx) > Math.abs(dy) * 1.2) {
+      touchMoved.current = true
       if (dx < 0) next()
       else prev()
+    }
+  }
+
+  const openImage = () => {
+    if (touchMoved.current) {
+      touchMoved.current = false
       return
     }
-
-    if (!touchMoved.current) setOpen(true)
+    setOpen(true)
   }
 
   return (
@@ -76,7 +82,7 @@ export default function Carousel({slides = [], title, ratio = '16:9'}) {
           type="button"
           className={styles.frame}
           style={aspect ? {aspectRatio: aspect} : undefined}
-          onClick={() => setOpen(true)}
+          onClick={openImage}
           aria-label="Open image"
         >
           {src ? <img className={styles.image} src={src} alt={current?.alt || ''} /> : null}
