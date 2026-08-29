@@ -223,7 +223,7 @@ export default function Flowchart({
   let gridTemplateRows
 
   if (isVertical) {
-    minWidth = Math.max(620, branchCount * 238)
+    minWidth = Math.max(320, branchCount * 238)
     gridTemplateColumns = `repeat(${branchCount}, minmax(224px, 1fr))`
     gridTemplateRows = isSwimlane
       ? `116px repeat(${stageCount}, minmax(188px, auto))`
