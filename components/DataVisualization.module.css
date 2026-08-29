@@ -6,6 +6,7 @@
   --dv-panel: rgba(17,17,17,.035);
   container-type: inline-size;
   min-width: 0;
+  max-width: 100%;
   margin: 36px 0;
   padding: clamp(22px, 3.5vw, 38px);
   border: 1px solid var(--dv-line);
@@ -95,6 +96,7 @@
 .chartWrap {
   width: 100%;
   min-width: 0;
+  max-width: 100%;
   overflow-x: auto;
   overscroll-behavior-inline: contain;
   -webkit-overflow-scrolling: touch;
@@ -255,9 +257,9 @@
   .svg { min-width: 500px; }
 }
 
-/* Phone. Charts scroll only a little wider than the viewport and tooltips move to the bottom. */
+/* Phone. The shell stays within the viewport while dense chart marks can scroll inside the chart frame. */
 @container (max-width: 520px) {
-  .shell { margin: 30px -12px; padding: 18px 14px; }
+  .shell { margin: 30px 0; padding: 18px 14px; }
   .header h3 { font-size: clamp(24px, 8vw, 32px); }
   .header p { font-size: 13px; }
   .legend { gap: 10px; font-size: 10px; }
@@ -275,10 +277,6 @@
     max-width: none;
   }
   .takeaway p { font-size: 17px; }
-}
-
-@media (max-width: 640px) {
-  .shell { margin-left: -12px; margin-right: -12px; }
 }
 
 @media (hover: none), (pointer: coarse) {
