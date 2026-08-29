@@ -1,5 +1,424 @@
 {
   "version": 1,
   "verifyWrite": false,
-  "operations": []
+  "operations": [
+    {
+      "id": "replace-kyc-service-blueprint-with-flowchart-20260829",
+      "type": "patchProjectBySlug",
+      "targetId": "drafts.projectRevamp-aff8fddf4e433f82aa2d",
+      "slug": "kyc-autosave-flow-a-b-test-revamp",
+      "bodyTransforms": [
+        {
+          "field": "body",
+          "action": "replaceItem",
+          "match": {
+            "_type": "processMap",
+            "mode": "serviceBlueprint"
+          },
+          "value": {
+            "_type": "flowchart",
+            "eyebrow": "System flow",
+            "title": "Autosave perlu menjaga state yang sama saat user kembali ke KYC",
+            "description": "Flow ini menghubungkan aksi user, Tinjauan, state Autosave, dan proses verification setelah Flow B dipilih untuk implementation.",
+            "mode": "swimlane",
+            "lanes": [
+              {
+                "_type": "flowchartLane",
+                "key": "user",
+                "label": "User",
+                "description": "Aksi yang dilakukan user"
+              },
+              {
+                "_type": "flowchartLane",
+                "key": "ui",
+                "label": "Frontstage UI",
+                "description": "State yang terlihat di aplikasi"
+              },
+              {
+                "_type": "flowchartLane",
+                "key": "state",
+                "label": "Autosave state",
+                "description": "Progress yang perlu disimpan dan dipulihkan"
+              },
+              {
+                "_type": "flowchartLane",
+                "key": "verification",
+                "label": "Verification",
+                "description": "Proses setelah data siap dikirim"
+              }
+            ],
+            "nodes": [
+              {
+                "_type": "flowchartNode",
+                "key": "enter-kyc",
+                "label": "Masuk ke KYC",
+                "description": "User mulai upgrade atau membuka kembali KYC yang belum selesai.",
+                "badge": "entry",
+                "kind": "start",
+                "laneKey": "user",
+                "column": 1
+              },
+              {
+                "_type": "flowchartNode",
+                "key": "review-progress",
+                "label": "Tinjauan membaca progress",
+                "description": "Status KTP dan Selfie ditampilkan sebagai task yang berdiri sendiri.",
+                "badge": "UI",
+                "kind": "process",
+                "laneKey": "ui",
+                "column": 1,
+                "emphasis": true
+              },
+              {
+                "_type": "flowchartNode",
+                "key": "choose-task",
+                "label": "Pilih task pertama",
+                "description": "User bisa mulai dari KTP atau Selfie.",
+                "badge": "choice",
+                "kind": "decision",
+                "laneKey": "ui",
+                "column": 2
+              },
+              {
+                "_type": "flowchartNode",
+                "key": "capture-preview",
+                "label": "Capture dan preview",
+                "description": "Task belum dianggap selesai sampai hasil foto dikonfirmasi.",
+                "badge": "UI",
+                "kind": "process",
+                "laneKey": "ui",
+                "column": 3
+              },
+              {
+                "_type": "flowchartNode",
+                "key": "confirm-result",
+                "label": "Konfirmasi hasil",
+                "description": "User menerima hasil atau melakukan retake pada task yang sama.",
+                "badge": "action",
+                "kind": "process",
+                "laneKey": "user",
+                "column": 3
+              },
+              {
+                "_type": "flowchartNode",
+                "key": "persist-task",
+                "label": "Simpan status task",
+                "description": "Progress disimpan per task setelah hasil dikonfirmasi.",
+                "badge": "saved state",
+                "kind": "system",
+                "laneKey": "state",
+                "column": 4,
+                "emphasis": true
+              },
+              {
+                "_type": "flowchartNode",
+                "key": "leave-return",
+                "label": "Keluar dan kembali",
+                "description": "User bisa meninggalkan KYC lalu melanjutkannya di sesi berikutnya.",
+                "badge": "later session",
+                "kind": "process",
+                "laneKey": "user",
+                "column": 5
+              },
+              {
+                "_type": "flowchartNode",
+                "key": "restore-progress",
+                "label": "Restore progress",
+                "description": "Task yang sudah selesai tetap terbaca sebagai selesai saat KYC dibuka lagi.",
+                "badge": "state",
+                "kind": "system",
+                "laneKey": "state",
+                "column": 5
+              },
+              {
+                "_type": "flowchartNode",
+                "key": "remaining-task",
+                "label": "Tampilkan task tersisa",
+                "description": "Tinjauan hanya meminta user menyelesaikan task yang masih belum lengkap.",
+                "badge": "UI",
+                "kind": "process",
+                "laneKey": "ui",
+                "column": 6,
+                "emphasis": true
+              },
+              {
+                "_type": "flowchartNode",
+                "key": "complete-remaining",
+                "label": "Selesaikan task tersisa",
+                "description": "Progress sebelumnya tidak perlu diulang.",
+                "badge": "action",
+                "kind": "process",
+                "laneKey": "user",
+                "column": 6
+              },
+              {
+                "_type": "flowchartNode",
+                "key": "persist-latest",
+                "label": "Simpan progress terbaru",
+                "description": "State kedua task diperbarui sebelum user lanjut.",
+                "badge": "saved state",
+                "kind": "system",
+                "laneKey": "state",
+                "column": 7
+              },
+              {
+                "_type": "flowchartNode",
+                "key": "validate-complete",
+                "label": "Semua task lengkap?",
+                "description": "KTP dan Selfie harus berada pada state yang memenuhi requirement.",
+                "badge": "rule",
+                "kind": "decision",
+                "laneKey": "state",
+                "column": 8
+              },
+              {
+                "_type": "flowchartNode",
+                "key": "enable-continue",
+                "label": "Aktifkan Lanjutkan",
+                "description": "CTA tersedia setelah state yang dibutuhkan sudah lengkap.",
+                "badge": "UI",
+                "kind": "process",
+                "laneKey": "ui",
+                "column": 9
+              },
+              {
+                "_type": "flowchartNode",
+                "key": "send-verification",
+                "label": "Kirim ke verification",
+                "description": "Data bergerak ke proses verification setelah submission.",
+                "badge": "handoff",
+                "kind": "end",
+                "laneKey": "verification",
+                "column": 9
+              }
+            ],
+            "edges": [
+              {"_type": "flowchartEdge", "from": "enter-kyc", "to": "review-progress", "style": "solid"},
+              {"_type": "flowchartEdge", "from": "review-progress", "to": "choose-task", "style": "solid", "emphasis": true},
+              {"_type": "flowchartEdge", "from": "choose-task", "to": "capture-preview", "label": "KTP atau Selfie", "style": "solid"},
+              {"_type": "flowchartEdge", "from": "capture-preview", "to": "confirm-result", "style": "solid"},
+              {"_type": "flowchartEdge", "from": "confirm-result", "to": "persist-task", "label": "confirmed", "style": "solid", "emphasis": true},
+              {"_type": "flowchartEdge", "from": "persist-task", "to": "remaining-task", "label": "sesi yang sama", "style": "solid"},
+              {"_type": "flowchartEdge", "from": "persist-task", "to": "leave-return", "label": "lanjut nanti", "style": "dashed"},
+              {"_type": "flowchartEdge", "from": "leave-return", "to": "restore-progress", "style": "solid"},
+              {"_type": "flowchartEdge", "from": "restore-progress", "to": "remaining-task", "label": "restored", "style": "solid", "emphasis": true},
+              {"_type": "flowchartEdge", "from": "remaining-task", "to": "complete-remaining", "style": "solid"},
+              {"_type": "flowchartEdge", "from": "complete-remaining", "to": "persist-latest", "style": "solid"},
+              {"_type": "flowchartEdge", "from": "persist-latest", "to": "validate-complete", "style": "solid"},
+              {"_type": "flowchartEdge", "from": "validate-complete", "to": "enable-continue", "label": "lengkap", "style": "solid", "emphasis": true},
+              {"_type": "flowchartEdge", "from": "validate-complete", "to": "remaining-task", "label": "belum", "style": "dashed"},
+              {"_type": "flowchartEdge", "from": "enable-continue", "to": "send-verification", "label": "submit", "style": "solid", "emphasis": true}
+            ],
+            "note": "KTP dan Selfie memakai rule Autosave yang sama. Interactive prototype di atas menunjukkan kedua urutan task secara langsung.",
+            "theme": "dark"
+          }
+        },
+        {
+          "field": "bodyEn",
+          "action": "replaceItem",
+          "match": {
+            "_type": "processMap",
+            "mode": "serviceBlueprint"
+          },
+          "value": {
+            "_type": "flowchart",
+            "eyebrow": "System flow",
+            "title": "Autosave had to restore the same task state when users came back",
+            "description": "This flow connects user actions, Review, Autosave state, and verification after Flow B became the implementation direction.",
+            "mode": "swimlane",
+            "lanes": [
+              {
+                "_type": "flowchartLane",
+                "key": "user",
+                "label": "User",
+                "description": "What the user does"
+              },
+              {
+                "_type": "flowchartLane",
+                "key": "ui",
+                "label": "Frontstage UI",
+                "description": "States visible in the application"
+              },
+              {
+                "_type": "flowchartLane",
+                "key": "state",
+                "label": "Autosave state",
+                "description": "Progress that needs to persist and restore"
+              },
+              {
+                "_type": "flowchartLane",
+                "key": "verification",
+                "label": "Verification",
+                "description": "What happens after the data is ready"
+              }
+            ],
+            "nodes": [
+              {
+                "_type": "flowchartNode",
+                "key": "enter-kyc",
+                "label": "Enter KYC",
+                "description": "The user starts the upgrade or opens an unfinished KYC attempt again.",
+                "badge": "entry",
+                "kind": "start",
+                "laneKey": "user",
+                "column": 1
+              },
+              {
+                "_type": "flowchartNode",
+                "key": "review-progress",
+                "label": "Review reads progress",
+                "description": "KTP and Selfie appear as independently tracked tasks.",
+                "badge": "UI",
+                "kind": "process",
+                "laneKey": "ui",
+                "column": 1,
+                "emphasis": true
+              },
+              {
+                "_type": "flowchartNode",
+                "key": "choose-task",
+                "label": "Choose the first task",
+                "description": "The user can start with either KTP or Selfie.",
+                "badge": "choice",
+                "kind": "decision",
+                "laneKey": "ui",
+                "column": 2
+              },
+              {
+                "_type": "flowchartNode",
+                "key": "capture-preview",
+                "label": "Capture and preview",
+                "description": "A task is not treated as complete until the result is confirmed.",
+                "badge": "UI",
+                "kind": "process",
+                "laneKey": "ui",
+                "column": 3
+              },
+              {
+                "_type": "flowchartNode",
+                "key": "confirm-result",
+                "label": "Confirm the result",
+                "description": "The user accepts the result or retakes the same task.",
+                "badge": "action",
+                "kind": "process",
+                "laneKey": "user",
+                "column": 3
+              },
+              {
+                "_type": "flowchartNode",
+                "key": "persist-task",
+                "label": "Persist task state",
+                "description": "Progress is saved per task after the result is confirmed.",
+                "badge": "saved state",
+                "kind": "system",
+                "laneKey": "state",
+                "column": 4,
+                "emphasis": true
+              },
+              {
+                "_type": "flowchartNode",
+                "key": "leave-return",
+                "label": "Leave and return",
+                "description": "The user can leave KYC and continue in a later session.",
+                "badge": "later session",
+                "kind": "process",
+                "laneKey": "user",
+                "column": 5
+              },
+              {
+                "_type": "flowchartNode",
+                "key": "restore-progress",
+                "label": "Restore progress",
+                "description": "A completed task still appears complete when KYC is opened again.",
+                "badge": "state",
+                "kind": "system",
+                "laneKey": "state",
+                "column": 5
+              },
+              {
+                "_type": "flowchartNode",
+                "key": "remaining-task",
+                "label": "Show the remaining task",
+                "description": "Review only asks the user to finish what is still incomplete.",
+                "badge": "UI",
+                "kind": "process",
+                "laneKey": "ui",
+                "column": 6,
+                "emphasis": true
+              },
+              {
+                "_type": "flowchartNode",
+                "key": "complete-remaining",
+                "label": "Complete the remaining task",
+                "description": "Earlier progress does not need to be repeated.",
+                "badge": "action",
+                "kind": "process",
+                "laneKey": "user",
+                "column": 6
+              },
+              {
+                "_type": "flowchartNode",
+                "key": "persist-latest",
+                "label": "Persist the latest progress",
+                "description": "The state of both tasks is updated before the user continues.",
+                "badge": "saved state",
+                "kind": "system",
+                "laneKey": "state",
+                "column": 7
+              },
+              {
+                "_type": "flowchartNode",
+                "key": "validate-complete",
+                "label": "Are all tasks complete?",
+                "description": "KTP and Selfie must both satisfy the required state.",
+                "badge": "rule",
+                "kind": "decision",
+                "laneKey": "state",
+                "column": 8
+              },
+              {
+                "_type": "flowchartNode",
+                "key": "enable-continue",
+                "label": "Enable Continue",
+                "description": "The next action becomes available once the required states are complete.",
+                "badge": "UI",
+                "kind": "process",
+                "laneKey": "ui",
+                "column": 9
+              },
+              {
+                "_type": "flowchartNode",
+                "key": "send-verification",
+                "label": "Send to verification",
+                "description": "The data moves into verification after submission.",
+                "badge": "handoff",
+                "kind": "end",
+                "laneKey": "verification",
+                "column": 9
+              }
+            ],
+            "edges": [
+              {"_type": "flowchartEdge", "from": "enter-kyc", "to": "review-progress", "style": "solid"},
+              {"_type": "flowchartEdge", "from": "review-progress", "to": "choose-task", "style": "solid", "emphasis": true},
+              {"_type": "flowchartEdge", "from": "choose-task", "to": "capture-preview", "label": "KTP or Selfie", "style": "solid"},
+              {"_type": "flowchartEdge", "from": "capture-preview", "to": "confirm-result", "style": "solid"},
+              {"_type": "flowchartEdge", "from": "confirm-result", "to": "persist-task", "label": "confirmed", "style": "solid", "emphasis": true},
+              {"_type": "flowchartEdge", "from": "persist-task", "to": "remaining-task", "label": "same session", "style": "solid"},
+              {"_type": "flowchartEdge", "from": "persist-task", "to": "leave-return", "label": "continue later", "style": "dashed"},
+              {"_type": "flowchartEdge", "from": "leave-return", "to": "restore-progress", "style": "solid"},
+              {"_type": "flowchartEdge", "from": "restore-progress", "to": "remaining-task", "label": "restored", "style": "solid", "emphasis": true},
+              {"_type": "flowchartEdge", "from": "remaining-task", "to": "complete-remaining", "style": "solid"},
+              {"_type": "flowchartEdge", "from": "complete-remaining", "to": "persist-latest", "style": "solid"},
+              {"_type": "flowchartEdge", "from": "persist-latest", "to": "validate-complete", "style": "solid"},
+              {"_type": "flowchartEdge", "from": "validate-complete", "to": "enable-continue", "label": "complete", "style": "solid", "emphasis": true},
+              {"_type": "flowchartEdge", "from": "validate-complete", "to": "remaining-task", "label": "not yet", "style": "dashed"},
+              {"_type": "flowchartEdge", "from": "enable-continue", "to": "send-verification", "label": "submit", "style": "solid", "emphasis": true}
+            ],
+            "note": "KTP and Selfie follow the same Autosave rule. The interactive prototype above shows both task orders directly.",
+            "theme": "dark"
+          }
+        }
+      ]
+    }
+  ]
 }
