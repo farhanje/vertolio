@@ -7,6 +7,7 @@ import researchStudy from './schemaTypes/researchStudy'
 import normalizeProjectCaseStudyBlocks from './normalizeProjectCaseStudyBlocks'
 import augmentCaseStudyBlockTypes from './augmentCaseStudyBlockTypes'
 import {caseStudyBlockTypes} from './schemas/caseStudyBlocks'
+import {processMapTypes} from './schemas/processMap'
 
 const normalizedProject = normalizeProjectCaseStudyBlocks(project)
 const augmentedCaseStudyBlockTypes = augmentCaseStudyBlockTypes(caseStudyBlockTypes)
@@ -15,6 +16,7 @@ export const schemaTypes = [
   siteSettings,
   organization,
   ...augmentedCaseStudyBlockTypes,
+  ...processMapTypes,
   normalizedProject,
   post,
   recruiterLink,
