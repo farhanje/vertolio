@@ -1,0 +1,165 @@
+[
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Konteks",
+    "title": "Top up jadi merepotkan saat orang yang mengisi saldo sebenarnya ada di sebelah user",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"AstraPay sudah punya Virtual Account, transfer bank, dan OTC untuk top up. Cara itu tetap cocok saat transaksi memang direncanakan dan user punya waktu untuk membuka channel lain."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Gap-nya muncul di situasi yang lebih spontan. User butuh saldo AstraPay dan ada orang di dekatnya yang bisa langsung mengisi. Mencari atau membagikan nomor akun membuat prosesnya lebih panjang dari yang dibutuhkan."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Saya menerjemahkan brief tersebut menjadi interaction model, membahas transaction state bersama engineer, lalu membawa fiturnya ke flow yang tetap menyatu dengan area Top Up yang sudah ada."}]}
+    ],
+    "callout": "Pertanyaannya bukan bagaimana menambah payment method baru. Yang perlu dihilangkan adalah proses bertukar nomor akun saat dua orangnya sudah berada di tempat yang sama.",
+    "width": "wide",
+    "theme": "light"
+  },
+  {
+    "_type": "comparison",
+    "eyebrow": "Problem framing",
+    "title": "Cara top up yang sudah ada menyelesaikan situasi yang berbeda",
+    "description": "Saya memisahkan planned cash-in dan top up dari orang yang sedang berada di dekat user sebelum menentukan interaction-nya.",
+    "left": {"_type":"comparisonSide","label":"Top up terencana","title":"Ikuti detail akun atau pembayaran","description":"User memang membuka bank, Virtual Account, atau OTC lalu menyelesaikan langkah yang dibutuhkan oleh channel tersebut.","note":"Cocok saat transaksi sudah direncanakan."},
+    "right": {"_type":"comparisonSide","label":"Top up di tempat","title":"Tampilkan QR yang bisa langsung dipindai","description":"Orang yang mengisi saldo sudah ada di dekat user. QR menghilangkan kebutuhan untuk bertukar atau mengetik nomor akun.","note":"Interaction-nya memanfaatkan proximity.","linkLabel":"Coba flow","linkHref":"#interactive-qris-top-up"},
+    "theme": "light"
+  },
+  {
+    "_type": "artifactExplorer",
+    "eyebrow": "Dari konsep ke delivery",
+    "title": "Interaction-nya tetap kecil, sementara payment model dibuat lebih jelas",
+    "description": "Konsep awal fokus menghilangkan input nomor. Setelah itu, alignment dengan engineer memetakan apa yang harus terjadi setelah QR ditampilkan.",
+    "theme": "dark",
+    "tabs": [
+      {
+        "_type": "artifactTab",
+        "kind": "image",
+        "label": "Konsep awal",
+        "title": "Mulai dari QR, bukan nomor akun",
+        "description": "Konsepnya memakai pola QRIS yang sudah familiar untuk cash-in. User AstraPay menampilkan QR dan orang yang mengisi saldo memindainya.",
+        "image": {"_type":"image","asset":{"_type":"reference","_ref":"image-9514671c4a33c1e75c0029071115561547fd278d-1672x941-png"}},
+        "alt": "Konsep QRIS Top Up dengan QR untuk menerima top up",
+        "caption": "Pertanyaan desain pertama adalah seberapa sedikit interaction yang dibutuhkan untuk menyelesaikan top up."
+      },
+      {
+        "_type": "artifactTab",
+        "kind": "image",
+        "label": "Alignment engineer",
+        "title": "State yang terlihat harus mengikuti transaction state",
+        "description": "Saya membahas bill creation, status check, callback, retry, dan kondisi yang aman untuk mengubah state di interface bersama engineer.",
+        "image": {"_type":"image","asset":{"_type":"reference","_ref":"image-57d594e4df85bf75a56470a0cae45c5480a6ed51-1672x941-png"}},
+        "alt": "Artifact alignment engineer dan urutan transaksi QRIS Top Up",
+        "caption": "Payment sequence menjadi bagian dari desain karena UI tidak boleh punya versi sendiri tentang status transaksi."
+      }
+    ]
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Interaction design",
+    "title": "Saya memakai behavior pembayaran yang sudah familiar",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Merchant-presented QRIS sudah punya pola yang mudah dikenali. Satu sisi menampilkan QR, sisi lain scan dan bayar. QRIS Top Up memakai behavior yang sama dengan tujuan uang yang berbeda."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Flow user tetap berada di area Top Up yang sudah ada. Pilih QRIS, isi nominal, tampilkan QR, tunggu pembayaran, lalu tampilkan state akhirnya."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Tidak perlu membuat navigation model baru. Pekerjaan desain justru lebih banyak ada pada state saat pembayaran masih menunggu atau hasilnya belum langsung jelas."}]}
+    ],
+    "width": "normal",
+    "theme": "light"
+  },
+  {
+    "_type": "interactivePrototype",
+    "anchorId": "interactive-qris-top-up",
+    "eyebrow": "Interactive prototype",
+    "title": "Coba flow QRIS Top Up",
+    "description": "Ikuti happy path top up, lalu lihat expired dan recovery state yang berada di luar alur utama.",
+    "theme": "dark",
+    "device": "phone",
+    "preset": "qris-top-up-flow-id"
+  },
+  {
+    "_type": "flowchart",
+    "eyebrow": "Transaction state model",
+    "title": "QR-nya sederhana. Menyelesaikan payment state tidak.",
+    "description": "State model ini menunjukkan kapan interface menunggu, menampilkan success, menutup bill yang expired, atau mengecek ulang transaksi yang belum jelas.",
+    "mode": "basic",
+    "theme": "dark",
+    "nodes": [
+      {"_type":"flowchartNode","key":"bill","label":"Buat satu bill","description":"Nominal terikat ke satu transaksi top up.","badge":"bill","kind":"start","column":1,"row":2},
+      {"_type":"flowchartNode","key":"qr","label":"Tampilkan QR","description":"Orang yang mengisi saldo scan QR tersebut.","badge":"UI","kind":"process","column":2,"row":2,"emphasis":true},
+      {"_type":"flowchartNode","key":"waiting","label":"Tunggu pembayaran","description":"UI tetap pending selama bill belum selesai.","badge":"pending","kind":"system","column":3,"row":2},
+      {"_type":"flowchartNode","key":"state","label":"State apa yang kembali?","description":"Bill status atau callback memperbarui transaksi yang sama.","badge":"decision","kind":"decision","column":4,"row":2},
+      {"_type":"flowchartNode","key":"paid","label":"Paid dan saldo bertambah","description":"Success baru tampil setelah pembayaran selesai.","badge":"resolved","kind":"end","column":5,"row":1,"emphasis":true},
+      {"_type":"flowchartNode","key":"unresolved","label":"Status belum jelas","description":"Jangan minta user membayar ulang dulu.","badge":"recovery","kind":"system","column":5,"row":2},
+      {"_type":"flowchartNode","key":"expired","label":"Bill expired","description":"QR lama tidak digunakan kembali.","badge":"closed","kind":"end","column":5,"row":3},
+      {"_type":"flowchartNode","key":"recheck","label":"Cek bill yang sama","description":"Recovery memeriksa transaksi yang ada lebih dulu.","badge":"status check","kind":"process","column":6,"row":2},
+      {"_type":"flowchartNode","key":"newbill","label":"Buat QR baru jika perlu","description":"Transaksi baru dimulai setelah bill lama ditutup.","badge":"new transaction","kind":"process","column":6,"row":3}
+    ],
+    "edges": [
+      {"_type":"flowchartEdge","from":"bill","to":"qr","style":"solid","emphasis":true},
+      {"_type":"flowchartEdge","from":"qr","to":"waiting","style":"solid","emphasis":true},
+      {"_type":"flowchartEdge","from":"waiting","to":"state","style":"solid"},
+      {"_type":"flowchartEdge","from":"state","to":"paid","label":"paid","style":"solid","emphasis":true},
+      {"_type":"flowchartEdge","from":"state","to":"unresolved","label":"belum selesai","style":"solid"},
+      {"_type":"flowchartEdge","from":"state","to":"expired","label":"expired","style":"dashed"},
+      {"_type":"flowchartEdge","from":"unresolved","to":"recheck","style":"solid","emphasis":true},
+      {"_type":"flowchartEdge","from":"recheck","to":"state","style":"solid"},
+      {"_type":"flowchartEdge","from":"expired","to":"newbill","style":"dashed"}
+    ],
+    "note": "Diagram ini berhenti di product state. Detail implementasi yang tidak dibutuhkan untuk menjelaskan keputusan desain sengaja tidak ditampilkan."
+  },
+  {
+    "_type": "evidenceGrid",
+    "eyebrow": "Design specification",
+    "title": "Empat aturan menjaga payment state tetap jelas dan aman",
+    "description": "Aturan ini menerjemahkan transaction behavior di backend menjadi state yang bisa dipahami user.",
+    "columns": 4,
+    "metrics": [
+      {"_type":"evidenceMetric","value":"One bill","label":"Pertahankan satu identitas transaksi","context":"Status check dan recovery mengacu ke bill yang sama, bukan membuat pembayaran baru."},
+      {"_type":"evidenceMetric","value":"Pending","label":"Menunggu belum berarti success","context":"Interface tidak mengonfirmasi top up selama pembayaran belum selesai."},
+      {"_type":"evidenceMetric","value":"Expired","label":"Tutup QR lama dengan jelas","context":"Bill yang expired tidak dipakai ulang saat user memulai kembali."},
+      {"_type":"evidenceMetric","value":"Recover","label":"Cek ulang sebelum retry payment","context":"Hasil yang terlambat tidak boleh mendorong user ke transaksi duplikat."}
+    ],
+    "theme": "light"
+  },
+  {
+    "_type": "evidenceGrid",
+    "eyebrow": "Outcome",
+    "title": "Channel baru ini menjadi bagian yang berarti dari cash-in AstraPay",
+    "description": "Evidence post-launch yang paling kuat adalah kontribusi channel pada 2026.",
+    "columns": 3,
+    "metrics": [
+      {"_type":"evidenceMetric","value":"9,3%","label":"share cash-in 2026","context":"kontribusi QRIS Top Up yang terukur"},
+      {"_type":"evidenceMetric","value":"Top 2","label":"cash-in channel","context":"masuk di antara channel cash-in terbesar AstraPay"},
+      {"_type":"evidenceMetric","value":"2026","label":"periode pengukuran","context":"evidence setelah implementasi"}
+    ],
+    "theme": "light"
+  },
+  {
+    "_type": "dataVisualization",
+    "eyebrow": "Setelah implementasi",
+    "title": "QRIS Top Up menyumbang 9,3% cash-in",
+    "description": "Chart ini memakai share channel yang terdokumentasi, bukan funnel transaksi dengan angka buatan.",
+    "takeaway": "Fitur yang awalnya dibuat untuk situasi top up di tempat tumbuh menjadi salah satu channel cash-in terbesar AstraPay.",
+    "chartType": "composition",
+    "dataSource": "manual",
+    "series": [
+      {"_type":"dataSeries","key":"qris","label":"QRIS Top Up","suffix":"%"},
+      {"_type":"dataSeries","key":"other","label":"Cash-in lainnya","suffix":"%"}
+    ],
+    "rows": [
+      {"_type":"dataRow","label":"Komposisi cash-in 2026","values":[{"_type":"dataValue","seriesKey":"qris","value":9.3},{"_type":"dataValue","seriesKey":"other","value":90.7}]}
+    ],
+    "evidenceStatus": "measured",
+    "source": "Analytics cash-in AstraPay",
+    "period": "2026",
+    "methodNote": "Share QRIS Top Up sebesar 9,3% adalah angka yang terukur. Sisa 90,7% dihitung dari angka tersebut. Chart ini menunjukkan komposisi channel dan tidak digunakan untuk mengklaim incremental lift dari fitur.",
+    "theme": "light"
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Refleksi",
+    "title": "Flow di layar bisa tetap singkat karena system state mengerjakan bagian yang lebih berat",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Keputusan desain yang penting bukan menambah langkah. Saya memakai interaction yang sudah dikenal untuk situasi cash-in yang berbeda."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Bagian yang membutuhkan perhatian lebih adalah transaction truth. Waiting, success, expiry, dan recovery harus tetap mudah dipahami user tanpa terlepas dari payment state di bawahnya."}]}
+    ],
+    "width": "narrow",
+    "theme": "light"
+  }
+]
