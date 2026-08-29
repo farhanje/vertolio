@@ -1,0 +1,219 @@
+.shell {
+  margin: 44px 0;
+  border: 1px solid rgba(17, 17, 17, 0.12);
+  border-radius: 24px;
+  overflow: hidden;
+}
+
+.light {
+  background: #fff;
+  color: #111;
+}
+
+.dark {
+  background: #111;
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.header {
+  padding: 28px 30px 24px;
+  max-width: 920px;
+}
+
+.eyebrow {
+  margin-bottom: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.62;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(24px, 3vw, 40px);
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+}
+
+.description {
+  margin: 14px 0 0;
+  max-width: 760px;
+  font-size: 15px;
+  line-height: 1.65;
+  opacity: 0.76;
+}
+
+.scroller {
+  width: 100%;
+  overflow-x: auto;
+  border-top: 1px solid rgba(17, 17, 17, 0.1);
+  overscroll-behavior-x: contain;
+}
+
+.dark .scroller {
+  border-top-color: rgba(255, 255, 255, 0.14);
+}
+
+.map {
+  --lane-width: 190px;
+  display: grid;
+  grid-template-columns: var(--lane-width) repeat(var(--stage-count), minmax(190px, 1fr));
+  min-width: calc(var(--lane-width) + (var(--stage-count) * 190px));
+}
+
+.corner,
+.stage,
+.laneLabel,
+.cell {
+  border-right: 1px solid rgba(17, 17, 17, 0.1);
+  border-bottom: 1px solid rgba(17, 17, 17, 0.1);
+}
+
+.dark .corner,
+.dark .stage,
+.dark .laneLabel,
+.dark .cell {
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.corner,
+.stage {
+  min-height: 112px;
+  padding: 18px 20px;
+  background: rgba(17, 17, 17, 0.025);
+}
+
+.dark .corner,
+.dark .stage {
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.corner {
+  display: flex;
+  align-items: flex-end;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.55;
+}
+
+.stage {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.stageNumber {
+  font-size: 11px;
+  font-weight: 700;
+  opacity: 0.45;
+}
+
+.stage strong {
+  font-size: 15px;
+  line-height: 1.25;
+}
+
+.stage span:last-child {
+  font-size: 12px;
+  line-height: 1.45;
+  opacity: 0.62;
+}
+
+.laneLabel {
+  padding: 18px 20px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.dark .laneLabel {
+  background: #111;
+}
+
+.laneLabel strong {
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+.laneLabel span {
+  font-size: 11px;
+  line-height: 1.45;
+  opacity: 0.58;
+}
+
+.cell {
+  min-height: 108px;
+  padding: 18px 20px;
+  font-size: 13px;
+  line-height: 1.55;
+  background: transparent;
+}
+
+.emphasis {
+  background: rgba(17, 17, 17, 0.045);
+  font-weight: 600;
+}
+
+.dark .emphasis {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.empty {
+  opacity: 0.24;
+}
+
+.sticky {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+}
+
+.corner.sticky {
+  z-index: 3;
+}
+
+.note {
+  margin: 0;
+  padding: 18px 30px 22px;
+  font-size: 12px;
+  line-height: 1.55;
+  opacity: 0.62;
+  border-top: 1px solid rgba(17, 17, 17, 0.1);
+}
+
+.dark .note {
+  border-top-color: rgba(255, 255, 255, 0.12);
+}
+
+@media (max-width: 720px) {
+  .shell {
+    margin: 32px 0;
+    border-radius: 18px;
+  }
+
+  .header {
+    padding: 22px 20px 20px;
+  }
+
+  .map {
+    --lane-width: 150px;
+    grid-template-columns: var(--lane-width) repeat(var(--stage-count), minmax(170px, 1fr));
+    min-width: calc(var(--lane-width) + (var(--stage-count) * 170px));
+  }
+
+  .corner,
+  .stage,
+  .laneLabel,
+  .cell {
+    padding: 16px;
+  }
+
+  .note {
+    padding: 16px 20px 20px;
+  }
+}
