@@ -59,10 +59,37 @@ function augmentComparisonSide(type) {
   }
 }
 
+function augmentArtifactExplorer(type) {
+  const fields = type.fields.flatMap((field) => {
+    if (field.name !== 'theme') return [field]
+    return [
+      {
+        name: 'layout',
+        title: 'Tab layout',
+        type: 'string',
+        initialValue: 'horizontal',
+        description: 'Horizontal works well for short labels and quick comparison. Vertical creates a left-side index for longer labels or several related artifacts.',
+        options: {
+          list: [
+            {title: 'Horizontal tabs', value: 'horizontal'},
+            {title: 'Vertical tabs', value: 'vertical'},
+          ],
+          layout: 'radio',
+        },
+        validation: (Rule) => Rule.required(),
+      },
+      field,
+    ]
+  })
+
+  return {...type, fields}
+}
+
 export default function augmentCaseStudyBlockTypes(types = []) {
   return types.map((type) => {
     if (type?.name === 'interactivePrototype') return augmentInteractivePrototype(type)
     if (type?.name === 'comparisonSide') return augmentComparisonSide(type)
+    if (type?.name === 'artifactExplorer') return augmentArtifactExplorer(type)
     return type
   })
 }
