@@ -60,18 +60,18 @@ const flowchartNode = {
     },
     {
       name: 'column',
-      title: 'Column',
+      title: 'Stage',
       type: 'number',
       initialValue: 1,
-      description: 'Left-to-right stage position. Start at 1. Put parallel branches in the same column.',
+      description: 'Main sequence position. Horizontal flows read this left-to-right. Vertical flows read it top-to-bottom.',
       validation: (Rule) => Rule.required().integer().min(1).max(12),
     },
     {
       name: 'row',
-      title: 'Row',
+      title: 'Branch position',
       type: 'number',
       initialValue: 1,
-      description: 'Basic mode only. Use row 1 for the main path and other rows for branches. Ignored in Swimlane mode.',
+      description: 'Basic mode only. Horizontal flows use this as the row. Vertical flows use it as the branch column. Ignored in Swimlane mode.',
       validation: (Rule) => Rule.integer().min(1).max(8),
     },
     {name: 'emphasis', title: 'Emphasize node', type: 'boolean', initialValue: false},
@@ -79,7 +79,7 @@ const flowchartNode = {
   preview: {
     select: {title: 'label', key: 'key', kind: 'kind', column: 'column', laneKey: 'laneKey'},
     prepare({title, key, kind, column, laneKey}) {
-      return {title: title || 'Node', subtitle: [kind, laneKey, `col ${column || 1}`, key].filter(Boolean).join(' · ')}
+      return {title: title || 'Node', subtitle: [kind, laneKey, `stage ${column || 1}`, key].filter(Boolean).join(' · ')}
     },
   },
 }
@@ -119,7 +119,7 @@ const flowchart = {
   name: 'flowchart',
   title: 'Native flowchart',
   type: 'object',
-  description: 'Responsive flow diagram for product flows, system behavior, decision trees, handoffs, and swimlanes. Author with columns and rows or lane keys instead of manual x/y positioning.',
+  description: 'Responsive flow diagram for product flows, system behavior, decision trees, handoffs, and swimlanes. Author by sequence and branch position instead of manual x/y coordinates.',
   fields: [
     {name: 'eyebrow', title: 'Eyebrow', type: 'string', initialValue: 'Flowchart'},
     {name: 'title', title: 'Title', type: 'string', validation: (Rule) => Rule.required()},
@@ -139,10 +139,25 @@ const flowchart = {
       validation: (Rule) => Rule.required(),
     },
     {
+      name: 'direction',
+      title: 'Flow direction',
+      type: 'string',
+      initialValue: 'horizontal',
+      description: 'Horizontal is best for short journeys and state models. Vertical works well for long sequences, approval chains, onboarding, and operational handoffs.',
+      options: {
+        list: [
+          {title: 'Horizontal · left to right', value: 'horizontal'},
+          {title: 'Vertical · top to bottom', value: 'vertical'},
+        ],
+        layout: 'radio',
+      },
+      validation: (Rule) => Rule.required(),
+    },
+    {
       name: 'lanes',
       title: 'Swimlanes',
       type: 'array',
-      description: 'Only used in Swimlane mode. Order here controls top-to-bottom lane order.',
+      description: 'Only used in Swimlane mode. Horizontal flow shows lanes top-to-bottom. Vertical flow shows lanes left-to-right.',
       hidden: ({parent}) => parent?.mode !== 'swimlane',
       validation: (Rule) => Rule.max(8),
       of: [{type: 'flowchartLane'}],
@@ -151,7 +166,7 @@ const flowchart = {
       name: 'nodes',
       title: 'Nodes',
       type: 'array',
-      description: 'Place nodes by column. In Basic mode use row for branches. In Swimlane mode use laneKey.',
+      description: 'Stage controls the main sequence. In Basic mode use Branch position for parallel paths. In Swimlane mode use laneKey.',
       validation: (Rule) => Rule.required().min(2).max(24),
       of: [{type: 'flowchartNode'}],
     },
@@ -173,10 +188,11 @@ const flowchart = {
     },
   ],
   preview: {
-    select: {title: 'title', mode: 'mode', nodes: 'nodes', lanes: 'lanes'},
-    prepare({title, mode, nodes, lanes}) {
+    select: {title: 'title', mode: 'mode', direction: 'direction', nodes: 'nodes', lanes: 'lanes'},
+    prepare({title, mode, direction, nodes, lanes}) {
       const laneText = mode === 'swimlane' ? ` · ${lanes?.length || 0} lanes` : ''
-      return {title: title || 'Flowchart', subtitle: `${mode === 'swimlane' ? 'Swimlane' : 'Basic'} · ${nodes?.length || 0} nodes${laneText}`}
+      const directionText = direction === 'vertical' ? 'Vertical' : 'Horizontal'
+      return {title: title || 'Flowchart', subtitle: `${mode === 'swimlane' ? 'Swimlane' : 'Basic'} · ${directionText} · ${nodes?.length || 0} nodes${laneText}`}
     },
   },
 }
