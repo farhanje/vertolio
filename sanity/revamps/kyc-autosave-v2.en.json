@@ -1,0 +1,339 @@
+[
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Context",
+    "title": "KYC needed to be resumable without making people start over",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"The earlier KYC flow followed one fixed sequence. Users completed KTP first, then Selfie, before moving into identity details and submission."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Autosave made that structure worth revisiting. Saving progress had limited value if users still had to follow the same order or repeat work after leaving the flow."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"I designed two flow directions, set up the usability study, analyzed the behavioral and survey evidence, then translated the decision into product rules for implementation."}]}
+    ],
+    "callout": "Autosave became more useful once saved progress changed how the flow itself behaved.",
+    "width": "wide",
+    "theme": "light"
+  },
+  {
+    "_type": "evidenceGrid",
+    "eyebrow": "My role",
+    "title": "My scope ran from the experiment into implementation behavior",
+    "description": "I worked across the flow concepts, study setup, analysis, and the interaction rules needed once the selected direction moved toward production.",
+    "columns": 4,
+    "metrics": [
+      {"_type":"evidenceMetric","value":"Flow design","label":"designed Flow A and Flow B","context":"fixed sequence compared with a task-based structure"},
+      {"_type":"evidenceMetric","value":"Research","label":"set up the usability study","context":"Maze tasks followed by a post-test survey"},
+      {"_type":"evidenceMetric","value":"Analysis","label":"combined behavioral and survey evidence","context":"including SUS, misclicks, confidence, and open feedback"},
+      {"_type":"evidenceMetric","value":"Delivery","label":"defined Autosave behavior","context":"saved progress, retake, resume, and submission states"}
+    ],
+    "theme": "light"
+  },
+  {
+    "_type": "processMap",
+    "eyebrow": "User journey",
+    "title": "The journey changes once progress no longer depends on one session",
+    "description": "This map follows the user from starting the upgrade through submission, including the moment where KYC is left and resumed later.",
+    "mode": "journey",
+    "stages": [
+      {"_type":"processStage","key":"entry","label":"Start upgrade","caption":"Understand what is needed"},
+      {"_type":"processStage","key":"review","label":"Review","caption":"See tasks and progress"},
+      {"_type":"processStage","key":"first-task","label":"First task","caption":"Complete KTP or Selfie"},
+      {"_type":"processStage","key":"return","label":"Come back","caption":"Resume saved progress"},
+      {"_type":"processStage","key":"remaining","label":"Remaining task","caption":"Finish what is still incomplete"},
+      {"_type":"processStage","key":"submit","label":"Submission","caption":"Send KYC for verification"}
+    ],
+    "lanes": [
+      {"_type":"processLane","label":"User goal","description":"What the user is trying to achieve","cells":[
+        {"_type":"processCell","stageKey":"entry","text":"Know what to prepare before starting"},
+        {"_type":"processCell","stageKey":"review","text":"Understand what is complete and what still needs work"},
+        {"_type":"processCell","stageKey":"first-task","text":"Finish one task with confidence"},
+        {"_type":"processCell","stageKey":"return","text":"Continue without losing earlier work","emphasis":true},
+        {"_type":"processCell","stageKey":"remaining","text":"Focus only on the unfinished task"},
+        {"_type":"processCell","stageKey":"submit","text":"Submit once everything is ready"}
+      ]},
+      {"_type":"processLane","label":"User action","description":"What happens in the interface","cells":[
+        {"_type":"processCell","stageKey":"entry","text":"Read the upgrade benefits and requirements"},
+        {"_type":"processCell","stageKey":"review","text":"Choose KTP or Selfie from Review"},
+        {"_type":"processCell","stageKey":"first-task","text":"Capture the photo and confirm the result"},
+        {"_type":"processCell","stageKey":"return","text":"Open KYC again and see the earlier task still complete"},
+        {"_type":"processCell","stageKey":"remaining","text":"Complete the task that is still active"},
+        {"_type":"processCell","stageKey":"submit","text":"Check the final data and continue to verification"}
+      ]},
+      {"_type":"processLane","label":"Experience risk","description":"Where unnecessary repetition or uncertainty can appear","cells":[
+        {"_type":"processCell","stageKey":"entry","text":"Requirements only become clear after work has started"},
+        {"_type":"processCell","stageKey":"review","text":"A forced order prevents users from adapting to their current situation"},
+        {"_type":"processCell","stageKey":"first-task","text":"It is unclear when progress is actually saved"},
+        {"_type":"processCell","stageKey":"return","text":"The user expects to start again","emphasis":true},
+        {"_type":"processCell","stageKey":"remaining","text":"Completed work gets repeated"},
+        {"_type":"processCell","stageKey":"submit","text":"The visible progress does not match what is submitted"}
+      ]},
+      {"_type":"processLane","label":"Design response","description":"How the product answers that need","cells":[
+        {"_type":"processCell","stageKey":"entry","text":"Show both tasks before KYC begins"},
+        {"_type":"processCell","stageKey":"review","text":"Use Review as the progress hub"},
+        {"_type":"processCell","stageKey":"first-task","text":"Save each task after the result is confirmed"},
+        {"_type":"processCell","stageKey":"return","text":"Restore the state of each task when the user comes back","emphasis":true},
+        {"_type":"processCell","stageKey":"remaining","text":"Keep completed work intact while the remaining task stays actionable"},
+        {"_type":"processCell","stageKey":"submit","text":"Bring the tasks together before the next verification step"}
+      ]}
+    ],
+    "note": "The journey focuses on KTP and Selfie because those two tasks were the core of the Autosave experiment.",
+    "theme": "light"
+  },
+  {
+    "_type": "comparison",
+    "eyebrow": "Flow exploration",
+    "title": "We tested a fixed sequence against a flexible task hub",
+    "description": "Both concepts saved progress. The difference was how much the surrounding KYC structure changed once that progress could persist.",
+    "left": {
+      "_type": "comparisonSide",
+      "label": "Flow A",
+      "title": "Keep the existing sequence",
+      "description": "Users followed the predetermined order and the guide remained a required step before moving to the next task.",
+      "image": {"_type":"image","asset":{"_type":"reference","_ref":"image-cdf0a6d13ec7dfb31641372ef1ba6e2900475d91-2782x958-png"}},
+      "alt": "Flow A KYC with a fixed sequence",
+      "note": "Autosave sits inside the old interaction pattern."
+    },
+    "right": {
+      "_type": "comparisonSide",
+      "label": "Flow B",
+      "title": "Turn Review into a task hub",
+      "description": "Users see the status of KTP and Selfie in one place, choose where to start, and return to the hub after completing one task.",
+      "image": {"_type":"image","asset":{"_type":"reference","_ref":"image-38add15b7840025fa4e2366532ec557d86c02a5e-2450x838-png"}},
+      "alt": "Flow B KYC with Review as a task hub",
+      "note": "Autosave changes the interaction structure as well as persistence.",
+      "linkLabel": "Try Flow B",
+      "linkHref": "#interactive-kyc-autosave"
+    },
+    "theme": "light"
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Research question",
+    "title": "The extra flexibility needed testing because it also introduced more choice",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Flow B gave users more control and made progress easier to inspect. It also added a decision that did not exist in the earlier sequence."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"I wanted to check whether that tradeoff made KYC harder to understand. Both directions were therefore tested as end-to-end experiences rather than compared only as wireframes."}]}
+    ],
+    "width": "normal",
+    "theme": "light"
+  },
+  {
+    "_type": "evidenceGrid",
+    "eyebrow": "Method",
+    "title": "Randomized usability study with 30 participants",
+    "description": "The study ran unmoderated in Maze and ended with a post-test survey.",
+    "columns": 4,
+    "metrics": [
+      {"_type":"evidenceMetric","value":"30","label":"participants","context":"total study sample"},
+      {"_type":"evidenceMetric","value":"15 and 15","label":"group split","context":"Flow A and Flow B"},
+      {"_type":"evidenceMetric","value":"Unmoderated","label":"test format","context":"task-based usability study"},
+      {"_type":"evidenceMetric","value":"Maze and survey","label":"data sources","context":"behavioral and self-reported"}
+    ],
+    "theme": "light"
+  },
+  {
+    "_type": "artifactExplorer",
+    "eyebrow": "Research evidence",
+    "title": "Inspect the study setup and results",
+    "description": "The evidence is grouped here so the study can be inspected without turning the main case into a sequence of static charts.",
+    "theme": "dark",
+    "tabs": [
+      {
+        "_type": "artifactTab",
+        "kind": "image",
+        "label": "Study setup",
+        "title": "One randomized study across two flows",
+        "description": "Participants completed one of the Maze flows and then answered the post-test survey.",
+        "image": {"_type":"image","asset":{"_type":"reference","_ref":"image-0a7571ebab8eb65611eb2be0f37c529d156ce361-1672x941-png"}},
+        "alt": "Randomized usability study setup for Flow A and Flow B",
+        "caption": "N 30 with 15 participants assigned to each flow."
+      },
+      {
+        "_type": "artifactTab",
+        "kind": "image",
+        "label": "SUS",
+        "title": "SUS did not show a significant difference",
+        "description": "The inferential result did not support calling either flow more usable in statistical terms.",
+        "image": {"_type":"image","asset":{"_type":"reference","_ref":"image-61b90adb7feca6c69eeb2e9650fe33231997f6e1-1672x941-png"}},
+        "alt": "SUS result for Flow A and Flow B",
+        "caption": "The difference between flows was not statistically significant."
+      },
+      {
+        "_type": "artifactTab",
+        "kind": "image",
+        "label": "Behavioral signals",
+        "title": "Behavioral and perception data remained descriptive evidence",
+        "description": "Misclicks, confidence, and open feedback helped interpret the direction once the inferential test produced no winner.",
+        "image": {"_type":"image","asset":{"_type":"reference","_ref":"image-2eb0b07161eaa173276814bdea760247ecee03ae-1672x941-png"}},
+        "alt": "Behavioral and perception results for Flow A and Flow B",
+        "caption": "Descriptive signals were considered alongside open feedback and the product requirement."
+      }
+    ]
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Reading the results",
+    "title": "The study did not produce a statistical winner",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"SUS and total misclicks showed no significant difference between Flow A and Flow B. Several perception measures followed the same pattern."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"I then looked at the descriptive data and open feedback without treating them as inferential proof. Flow B showed a lower misclick trend, steadier confidence, and feedback that was more supportive of the progress hub."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Flow B also matched the product model better because each task was already meant to persist independently. There was no meaningful usability penalty that justified keeping the older sequence."}]}
+    ],
+    "callout": "Flow B gave us enough confidence to move forward while staying within what the study actually supported.",
+    "width": "wide",
+    "theme": "light"
+  },
+  {
+    "_type": "comparison",
+    "eyebrow": "Claim boundary",
+    "title": "The product decision stayed separate from the statistical claim",
+    "description": "The study informed the direction, but it did not justify saying that Flow B was statistically proven to be better.",
+    "left": {
+      "_type": "comparisonSide",
+      "label": "Not supported",
+      "title": "Flow B won the A B test",
+      "description": "There was no significant difference in SUS or total misclicks, so the study did not establish a statistical winner.",
+      "note": "The inferential result remained non-significant."
+    },
+    "right": {
+      "_type": "comparisonSide",
+      "label": "Supported for the decision",
+      "title": "Flow B was a reasonable production baseline",
+      "description": "Usability did not meaningfully deteriorate, while the behavioral trend, feedback, and Autosave model all supported the more flexible structure.",
+      "note": "Decision confidence came from the full body of evidence."
+    },
+    "theme": "light"
+  },
+  {
+    "_type": "interactivePrototype",
+    "anchorId": "interactive-kyc-autosave",
+    "preset": "kyc-autosave-flow-b-en",
+    "eyebrow": "Interactive prototype",
+    "title": "Try Flow B starting with KTP or Selfie",
+    "description": "This walkthrough shows the behavior that became the basis for Autosave. Choose the first task, return to Review with saved progress, then complete what remains.",
+    "theme": "dark",
+    "device": "phone",
+    "analyticsPrefix": "kyc_autosave_revamp"
+  },
+  {
+    "_type": "processMap",
+    "eyebrow": "Service blueprint",
+    "title": "Autosave had to stay consistent from the interface down to saved state",
+    "description": "The blueprint connects user actions, visible UI states, persistence behavior, and verification once Flow B became the implementation direction.",
+    "mode": "serviceBlueprint",
+    "stages": [
+      {"_type":"processStage","key":"entry","label":"Entry","caption":"Enter KYC upgrade"},
+      {"_type":"processStage","key":"review","label":"Review","caption":"Read task state"},
+      {"_type":"processStage","key":"capture","label":"Capture","caption":"Complete one task"},
+      {"_type":"processStage","key":"resume","label":"Resume","caption":"Restore progress"},
+      {"_type":"processStage","key":"complete","label":"Complete","caption":"Required tasks are done"},
+      {"_type":"processStage","key":"submit","label":"Submit","caption":"Move into verification"}
+    ],
+    "lanes": [
+      {"_type":"processLane","label":"User","description":"What the user does","cells":[
+        {"_type":"processCell","stageKey":"entry","text":"Start the upgrade after seeing the required tasks"},
+        {"_type":"processCell","stageKey":"review","text":"Choose KTP or Selfie"},
+        {"_type":"processCell","stageKey":"capture","text":"Take the photo and confirm the result"},
+        {"_type":"processCell","stageKey":"resume","text":"Return to KYC and continue from the unfinished task"},
+        {"_type":"processCell","stageKey":"complete","text":"Review both completed tasks"},
+        {"_type":"processCell","stageKey":"submit","text":"Continue into identity details and final submission"}
+      ]},
+      {"_type":"processLane","label":"Frontstage UI","description":"States the interface needs to communicate","cells":[
+        {"_type":"processCell","stageKey":"entry","text":"Upgrade requirements and benefits"},
+        {"_type":"processCell","stageKey":"review","text":"Two tasks with independent status","emphasis":true},
+        {"_type":"processCell","stageKey":"capture","text":"Capture, preview, and retake"},
+        {"_type":"processCell","stageKey":"resume","text":"Completed work still appears complete","emphasis":true},
+        {"_type":"processCell","stageKey":"complete","text":"Continue becomes available once requirements are met"},
+        {"_type":"processCell","stageKey":"submit","text":"Processing state after the data is sent"}
+      ]},
+      {"_type":"processLane","label":"Client state","description":"Autosave behavior in the application","cells":[
+        {"_type":"processCell","stageKey":"entry","text":"Read any existing KYC state"},
+        {"_type":"processCell","stageKey":"review","text":"Render each task state independently"},
+        {"_type":"processCell","stageKey":"capture","text":"Persist the task after the result is confirmed","emphasis":true},
+        {"_type":"processCell","stageKey":"resume","text":"Restore the task that was already saved"},
+        {"_type":"processCell","stageKey":"complete","text":"Validate required tasks before continuing"},
+        {"_type":"processCell","stageKey":"submit","text":"Clear saved local state after successful submission"}
+      ]},
+      {"_type":"processLane","label":"Backstage","description":"Work the user should not have to manage","cells":[
+        {"_type":"processCell","stageKey":"entry","text":"Prepare the KYC case and eligibility state"},
+        {"_type":"processCell","stageKey":"review","text":"Keep task state tied to the same case"},
+        {"_type":"processCell","stageKey":"capture","text":"Receive the task payload for downstream use"},
+        {"_type":"processCell","stageKey":"resume","text":"Keep the same KYC case when the user returns"},
+        {"_type":"processCell","stageKey":"complete","text":"Bring required data together before submission"},
+        {"_type":"processCell","stageKey":"submit","text":"Send the data into verification and review"}
+      ]},
+      {"_type":"processLane","label":"Design rules","description":"Rules that keep the behavior predictable","cells":[
+        {"_type":"processCell","stageKey":"entry","text":"Explain the tasks before asking the user to begin"},
+        {"_type":"processCell","stageKey":"review","text":"Review is the source of truth for progress","emphasis":true},
+        {"_type":"processCell","stageKey":"capture","text":"Retake only changes the selected task"},
+        {"_type":"processCell","stageKey":"resume","text":"A saved task should not become incomplete without a user action"},
+        {"_type":"processCell","stageKey":"complete","text":"Required states must agree before the next action becomes available"},
+        {"_type":"processCell","stageKey":"submit","text":"Old progress must not reappear after submission is complete"}
+      ]}
+    ],
+    "note": "The blueprint treats Autosave as coordinated product behavior rather than a local persistence feature in isolation.",
+    "theme": "dark"
+  },
+  {
+    "_type": "evidenceGrid",
+    "eyebrow": "Design specification",
+    "title": "Four rules carried the interaction into implementation",
+    "description": "These rules keep Flow B predictable when someone retakes a photo, leaves KYC, or returns in a later session.",
+    "columns": 4,
+    "metrics": [
+      {"_type":"evidenceMetric","value":"Per task","label":"progress persists independently","context":"KTP and Selfie keep their own state"},
+      {"_type":"evidenceMetric","value":"Review","label":"acts as the source of truth","context":"complete and incomplete states are visible in one hub"},
+      {"_type":"evidenceMetric","value":"Retake","label":"only changes the relevant task","context":"other completed work does not need to repeat"},
+      {"_type":"evidenceMetric","value":"Submit","label":"clears stale progress","context":"saved state should not return after the process is complete"}
+    ],
+    "theme": "light"
+  },
+  {
+    "_type": "evidenceGrid",
+    "eyebrow": "Outcome",
+    "title": "The study result and the production outcome are shown separately",
+    "description": "The study directly supported the Flow B decision. Conversion moved later while several KYC improvements were live at the same time.",
+    "columns": 4,
+    "metrics": [
+      {"_type":"evidenceMetric","value":"Flow B","label":"production baseline","context":"selected after the usability study"},
+      {"_type":"evidenceMetric","value":"n.s.","label":"SUS and total misclicks","context":"no significant difference"},
+      {"_type":"evidenceMetric","value":"11%","label":"peak KYC uplift","context":"observed during the broader KYC improvement period","note":"Not attributed to Autosave alone."},
+      {"_type":"evidenceMetric","value":"5%","label":"more stable uplift","context":"versus the earlier period","note":"Homepage copy and other KYC changes were also live."}
+    ],
+    "theme": "light"
+  },
+  {
+    "_type": "dataVisualization",
+    "eyebrow": "Broader KYC outcome",
+    "title": "Conversion moved higher during the wider KYC improvement period",
+    "description": "This chart provides post-implementation context. The same period also included other KYC changes.",
+    "takeaway": "Flow B formed part of the experience used during this period, while the conversion uplift cannot be isolated as an Autosave-only effect.",
+    "chartType": "bar",
+    "dataSource": "manual",
+    "series": [
+      {"_type":"dataSeries","key":"uplift","label":"Uplift versus earlier period","suffix":"%"}
+    ],
+    "rows": [
+      {"_type":"dataRow","label":"Earlier period","values":[{"_type":"dataValue","seriesKey":"uplift","value":0}]},
+      {"_type":"dataRow","label":"Improvement-period baseline","values":[{"_type":"dataValue","seriesKey":"uplift","value":5}]},
+      {"_type":"dataRow","label":"Improvement-period peak","values":[{"_type":"dataValue","seriesKey":"uplift","value":11}]}
+    ],
+    "yLabel": "Conversion uplift",
+    "baseline": 0,
+    "baselineLabel": "Earlier period",
+    "evidenceStatus": "derived",
+    "source": "Internal KYC conversion tracking",
+    "period": "KYC improvement period after implementation",
+    "methodNote": "The 5% and 11% values describe the baseline and peak uplift during the broader KYC improvement period. Homepage copy and other changes were live at the same time, so this chart is not used as a causal estimate for Autosave.",
+    "theme": "light"
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Reflection",
+    "title": "A non-significant study can still support a strong product decision",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"The study did not produce a statistical winner. That made the decision boundary clearer. Flow B could move forward because usability did not meaningfully deteriorate and its behavior matched what Autosave needed to support."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"A next iteration should measure resume rate, retakes by task, and completion after users return. Those measures would make the value of persistence easier to separate from other KYC changes happening around it."}]}
+    ],
+    "width": "normal",
+    "theme": "light"
+  }
+]
