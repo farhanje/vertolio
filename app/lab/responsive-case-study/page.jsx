@@ -1,4 +1,5 @@
 import styles from './ResponsiveLab.module.css'
+import ViewportPreview from './ViewportPreview'
 
 export const metadata = {
   title: 'Responsive Case Study QA',
@@ -16,24 +17,6 @@ const realCaseViewports = [
   {key: 'qris-phone', label: 'QRIS case · Phone', size: '390 × 844', className: styles.phone},
 ]
 
-function Preview({viewport, src, title}) {
-  return (
-    <section className={styles.preview}>
-      <header className={styles.previewHeader}>
-        <strong>{viewport.label}</strong>
-        <span>{viewport.size}</span>
-      </header>
-      <div className={styles.canvas}>
-        <iframe
-          className={`${styles.frame} ${viewport.className}`}
-          src={src}
-          title={title}
-        />
-      </div>
-    </section>
-  )
-}
-
 export default function ResponsiveCaseStudyLab() {
   return (
     <main className={styles.page}>
@@ -41,7 +24,7 @@ export default function ResponsiveCaseStudyLab() {
         <div className="kicker"><span className="dot" /> Portfolio system / responsive QA</div>
         <h1>Three real viewports.</h1>
         <p>
-          The block playground and a real portfolio case are rendered at exact desktop, tablet, and phone widths. The goal is to catch document-level overflow as well as component-level issues before a pattern reaches another case study.
+          The block playground and a real portfolio case are rendered at exact desktop, tablet, and phone widths. Each preview also measures document width, so an accidental tablet-sized canvas on phone is reported as overflow instead of relying on visual inspection alone.
         </p>
       </header>
 
@@ -52,7 +35,7 @@ export default function ResponsiveCaseStudyLab() {
         </header>
         <div className={styles.grid}>
           {playgroundViewports.map((viewport) => (
-            <Preview
+            <ViewportPreview
               key={viewport.key}
               viewport={viewport}
               src="/lab/case-study-blocks"
@@ -70,7 +53,7 @@ export default function ResponsiveCaseStudyLab() {
         </header>
         <div className={styles.grid}>
           {realCaseViewports.map((viewport) => (
-            <Preview
+            <ViewportPreview
               key={viewport.key}
               viewport={viewport}
               src="/work/qris-top-up-revamp"
