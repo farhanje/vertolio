@@ -6,6 +6,7 @@ const CASE_STUDY_BLOCK_TYPES = new Set([
   'dataVisualization',
   'evidenceGrid',
   'processMap',
+  'flowchart',
 ])
 
 function normalizeBodyField(field) {
@@ -20,6 +21,9 @@ function normalizeBodyField(field) {
 
   if (!normalized.some((member) => member?.type === 'processMap')) {
     normalized.push({type: 'processMap'})
+  }
+  if (!normalized.some((member) => member?.type === 'flowchart')) {
+    normalized.push({type: 'flowchart'})
   }
 
   return {
