@@ -1,5 +1,23 @@
 {
   "version": 1,
   "verifyWrite": false,
-  "operations": []
+  "operations": [
+    {
+      "id": "revamp-qris-top-up-v3-20260829",
+      "type": "patchProjectBySlug",
+      "targetId": "drafts.projectRevamp-384db182c34868a889d0",
+      "slug": "qris-top-up-revamp",
+      "set": {
+        "title": "Membuat QRIS Jadi Cara Top Up",
+        "titleEn": "Turning QRIS Into a Top Up Channel",
+        "summary": "AstraPay butuh cara top up saat orang yang akan mengisi saldo sedang ada di dekat user. Saya memakai pola QRIS yang sudah familiar, merancang happy path dan transaction state bersama engineer, lalu menjaga flow user tetap singkat. Pada 2026, QRIS Top Up menyumbang 9,3% cash-in AstraPay dan masuk dua channel terbesar.",
+        "summaryEn": "AstraPay needed a top-up flow for moments when another person was physically present to fund the balance. I adapted a familiar QRIS payment pattern, designed the happy path and transaction states with engineering, and kept the user flow short. By 2026, QRIS Top Up represented 9.3% of cash-in and ranked among the top two channels.",
+        "tags": ["Payments", "QRIS", "Cash-in", "Transaction States", "Interaction Design"],
+        "tagsEn": ["Payments", "QRIS", "Cash-in", "Transaction States", "Interaction Design"],
+        "cardStat": "9.3% Cash-in Share"
+      },
+      "bodyFile": "sanity/revamps/qris-top-up-v3.id.json",
+      "bodyEnFile": "sanity/revamps/qris-top-up-v3.en.json"
+    }
+  ]
 }
