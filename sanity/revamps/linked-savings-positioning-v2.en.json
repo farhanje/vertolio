@@ -1,0 +1,183 @@
+[
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Context",
+    "title": "Putting savings inside an e-wallet did not automatically change how users understood the money",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"The product made a savings account easier to access from AstraPay. The harder problem was not whether users could find it, but whether they understood that the money served a different purpose from the normal wallet balance."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Research showed that e-wallet balance already had a strong mental model as money for everyday transactions. If the savings product sat too close to the main balance, benefits such as interest could easily feel like an extra feature of the same wallet."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"That changed the design question. The challenge was not how to make savings look more attractive, but how to keep two kinds of money easy to access from one ecosystem without collapsing their roles into one."}]}
+    ],
+    "callout": "The product needed to stay connected to AstraPay while remaining distinct enough to create a separate mental account.",
+    "width": "wide",
+    "theme": "light"
+  },
+  {
+    "_type": "evidenceGrid",
+    "eyebrow": "Research readout",
+    "title": "Three findings changed the product direction most",
+    "description": "These were not cosmetic preferences. Each finding affected how the product needed to sit inside the wallet.",
+    "columns": 3,
+    "metrics": [
+      {"_type":"evidenceMetric","value":"Spend","label":"Wallet balance already had a clear job","context":"Users read it as money ready to use"},
+      {"_type":"evidenceMetric","value":"Separate","label":"Savings needed visible separation","context":"A label alone was not enough to create a different money role"},
+      {"_type":"evidenceMetric","value":"Practical","label":"Adoption was not driven only by saving intent","context":"Easy activation and transaction integration also had value"}
+    ],
+    "theme": "light"
+  },
+  {
+    "_type": "artifactExplorer",
+    "eyebrow": "Research and benchmark",
+    "title": "The evidence behind the positioning",
+    "description": "These three artifacts show the starting mental model, the cues that made savings feel more real, and how similar products were positioned in the market.",
+    "theme": "dark",
+    "tabs": [
+      {
+        "_type": "artifactTab",
+        "kind": "image",
+        "label": "Wallet mental model",
+        "title": "Wallet balance was still spending money",
+        "description": "The e-wallet context shaped interpretation before users read the new product explanation.",
+        "image": {"_type":"image","asset":{"_type":"reference","_ref":"image-21d3687c84306f848ee651035913885578d5c8b6-1672x941-png"}},
+        "alt": "Research synthesis about how users perceive e-wallet balance",
+        "caption": "The existing wallet mental model became the starting point for positioning."
+      },
+      {
+        "_type": "artifactTab",
+        "kind": "image",
+        "label": "Saving cues",
+        "title": "Separation made the money feel more intentionally set aside",
+        "description": "A distinct balance, stronger hierarchy, naming, or usage rules could help users understand a different role for the money.",
+        "image": {"_type":"image","asset":{"_type":"reference","_ref":"image-58693f3f2d015d9e0c51e5e7a0df617cb125e44c-1672x941-png"}},
+        "alt": "Research synthesis about cues that make money feel like savings",
+        "caption": "The word savings alone was not enough to create a new mental account."
+      },
+      {
+        "_type": "artifactTab",
+        "kind": "image",
+        "label": "Competitor benchmark",
+        "title": "Practical value also drove adoption",
+        "description": "Similar products were not used only because people wanted to save. Easy activation, promotions, and integration with everyday transactions also mattered.",
+        "image": {"_type":"image","asset":{"_type":"reference","_ref":"image-c1fc900d7691fc87f092a2036a23609c59073d5b-1619x972-png"}},
+        "alt": "Competitor benchmark for savings products connected to digital wallets",
+        "caption": "The product story needed to work for everyday money management, not only saving intent."
+      }
+    ]
+  },
+  {
+    "_type": "comparison",
+    "eyebrow": "Positioning decision",
+    "title": "The challenge was separation without making the product feel disconnected",
+    "description": "The product still needed to feel easy to access from AstraPay, but it could not collapse into one undifferentiated pool of balance.",
+    "left": {
+      "_type": "comparisonSide",
+      "label": "Too integrated",
+      "title": "A wallet with extra benefits",
+      "description": "If the balance, hierarchy, and identity look too similar to the main wallet, users have little reason to treat it as money with another purpose.",
+      "note": "Access feels simple, but the financial proposition becomes weaker."
+    },
+    "right": {
+      "_type": "comparisonSide",
+      "label": "Separate but connected",
+      "title": "Two balances with two money roles",
+      "description": "The linked savings product remains part of the AstraPay ecosystem while a distinct balance and hierarchy help users form a separate mental account.",
+      "note": "The distinction starts in product structure before copy explains it."
+    },
+    "theme": "light"
+  },
+  {
+    "_type": "flowchart",
+    "eyebrow": "Product structure",
+    "title": "The positioning had to be legible in the product architecture",
+    "description": "One AstraPay entry point could expose two balances with different jobs. The linked savings balance remained connected to an account at the partner bank without needing to look like part of the same wallet balance.",
+    "mode": "basic",
+    "direction": "horizontal",
+    "nodes": [
+      {"_type":"flowchartNode","key":"astrapay-home","label":"AstraPay","description":"One ecosystem and entry point for the user","badge":"Entry","kind":"start","column":1,"row":1,"emphasis":true},
+      {"_type":"flowchartNode","key":"wallet-balance","label":"Wallet balance","description":"Money for everyday transactions","badge":"Spend","kind":"process","column":2,"row":1},
+      {"_type":"flowchartNode","key":"savings-balance","label":"Linked savings balance","description":"A separate balance with another financial role","badge":"Save","kind":"process","column":2,"row":2,"emphasis":true},
+      {"_type":"flowchartNode","key":"daily-use","label":"Everyday transactions","description":"Payments and familiar wallet usage","badge":"Use","kind":"end","column":3,"row":1},
+      {"_type":"flowchartNode","key":"partner-account","label":"Partner-bank savings account","description":"The underlying account remains connected to the AstraPay experience","badge":"Bank layer","kind":"system","column":3,"row":2}
+    ],
+    "edges": [
+      {"_type":"flowchartEdge","from":"astrapay-home","to":"wallet-balance","style":"solid"},
+      {"_type":"flowchartEdge","from":"astrapay-home","to":"savings-balance","style":"solid","emphasis":true},
+      {"_type":"flowchartEdge","from":"wallet-balance","to":"daily-use","style":"solid"},
+      {"_type":"flowchartEdge","from":"savings-balance","to":"partner-account","style":"solid","emphasis":true}
+    ],
+    "note": "This diagram shows the relationship users needed to understand, not backend implementation detail.",
+    "theme": "dark"
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Positioning boundary",
+    "title": "We deliberately avoided selling capabilities the product did not have",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"The product did not yet include saving goals, automated saving, budgeting, or deeper money-management tools. Framing it like a dedicated saving system would create a promise larger than the experience could support."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"I pushed for a more precise position. The product should give users a different place for their money, remain easy to access from AstraPay, and communicate the financial value that already existed."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"That boundary also helped when evaluating naming, hierarchy, and visual directions. Each decision needed to clarify the product role without adding a promise the experience could not yet deliver."}]}
+    ],
+    "width": "normal",
+    "theme": "light"
+  },
+  {
+    "_type": "evidenceGrid",
+    "eyebrow": "Product principles",
+    "title": "Research became four working principles",
+    "description": "These principles gave product, design, and the partner team a shared set of criteria for later decisions.",
+    "columns": 4,
+    "metrics": [
+      {"_type":"evidenceMetric","value":"Separate","label":"Give the balance its own identity","context":"Different enough from everyday transaction money"},
+      {"_type":"evidenceMetric","value":"Connected","label":"Keep access familiar","context":"Still clearly part of the AstraPay ecosystem"},
+      {"_type":"evidenceMetric","value":"Grounded","label":"Do not overclaim saving","context":"Match the promise to available product capability"},
+      {"_type":"evidenceMetric","value":"Visible","label":"Show the hierarchy in the interface","context":"Do not rely on naming and copy alone"}
+    ],
+    "theme": "light"
+  },
+  {
+    "_type": "comparison",
+    "eyebrow": "From positioning to interface",
+    "title": "If users need a long explanation to see the difference, the hierarchy is not doing enough",
+    "description": "Naming and copy still help, but they should explain a distinction that is already visible in the product structure.",
+    "left": {
+      "_type": "comparisonSide",
+      "label": "Copy-led",
+      "title": "Explain that this is a savings product",
+      "description": "Useful during onboarding, but fragile if both balances still look like one pool of money.",
+      "note": "Understanding depends too heavily on users reading."
+    },
+    "right": {
+      "_type": "comparisonSide",
+      "label": "Structure-led",
+      "title": "Make the money roles visible first",
+      "description": "Balance hierarchy, naming, and product identity work together so users can distinguish wallet money from linked savings before reading detail.",
+      "note": "Copy then adds context to a difference the interface already makes visible."
+    },
+    "theme": "light"
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Joint branding workshop",
+    "title": "We discussed the logo after we had a reason for how the product should sit in the ecosystem",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"I brought the research and competitor benchmark into a workshop with the partner team. The discussion started with the relationship between AstraPay, the partner brand, and the product inside one experience rather than with logo shapes."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"The positioning became a criterion for evaluating brand hierarchy and visual directions. A direction too close to the wallet could weaken separation, while one that felt too independent could break the relationship with the ecosystem and the partner behind the product."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"The shortlisted directions then moved into partner and leadership review with reasoning tied back to the user mental model and product capability."}]}
+    ],
+    "callout": "The visual direction was not a standalone output. It needed to help users understand where the product belonged.",
+    "width": "wide",
+    "theme": "dark"
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Outcome",
+    "title": "Research became decision criteria for both product and brand",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"This project did not produce a conversion number that should be used as a headline. Its most useful output was a clearer product position and a set of criteria that product, design, and the partner team could use together."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Wallet balance and linked savings still needed to be easy to find in AstraPay, but they could not read as money with the same job. That principle became input for product framing, interface hierarchy, branding architecture, and later visual directions."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"For the next validation, I would measure whether users can distinguish the purpose of the two balances without a long explanation, then check whether that understanding holds when they begin activating and using the product."}]}
+    ],
+    "width": "normal",
+    "theme": "light"
+  }
+]
