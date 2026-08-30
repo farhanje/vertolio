@@ -1,5 +1,28 @@
 {
   "version": 1,
   "verifyWrite": false,
-  "operations": []
+  "operations": [
+    {
+      "id": "revamp-vertex-ai-ocr-others-v2-20260830",
+      "type": "patchProjectBySlug",
+      "targetId": "drafts.projectRevamp-ba0a9c0df47475747914",
+      "slug": "portfolio-revamp-7f4e81a7",
+      "set": {
+        "title": "Mengganti OCR KYC Tanpa Mengubah Pengalaman User",
+        "titleEn": "Replacing the KYC OCR Engine Without Rebuilding the Experience",
+        "summary": "Saat free usage OCR vendor lama berakhir, KYC tetap membutuhkan extraction data identitas tanpa memaksa user belajar flow baru. Saya bekerja bersama developer untuk membuat Vertex AI menghasilkan response yang strict, backward-compatible, dan tetap mudah dikoreksi user. Implementasi ini membuka dukungan SIM dan menurunkan user edit rate sekitar 10%.",
+        "summaryEn": "When free usage from the previous OCR vendor ended, KYC still needed identity-data extraction without forcing users into a new flow. I worked with engineering to make Vertex AI return a strict, backward-compatible response that users could still review and correct. The implementation enabled SIM support and lowered user edit rate by around 10%.",
+        "tags": ["KYC", "AI", "OCR", "Vertex AI", "System Design"],
+        "tagsEn": ["KYC", "AI", "OCR", "Vertex AI", "System Design"],
+        "cardStat": {
+          "value": "~10%",
+          "label": "lebih rendah user edit rate",
+          "labelEn": "lower user edit rate"
+        },
+        "featured": false
+      },
+      "bodyFile": "sanity/revamps/vertex-ai-ocr-v2.id.json",
+      "bodyEnFile": "sanity/revamps/vertex-ai-ocr-v2.en.json"
+    }
+  ]
 }
