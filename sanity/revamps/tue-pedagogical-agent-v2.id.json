@@ -1,0 +1,266 @@
+[
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Pertanyaan riset",
+    "title": "Pertanyaannya bukan apakah agent yang terlihat itu membantu. Yang penting adalah kapan kehadirannya memang berguna",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Pedagogical agent bisa menunjukkan gerakan, memberi social cue, dan membuat instruksi terasa lebih personal. Di sisi lain, kehadiran visual yang sama juga bisa menjadi stimulus tambahan ketika user sedang mengerjakan tugas yang membutuhkan banyak proses mental."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Untuk tesis MSc Human-Technology Interaction di TU/e, saya menguji apakah trade-off itu berubah tergantung jenis task. Saya membandingkan kondisi agent terlihat dengan instruksi yang sama tanpa agent pada task Tetris psychomotor dan cognitive."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Eksperimennya sengaja dibangun untuk melihat interaction effect, bukan mencari satu kondisi yang selalu menang. Kalau manfaat agent datang dari observational learning dan modelling, efeknya seharusnya lebih terasa saat learner memang perlu meniru gerakan."}]}
+    ],
+    "callout": "Visible agent seharusnya hadir karena membantu task yang sedang dikerjakan, bukan sekadar karena interface bisa menampilkannya.",
+    "width": "wide",
+    "theme": "light"
+  },
+  {
+    "_type": "evidenceGrid",
+    "eyebrow": "Ringkasan studi",
+    "title": "Mixed-factorial experiment memisahkan efek agent visibility dari jenis task",
+    "description": "Agent visibility dibedakan antarpartisipan. Setiap partisipan mengerjakan kedua jenis task dengan urutan yang diacak.",
+    "columns": 4,
+    "metrics": [
+      {"_type":"evidenceMetric","value":"157","label":"partisipan","context":"sampel eksperimen di lab"},
+      {"_type":"evidenceMetric","value":"2×2","label":"mixed factorial design","context":"visibility × task type"},
+      {"_type":"evidenceMetric","value":"Randomized","label":"kondisi agent","context":"visible atau absent"},
+      {"_type":"evidenceMetric","value":"4","label":"outcome yang diukur","context":"performance, self-efficacy, recall, affective beliefs"}
+    ],
+    "theme": "dark"
+  },
+  {
+    "_type": "evidenceGrid",
+    "eyebrow": "Ringkasan hasil",
+    "title": "Agent paling membantu ketika learner memang punya gerakan yang bisa dimodelkan",
+    "description": "Temuan utamanya adalah interaction effect. Visibility tidak memberi manfaat yang sama untuk semua task.",
+    "columns": 3,
+    "metrics": [
+      {"_type":"evidenceMetric","value":"5.59 vs 4.39","label":"psychomotor performance","context":"visible vs absent · p < .001"},
+      {"_type":"evidenceMetric","value":"6.31 vs 5.64","label":"psychomotor self-efficacy","context":"visible vs absent · p < .001"},
+      {"_type":"evidenceMetric","value":"n.s.","label":"recall interaction","context":"agent visibility × task type · p = .703"}
+    ],
+    "theme": "light"
+  },
+  {
+    "_type": "comparison",
+    "eyebrow": "Task design",
+    "title": "Aturan Tetris tetap sama, tetapi tuntutan task dibuat berbeda",
+    "description": "Dengan domain belajar yang sama, eksperimen bisa lebih fokus pada satu pertanyaan: apa yang berubah ketika learner perlu meniru gerakan dibanding menyelesaikan masalah secara abstrak?",
+    "left": {
+      "_type": "comparisonSide",
+      "label": "Psychomotor task",
+      "title": "Belajar lewat gerakan tangan",
+      "description": "Partisipan memakai hand gesture tertentu untuk mengontrol Tetris. Visible agent bisa menjadi behavioral model yang langsung relevan dengan gerakan yang perlu dipelajari.",
+      "note": "Demonstrasi visual menjadi bagian dari informasi yang dapat diamati dan ditiru."
+    },
+    "right": {
+      "_type": "comparisonSide",
+      "label": "Cognitive task",
+      "title": "Belajar lewat mathematical problem-solving",
+      "description": "Partisipan menyelesaikan soal matematika untuk menjalankan aksi di game. Task ini lebih banyak bergantung pada abstract reasoning sehingga visual agent tidak punya fungsi modelling yang sama kuatnya.",
+      "note": "Kondisi ini menguji apakah presence menjadi kurang berguna ketika kebutuhan utamanya bukan imitasi."
+    },
+    "theme": "light"
+  },
+  {
+    "_type": "flowchart",
+    "eyebrow": "Arsitektur eksperimen",
+    "title": "Desainnya memisahkan kondisi antarpartisipan dari perbandingan task dalam partisipan yang sama",
+    "description": "Partisipan diacak ke satu kondisi visibility, lalu mengerjakan cognitive dan psychomotor task dengan urutan yang diacak.",
+    "mode": "basic",
+    "direction": "horizontal",
+    "nodes": [
+      {"_type":"flowchartNode","key":"participants","label":"Partisipan masuk ke lab study","description":"157 partisipan mengikuti eksperimen.","badge":"Sample","kind":"start","column":1,"row":1,"emphasis":true},
+      {"_type":"flowchartNode","key":"assign","label":"Randomize agent visibility","description":"Setiap partisipan masuk ke satu kondisi visibility.","badge":"Between-subject","kind":"decision","column":2,"row":1,"emphasis":true},
+      {"_type":"flowchartNode","key":"visible","label":"Agent visible","description":"Instruksi ditampilkan bersama pedagogical agent di layar.","badge":"Condition","kind":"process","column":3,"row":1},
+      {"_type":"flowchartNode","key":"absent","label":"Agent absent","description":"Konten instruksi yang sama ditampilkan tanpa agent yang terlihat.","badge":"Condition","kind":"process","column":3,"row":2},
+      {"_type":"flowchartNode","key":"tasks","label":"Kerjakan kedua task type","description":"Cognitive dan psychomotor task dikerjakan dengan randomized order, masing-masing memiliki level basic dan difficult.","badge":"Within-subject","kind":"process","column":4,"row":1,"emphasis":true},
+      {"_type":"flowchartNode","key":"outcomes","label":"Ukur learning outcomes","description":"Task performance, self-efficacy, recall, dan affective beliefs dianalisis terhadap visibility dan task type.","badge":"Outcomes","kind":"end","column":5,"row":1,"emphasis":true}
+    ],
+    "edges": [
+      {"_type":"flowchartEdge","from":"participants","to":"assign","style":"solid"},
+      {"_type":"flowchartEdge","from":"assign","to":"visible","label":"visible","style":"solid"},
+      {"_type":"flowchartEdge","from":"assign","to":"absent","label":"absent","style":"solid"},
+      {"_type":"flowchartEdge","from":"visible","to":"tasks","style":"solid"},
+      {"_type":"flowchartEdge","from":"absent","to":"tasks","style":"solid"},
+      {"_type":"flowchartEdge","from":"tasks","to":"outcomes","style":"solid","emphasis":true}
+    ],
+    "note": "Diagram ini adalah versi portfolio dari struktur eksperimen. Kondisi visibility yang between-subject tetap dipisahkan dari task comparison yang within-subject.",
+    "theme": "dark"
+  },
+  {
+    "_type": "evidenceGrid",
+    "eyebrow": "Peran saya",
+    "title": "Saya mengerjakan studi dari struktur eksperimen sampai analisis",
+    "description": "Project ini menggabungkan HCI research, experimental materials, automated measurement, dan quantitative analysis.",
+    "columns": 4,
+    "metrics": [
+      {"_type":"evidenceMetric","value":"Design","label":"menyusun 2×2 study","context":"visibility condition, task types, measures, procedure"},
+      {"_type":"evidenceMetric","value":"Materials","label":"mengadaptasi learning task","context":"Tetris untuk cognitive dan psychomotor condition"},
+      {"_type":"evidenceMetric","value":"Measurement","label":"memvalidasi AI-assisted scoring","context":"membandingkan gesture score otomatis dengan manual rating"},
+      {"_type":"evidenceMetric","value":"Analysis","label":"menguji interaction effect","context":"traditional dan robust statistical analyses"}
+    ],
+    "theme": "light"
+  },
+  {
+    "_type": "artifactExplorer",
+    "eyebrow": "Experiment materials",
+    "title": "Learning domain tetap sama, sementara task demand dan agent visibility yang berubah",
+    "description": "Artifact asli ini menunjukkan bagaimana factorial design dan Tetris-based learning task direpresentasikan dalam project.",
+    "theme": "dark",
+    "tabs": [
+      {
+        "_type": "artifactTab",
+        "kind": "image",
+        "label": "Study design",
+        "title": "Satu eksperimen menyilangkan visibility dengan task type",
+        "description": "Desain membandingkan visible versus absent agent ketika partisipan mengerjakan psychomotor dan cognitive learning task.",
+        "image": {"_type":"image","asset":{"_type":"reference","_ref":"image-ae72e6632b78e0b269efe65436fcd79b494bff6a-1672x803-png"}},
+        "alt": "Study design untuk pedagogical agent visibility dan task type",
+        "caption": "Artifact study design asli dari project tesis."
+      },
+      {
+        "_type": "artifactTab",
+        "kind": "image",
+        "label": "Task materials",
+        "title": "Tetris menjadi frame yang sama untuk dua tuntutan task",
+        "description": "Psychomotor task memakai hand gesture, sedangkan cognitive task memakai mathematical problem-solving untuk mengontrol environment game yang sama.",
+        "image": {"_type":"image","asset":{"_type":"reference","_ref":"image-991e42df153acfec48c2ab32dcf6470a70f80ca5-1080x948-png"}},
+        "alt": "Tetris-based psychomotor dan cognitive task materials",
+        "caption": "Artifact task material asli dari project tesis."
+      }
+    ]
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Measurement system",
+    "title": "Psychomotor performance membutuhkan scoring yang bisa dipakai dalam skala studi tanpa menganggap AI sebagai ground truth",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Psychomotor performance bergantung pada apakah partisipan melakukan hand movement tertentu dengan benar. Sesi direkam dalam video, lalu AI-based gesture recognition digunakan untuk memberi score pada performance assignment."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Automated scoring baru berguna kalau hasilnya cukup dekat dengan penilaian manual. Karena itu, validasi saya perlakukan sebagai bagian dari measurement design, bukan menganggap model benar hanya karena prosesnya otomatis."}]}
+    ],
+    "callout": "AI score di sini adalah alat ukur. Sebelum dipakai untuk analisis, alat itu tetap perlu dibuktikan cukup selaras dengan human reference.",
+    "width": "wide",
+    "theme": "light"
+  },
+  {
+    "_type": "evidenceGrid",
+    "eyebrow": "Validasi AI scoring",
+    "title": "Gesture score otomatis dibandingkan langsung dengan manual scoring",
+    "description": "Validation sample membandingkan AI-generated score dan manual rating pada performance data yang sama.",
+    "columns": 4,
+    "metrics": [
+      {"_type":"evidenceMetric","value":"N=152","label":"validation scores","context":"perbandingan AI dan manual scoring"},
+      {"_type":"evidenceMetric","value":"r=.842","label":"Pearson correlation","context":"hubungan positif yang kuat"},
+      {"_type":"evidenceMetric","value":"p=.398","label":"perbedaan mean","context":"mean manual dan AI tidak berbeda signifikan"},
+      {"_type":"evidenceMetric","value":"0.684","label":"MAE / RMSE","context":"reported error magnitude pada validation set"}
+    ],
+    "theme": "dark"
+  },
+  {
+    "_type": "dataVisualization",
+    "eyebrow": "Task performance",
+    "title": "Visibility meningkatkan psychomotor performance, bukan cognitive performance",
+    "description": "Mean task-performance score berdasarkan task type dan agent condition.",
+    "takeaway": "Yang penting adalah interaction effect. Visible agent membantu psychomotor task secara jelas, sementara cognitive performance tidak meningkat secara signifikan.",
+    "chartType": "bar",
+    "dataSource": "manual",
+    "xLabel": "Task type",
+    "yLabel": "Mean performance score",
+    "series": [
+      {"_type":"dataSeries","key":"visible","label":"Visible agent"},
+      {"_type":"dataSeries","key":"absent","label":"No agent"}
+    ],
+    "rows": [
+      {"_type":"dataRow","label":"Cognitive","values":[{"_type":"dataValue","seriesKey":"visible","value":6.13},{"_type":"dataValue","seriesKey":"absent","value":6.47}]},
+      {"_type":"dataRow","label":"Psychomotor","values":[{"_type":"dataValue","seriesKey":"visible","value":5.59},{"_type":"dataValue","seriesKey":"absent","value":4.39}]}
+    ],
+    "evidenceStatus": "experiment",
+    "source": "Master thesis · task-performance analysis",
+    "period": "2024",
+    "sample": "Psychomotor: N=78 visible / 74 absent · Cognitive: N=80 visible / 77 absent",
+    "methodNote": "Visibility × task type interaction: F(1,150)=10.72, p<.0013. Cognitive visible vs absent tidak signifikan (p=.27); psychomotor visible vs absent signifikan (p<.001).",
+    "theme": "light"
+  },
+  {
+    "_type": "dataVisualization",
+    "eyebrow": "Self-efficacy",
+    "title": "Pola yang sama terlihat pada seberapa mampu learner merasa terhadap task",
+    "description": "Mean self-efficacy berdasarkan task type dan visibility condition.",
+    "takeaway": "Visible agent meningkatkan psychomotor self-efficacy, tetapi cognitive self-efficacy bergerak ke arah sebaliknya. Presence tidak memberi manfaat yang sama hanya karena instructional content-nya tetap.",
+    "chartType": "bar",
+    "dataSource": "manual",
+    "xLabel": "Task type",
+    "yLabel": "Mean self-efficacy",
+    "series": [
+      {"_type":"dataSeries","key":"visible","label":"Visible agent"},
+      {"_type":"dataSeries","key":"absent","label":"No agent"}
+    ],
+    "rows": [
+      {"_type":"dataRow","label":"Cognitive","values":[{"_type":"dataValue","seriesKey":"visible","value":5.66},{"_type":"dataValue","seriesKey":"absent","value":5.97}]},
+      {"_type":"dataRow","label":"Psychomotor","values":[{"_type":"dataValue","seriesKey":"visible","value":6.31},{"_type":"dataValue","seriesKey":"absent","value":5.64}]}
+    ],
+    "evidenceStatus": "experiment",
+    "source": "Master thesis · self-efficacy analysis",
+    "period": "2024",
+    "sample": "Reported task-level observations: N=160 visible / 154 absent",
+    "methodNote": "Visibility × task type interaction: F(1,465)=9.73, p<.0022. Psychomotor visible vs absent p<.001; cognitive visible vs absent p=.043, dengan mean visible lebih rendah.",
+    "theme": "light"
+  },
+  {
+    "_type": "evidenceGrid",
+    "eyebrow": "Temuan lain",
+    "title": "Hasil lain memperkuat bahwa efek agent bergantung pada konteks task",
+    "description": "Null result dan affective outcome penting supaya kesimpulannya tidak berubah menjadi 'selalu tampilkan agent.'",
+    "columns": 3,
+    "metrics": [
+      {"_type":"evidenceMetric","value":"n.s.","label":"recall","context":"tidak ada interaction visibility × task yang signifikan · p=.703"},
+      {"_type":"evidenceMetric","value":"p<.001","label":"psychomotor content liking","context":"lebih tinggi dengan visible agent; perbedaan cognitive tidak signifikan"},
+      {"_type":"evidenceMetric","value":"5.50 vs 4.81","label":"psychomotor instructor liking","context":"visible vs absent · p<.001"}
+    ],
+    "theme": "light"
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Statistical robustness",
+    "title": "Ketika assumptions datanya tidak bersih, saya cek apakah kesimpulannya tetap bertahan dengan model lain",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Beberapa distribusi outcome memiliki outlier atau tidak memenuhi normality dan variance assumptions dengan baik. Mengandalkan satu conventional ANOVA saja akan memberi tingkat kepastian yang lebih besar daripada yang layak diberikan oleh data."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Saya tetap menjalankan traditional analysis, lalu mengecek temuan utama dengan robust mixed-effects model. Kesimpulan inti untuk performance dan self-efficacy tetap sama: dampak visibility berubah berdasarkan jenis task."}]}
+    ],
+    "callout": "Claim risetnya datang dari pola yang bertahan setelah robustness check, bukan dari satu p-value yang kebetulan nyaman.",
+    "width": "wide",
+    "theme": "dark"
+  },
+  {
+    "_type": "comparison",
+    "eyebrow": "Implikasi desain",
+    "title": "Agent visibility lebih tepat diperlakukan sebagai keputusan di level task, bukan default feature",
+    "description": "Hasil studi mendukung aturan yang lebih conditional untuk learning interface yang memakai visible AI atau instructional character.",
+    "left": {
+      "_type": "comparisonSide",
+      "label": "Saat presence memang berguna",
+      "title": "Behavioral modeling dan physical imitation",
+      "description": "Ketika learner perlu mengamati lalu meniru sebuah aksi, visible model membawa informasi yang relevan dengan task. Di studi ini, performance, self-efficacy, dan affective response paling jelas meningkat pada konteks tersebut.",
+      "note": "Tampilkan agent karena ia menambah informasi yang dibutuhkan task."
+    },
+    "right": {
+      "_type": "comparisonSide",
+      "label": "Saat presence perlu dibatasi",
+      "title": "Abstract reasoning tanpa kebutuhan modelling",
+      "description": "Visible agent tidak meningkatkan cognitive task performance dan cognitive self-efficacy justru sedikit lebih rendah. Visual atau social presence tambahan sebaiknya punya fungsi yang jelas sebelum mengambil perhatian learner.",
+      "note": "Visibility tidak otomatis berarti support."
+    },
+    "theme": "light"
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Batas evidence",
+    "title": "Ini adalah controlled learning study, bukan bukti bahwa satu pola agent akan bekerja di semua konteks",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Eksperimen menggunakan Tetris-based task dalam lab setting. Self-efficacy dan affective beliefs berasal dari self-report, outlier tetap dipertahankan, dan validasi AI scoring berlaku untuk measurement setup studi ini, bukan semua gesture-recognition system."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Cognitive load theory membantu menjelaskan kenapa visual model tambahan mungkin kurang berguna saat abstract reasoning. Namun empat dependent variable yang dilaporkan dalam studi adalah task performance, self-efficacy, recall, dan affective beliefs. Karena itu, di case study ini cognitive load saya gunakan sebagai interpretive lens, bukan sebagai outcome yang diukur langsung."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Studi lanjutan sebaiknya menguji learning domain lain, exposure yang lebih panjang, serta appearance dan behavior agent yang berbeda. Automated performance measure juga tetap perlu divalidasi terhadap human reference sebelum dipakai sebagai dasar kesimpulan."}]}
+    ],
+    "width": "normal",
+    "theme": "light"
+  }
+]
