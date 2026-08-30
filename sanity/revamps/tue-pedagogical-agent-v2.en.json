@@ -1,0 +1,266 @@
+[
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Research question",
+    "title": "The question was not whether a visible agent helps. It was when its presence is worth the attention it takes",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Pedagogical agents can demonstrate behavior, provide social cues, and make instruction feel more personal. The same visual presence can also become extra stimulus when the learner is already doing abstract mental work."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"For my MSc Human-Technology Interaction thesis at TU/e, I tested whether that tradeoff changes with the task. I compared a visible pedagogical agent with the same instruction delivered without the agent across psychomotor and cognitive Tetris-based tasks."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"I designed the experiment around an interaction rather than a universal winner. If the agent was useful because learners could model what they saw, its effect should be stronger when the task actually required physical imitation."}]}
+    ],
+    "callout": "A visible agent should earn its place through the task it supports, not simply because an interface can show one.",
+    "width": "wide",
+    "theme": "light"
+  },
+  {
+    "_type": "evidenceGrid",
+    "eyebrow": "Study snapshot",
+    "title": "A mixed-factorial experiment separated agent presence from task demand",
+    "description": "Agent visibility was between participants. Each participant completed both task types in randomized order.",
+    "columns": 4,
+    "metrics": [
+      {"_type":"evidenceMetric","value":"157","label":"participants","context":"lab study sample"},
+      {"_type":"evidenceMetric","value":"2×2","label":"mixed factorial design","context":"visibility × task type"},
+      {"_type":"evidenceMetric","value":"Randomized","label":"agent condition","context":"visible or absent"},
+      {"_type":"evidenceMetric","value":"4","label":"outcomes measured","context":"performance, self-efficacy, recall, affective beliefs"}
+    ],
+    "theme": "dark"
+  },
+  {
+    "_type": "evidenceGrid",
+    "eyebrow": "Result snapshot",
+    "title": "The agent helped most when learners had something physical to model",
+    "description": "The headline result was an interaction: visibility did not help every task in the same way.",
+    "columns": 3,
+    "metrics": [
+      {"_type":"evidenceMetric","value":"5.59 vs 4.39","label":"psychomotor performance","context":"visible vs absent · p < .001"},
+      {"_type":"evidenceMetric","value":"6.31 vs 5.64","label":"psychomotor self-efficacy","context":"visible vs absent · p < .001"},
+      {"_type":"evidenceMetric","value":"n.s.","label":"recall interaction","context":"agent visibility × task type · p = .703"}
+    ],
+    "theme": "light"
+  },
+  {
+    "_type": "comparison",
+    "eyebrow": "Task design",
+    "title": "The same Tetris rules were adapted into two different kinds of work",
+    "description": "Keeping one learning domain helped isolate a more useful question: what changes when the learner has to imitate movement rather than reason through a problem?",
+    "left": {
+      "_type": "comparisonSide",
+      "label": "Psychomotor task",
+      "title": "Learn through hand movement",
+      "description": "Participants used predefined hand gestures to control Tetris pieces. A visible agent could provide a behavioral model that was directly relevant to the action being learned.",
+      "note": "The visual demonstration was part of how the task could be understood and imitated."
+    },
+    "right": {
+      "_type": "comparisonSide",
+      "label": "Cognitive task",
+      "title": "Learn through mathematical problem-solving",
+      "description": "Participants solved mathematical problems to perform game actions. The task depended more on abstract reasoning, making an additional visual agent less directly relevant to the work itself.",
+      "note": "This let the study test whether visual presence becomes less useful when modeling is not the main need."
+    },
+    "theme": "light"
+  },
+  {
+    "_type": "flowchart",
+    "eyebrow": "Experiment architecture",
+    "title": "The design separated a between-person condition from a within-person task comparison",
+    "description": "Participants were randomly assigned to one visibility condition, then completed both cognitive and psychomotor tasks in randomized order.",
+    "mode": "basic",
+    "direction": "horizontal",
+    "nodes": [
+      {"_type":"flowchartNode","key":"participants","label":"Participants enter the lab study","description":"157 participants completed the experiment.","badge":"Sample","kind":"start","column":1,"row":1,"emphasis":true},
+      {"_type":"flowchartNode","key":"assign","label":"Randomize agent visibility","description":"Each participant is assigned to one visibility condition.","badge":"Between-subject","kind":"decision","column":2,"row":1,"emphasis":true},
+      {"_type":"flowchartNode","key":"visible","label":"Agent visible","description":"Instruction includes the on-screen pedagogical agent.","badge":"Condition","kind":"process","column":3,"row":1},
+      {"_type":"flowchartNode","key":"absent","label":"Agent absent","description":"The same instructional content is shown without the visible agent.","badge":"Condition","kind":"process","column":3,"row":2},
+      {"_type":"flowchartNode","key":"tasks","label":"Complete both task types","description":"Cognitive and psychomotor tasks are completed in randomized order, with basic and difficult levels.","badge":"Within-subject","kind":"process","column":4,"row":1,"emphasis":true},
+      {"_type":"flowchartNode","key":"outcomes","label":"Measure learning outcomes","description":"Task performance, self-efficacy, recall, and affective beliefs are analyzed across visibility and task type.","badge":"Outcomes","kind":"end","column":5,"row":1,"emphasis":true}
+    ],
+    "edges": [
+      {"_type":"flowchartEdge","from":"participants","to":"assign","style":"solid"},
+      {"_type":"flowchartEdge","from":"assign","to":"visible","label":"visible","style":"solid"},
+      {"_type":"flowchartEdge","from":"assign","to":"absent","label":"absent","style":"solid"},
+      {"_type":"flowchartEdge","from":"visible","to":"tasks","style":"solid"},
+      {"_type":"flowchartEdge","from":"absent","to":"tasks","style":"solid"},
+      {"_type":"flowchartEdge","from":"tasks","to":"outcomes","style":"solid","emphasis":true}
+    ],
+    "note": "The diagram is a portfolio view of the experimental structure. It keeps the between-subject visibility condition separate from the within-subject task comparison.",
+    "theme": "dark"
+  },
+  {
+    "_type": "evidenceGrid",
+    "eyebrow": "My scope",
+    "title": "I owned the study from experimental structure through analysis",
+    "description": "The project combined HCI research design with experimental materials, automated measurement, and quantitative analysis.",
+    "columns": 4,
+    "metrics": [
+      {"_type":"evidenceMetric","value":"Design","label":"structured the 2×2 study","context":"visibility condition, task types, measures, procedure"},
+      {"_type":"evidenceMetric","value":"Materials","label":"adapted the learning tasks","context":"Tetris-based cognitive and psychomotor conditions"},
+      {"_type":"evidenceMetric","value":"Measurement","label":"validated AI-assisted scoring","context":"checked automated gesture scores against manual ratings"},
+      {"_type":"evidenceMetric","value":"Analysis","label":"tested the interaction","context":"traditional and robust statistical analyses"}
+    ],
+    "theme": "light"
+  },
+  {
+    "_type": "artifactExplorer",
+    "eyebrow": "Experiment materials",
+    "title": "The study kept the learning domain stable while changing task demand and agent visibility",
+    "description": "These original project artifacts show how the factorial design and the Tetris-based learning tasks were represented in the study.",
+    "theme": "dark",
+    "tabs": [
+      {
+        "_type": "artifactTab",
+        "kind": "image",
+        "label": "Study design",
+        "title": "One experiment crossed visibility with task type",
+        "description": "The design compared a visible versus absent agent while participants completed psychomotor and cognitive learning tasks.",
+        "image": {"_type":"image","asset":{"_type":"reference","_ref":"image-ae72e6632b78e0b269efe65436fcd79b494bff6a-1672x803-png"}},
+        "alt": "Study design for pedagogical agent visibility and task type",
+        "caption": "Original study-design artifact from the thesis project."
+      },
+      {
+        "_type": "artifactTab",
+        "kind": "image",
+        "label": "Task materials",
+        "title": "Tetris became a controlled frame for two different task demands",
+        "description": "Psychomotor tasks used hand gestures, while cognitive tasks used mathematical problem-solving to control the same underlying game environment.",
+        "image": {"_type":"image","asset":{"_type":"reference","_ref":"image-991e42df153acfec48c2ab32dcf6470a70f80ca5-1080x948-png"}},
+        "alt": "Tetris-based psychomotor and cognitive task materials",
+        "caption": "Original task-material artifact from the thesis project."
+      }
+    ]
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Measurement system",
+    "title": "The psychomotor condition needed a scalable score without treating AI as ground truth",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Psychomotor performance depended on whether a participant performed specific hand movements correctly. The sessions were video recorded and an AI-based gesture-recognition system was used to score those performance assignments."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Automating the score only helped if it behaved closely enough to manual assessment. I therefore treated validation as part of the measurement design rather than assuming the model output was correct because it was automated."}]}
+    ],
+    "callout": "The AI score was a measurement instrument. It still needed evidence that it tracked the human reference closely enough for the study.",
+    "width": "wide",
+    "theme": "light"
+  },
+  {
+    "_type": "evidenceGrid",
+    "eyebrow": "AI scoring validation",
+    "title": "Automated gesture scores were checked against manual scoring before being trusted",
+    "description": "A validation sample compared the AI-generated scores with manual ratings of the same performance data.",
+    "columns": 4,
+    "metrics": [
+      {"_type":"evidenceMetric","value":"N=152","label":"validation scores","context":"AI and manual scoring comparison"},
+      {"_type":"evidenceMetric","value":"r=.842","label":"Pearson correlation","context":"strong positive relationship"},
+      {"_type":"evidenceMetric","value":"p=.398","label":"mean difference","context":"manual and AI means were not significantly different"},
+      {"_type":"evidenceMetric","value":"0.684","label":"MAE / RMSE","context":"reported error magnitude for the validation set"}
+    ],
+    "theme": "dark"
+  },
+  {
+    "_type": "dataVisualization",
+    "eyebrow": "Task performance",
+    "title": "Visibility improved psychomotor performance, not cognitive performance",
+    "description": "Mean task-performance scores by task type and agent condition.",
+    "takeaway": "The important result is the interaction. The visible agent materially helped the psychomotor task, while cognitive performance did not significantly improve.",
+    "chartType": "bar",
+    "dataSource": "manual",
+    "xLabel": "Task type",
+    "yLabel": "Mean performance score",
+    "series": [
+      {"_type":"dataSeries","key":"visible","label":"Visible agent"},
+      {"_type":"dataSeries","key":"absent","label":"No agent"}
+    ],
+    "rows": [
+      {"_type":"dataRow","label":"Cognitive","values":[{"_type":"dataValue","seriesKey":"visible","value":6.13},{"_type":"dataValue","seriesKey":"absent","value":6.47}]},
+      {"_type":"dataRow","label":"Psychomotor","values":[{"_type":"dataValue","seriesKey":"visible","value":5.59},{"_type":"dataValue","seriesKey":"absent","value":4.39}]}
+    ],
+    "evidenceStatus": "experiment",
+    "source": "Master thesis · task-performance analysis",
+    "period": "2024",
+    "sample": "Psychomotor: N=78 visible / 74 absent · Cognitive: N=80 visible / 77 absent",
+    "methodNote": "Visibility × task type interaction: F(1,150)=10.72, p<.0013. Cognitive visible vs absent was not significant (p=.27); psychomotor visible vs absent was significant (p<.001).",
+    "theme": "light"
+  },
+  {
+    "_type": "dataVisualization",
+    "eyebrow": "Self-efficacy",
+    "title": "The same interaction appeared in how capable learners felt",
+    "description": "Mean self-efficacy ratings by task type and visibility condition.",
+    "takeaway": "Visible agents increased psychomotor self-efficacy, but cognitive self-efficacy moved in the opposite direction. Presence was not uniformly beneficial even when the content stayed the same.",
+    "chartType": "bar",
+    "dataSource": "manual",
+    "xLabel": "Task type",
+    "yLabel": "Mean self-efficacy",
+    "series": [
+      {"_type":"dataSeries","key":"visible","label":"Visible agent"},
+      {"_type":"dataSeries","key":"absent","label":"No agent"}
+    ],
+    "rows": [
+      {"_type":"dataRow","label":"Cognitive","values":[{"_type":"dataValue","seriesKey":"visible","value":5.66},{"_type":"dataValue","seriesKey":"absent","value":5.97}]},
+      {"_type":"dataRow","label":"Psychomotor","values":[{"_type":"dataValue","seriesKey":"visible","value":6.31},{"_type":"dataValue","seriesKey":"absent","value":5.64}]}
+    ],
+    "evidenceStatus": "experiment",
+    "source": "Master thesis · self-efficacy analysis",
+    "period": "2024",
+    "sample": "Reported task-level observations: N=160 visible / 154 absent",
+    "methodNote": "Visibility × task type interaction: F(1,465)=9.73, p<.0022. Psychomotor visible vs absent p<.001; cognitive visible vs absent p=.043, with the visible condition lower.",
+    "theme": "light"
+  },
+  {
+    "_type": "evidenceGrid",
+    "eyebrow": "What else moved",
+    "title": "The broader pattern reinforced a task-dependent interpretation",
+    "description": "Null results and affective outcomes matter because they stop the conclusion from becoming 'show an agent everywhere.'",
+    "columns": 3,
+    "metrics": [
+      {"_type":"evidenceMetric","value":"n.s.","label":"recall","context":"no significant visibility × task interaction · p=.703"},
+      {"_type":"evidenceMetric","value":"p<.001","label":"psychomotor content liking","context":"higher with a visible agent; cognitive difference was not significant"},
+      {"_type":"evidenceMetric","value":"5.50 vs 4.81","label":"psychomotor instructor liking","context":"visible vs absent · p<.001"}
+    ],
+    "theme": "light"
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Statistical robustness",
+    "title": "When the assumptions were messy, I checked whether the conclusion survived a different analysis",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Several outcome distributions contained outliers or did not meet normality and variance assumptions cleanly. Relying on one conventional ANOVA result would therefore give more confidence than the data justified."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"I used the traditional analyses, then checked key conclusions with robust mixed-effects models. The central interaction for task performance and self-efficacy remained: the effect of visibility depended on the type of task."}]}
+    ],
+    "callout": "The research claim came from a pattern that survived a robustness check, not from one convenient p-value.",
+    "width": "wide",
+    "theme": "dark"
+  },
+  {
+    "_type": "comparison",
+    "eyebrow": "Design implication",
+    "title": "Agent visibility should behave like a task-level design decision, not a default feature",
+    "description": "The study supports a more conditional rule for learning interfaces with visible AI or instructional characters.",
+    "left": {
+      "_type": "comparisonSide",
+      "label": "Where presence earns its space",
+      "title": "Behavioral modeling and physical imitation",
+      "description": "When learners need to observe and reproduce an action, a visible model can provide task-relevant information. In this study, that was where performance, self-efficacy, and affective responses improved most clearly.",
+      "note": "Use presence because it contributes to the task."
+    },
+    "right": {
+      "_type": "comparisonSide",
+      "label": "Where presence needs restraint",
+      "title": "Abstract reasoning without a modeling need",
+      "description": "The visible agent did not improve cognitive task performance and cognitive self-efficacy was slightly lower. Extra visual or social presence should therefore justify what it adds before occupying attention.",
+      "note": "Do not equate visibility with support."
+    },
+    "theme": "light"
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Evidence boundary",
+    "title": "This was a controlled learning study, not proof that one agent pattern works everywhere",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"The experiment used Tetris-based tasks in a controlled lab setting. Self-efficacy and affective beliefs were self-reported, outliers were retained, and the AI scoring validation applies to this measurement setup rather than every gesture-recognition system."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Cognitive load theory helped explain why an additional visual model might be less useful during abstract reasoning, but the four dependent variables reported in the study were task performance, self-efficacy, recall, and affective beliefs. I therefore treat cognitive load as an interpretive lens here, not as a directly measured outcome."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"A stronger next study would test other learning domains, longer-term exposure, and different agent appearances or behaviors, while continuing to validate any automated performance measure against a human reference."}]}
+    ],
+    "width": "normal",
+    "theme": "light"
+  }
+]
