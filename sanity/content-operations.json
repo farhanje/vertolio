@@ -3,14 +3,27 @@
   "verifyWrite": false,
   "operations": [
     {
-      "id": "clone-project-303894c3-to-others-deep-revamp-20260830",
-      "type": "cloneProjectById",
-      "sourceId": "303894c3-a401-47e0-9064-61fa6b9e7b28",
+      "id": "revamp-tue-pedagogical-agent-others-v2-20260830",
+      "type": "patchProjectBySlug",
+      "targetId": "drafts.projectRevamp-b3bd0f73bcc5e0d401a1",
       "slug": "portfolio-revamp-303894c3",
-      "organizationId": "f09035ed-9382-4a39-a764-927e4f630afb",
       "set": {
+        "title": "Menguji Kapan Pedagogical Agent Benar-Benar Membantu Proses Belajar",
+        "titleEn": "Testing When a Pedagogical Agent Actually Helps Learning",
+        "summary": "Saya merancang 2×2 mixed-factorial experiment dengan 157 partisipan untuk menguji apakah visible pedagogical agent membantu psychomotor dan cognitive learning task dengan cara yang sama. Agent meningkatkan psychomotor performance dan self-efficacy, tetapi tidak meningkatkan cognitive performance dan sedikit menurunkan cognitive self-efficacy. Saya juga memvalidasi AI-based gesture scoring terhadap manual scoring (r=.842) dan mengecek temuan utama dengan robust analysis ketika statistical assumptions tidak terpenuhi dengan baik.",
+        "summaryEn": "I designed a 2×2 mixed-factorial study with 157 participants to test whether a visible pedagogical agent helps psychomotor and cognitive learning tasks in the same way. The agent improved psychomotor performance and self-efficacy, but did not improve cognitive performance and slightly reduced cognitive self-efficacy. I also validated AI-based gesture scoring against manual ratings (r=.842) and checked the key findings with robust models when statistical assumptions were not clean.",
+        "tags": ["HCI Research", "Experimental Design", "Human-AI Interaction", "Learning Experience", "Quantitative Research"],
+        "tagsEn": ["HCI Research", "Experimental Design", "Human-AI Interaction", "Learning Experience", "Quantitative Research"],
+        "role": "HCI Researcher",
+        "cardStat": {
+          "value": "N=157",
+          "label": "partisipan mixed-factorial study",
+          "labelEn": "participants in mixed-factorial study"
+        },
         "featured": false
-      }
+      },
+      "bodyFile": "sanity/revamps/tue-pedagogical-agent-v2.id.json",
+      "bodyEnFile": "sanity/revamps/tue-pedagogical-agent-v2.en.json"
     }
   ]
 }
