@@ -1,10 +1,17 @@
+.container {
+  container-type: inline-size;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  scroll-margin-top: 88px;
+}
+
 .shell {
   --prototype-bg: #0b0b0b;
   --prototype-fg: #f7f7f2;
   --prototype-muted: rgba(247, 247, 242, .62);
   --prototype-line: rgba(247, 247, 242, .16);
   --prototype-panel: rgba(255, 255, 255, .045);
-  container-type: inline-size;
   display: grid;
   grid-template-columns: minmax(260px, .82fr) minmax(420px, 1.18fr);
   grid-template-areas:
@@ -21,7 +28,6 @@
   background: var(--prototype-bg);
   color: var(--prototype-fg);
   overflow: hidden;
-  scroll-margin-top: 88px;
 }
 
 .dark {
@@ -303,8 +309,8 @@
 .controls button:hover:not(:disabled) { background: var(--prototype-panel); }
 .controls button:disabled { opacity: .28; cursor: default; }
 
-/* The shell itself needs a viewport breakpoint. A container cannot query itself. */
-@media (max-width: 860px) {
+/* The component responds to its actual content rail, not the browser viewport. */
+@container (max-width: 860px) {
   .shell {
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas:
@@ -314,10 +320,7 @@
     grid-template-rows: auto auto auto;
     gap: 22px;
   }
-}
 
-/* Tablet and narrow embedding contexts. Contents respond to the shell width. */
-@container (max-width: 860px) {
   .stepList {
     align-self: stretch;
     padding-top: 14px;
@@ -344,17 +347,14 @@
   .phoneDevice { width: min(292px, 72%); }
 }
 
-/* Phone shell spacing also needs a viewport breakpoint for the same reason. */
-@media (max-width: 520px) {
+/* Phone. The screen sits above the identifiers, which become a full-width list. */
+@container (max-width: 520px) {
   .shell {
     margin: 28px 0 34px;
     padding: 18px 14px;
     gap: 18px;
   }
-}
 
-/* Phone. The screen sits above the identifiers, which become a full-width list. */
-@container (max-width: 520px) {
   .title { font-size: clamp(24px, 8vw, 32px); }
   .description { font-size: 13px; }
 
