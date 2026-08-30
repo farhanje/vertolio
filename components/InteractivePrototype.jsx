@@ -112,94 +112,96 @@ export default function InteractivePrototype({
   return (
     <section
       id={anchorId || undefined}
-      className={cx(styles.shell, theme === 'light' ? styles.light : styles.dark)}
+      className={styles.container}
       aria-label={title || 'Interactive prototype'}
       onKeyDown={handleKeyDown}
     >
-      <div className={styles.copyHeader}>
-        <div className={styles.eyebrow}>{eyebrow}</div>
-        {title ? <h3 className={styles.title}>{title}</h3> : null}
-        {description ? <p className={styles.description}>{description}</p> : null}
-      </div>
-
-      <div className={styles.viewer}>
-        <div className={styles.viewerTopline}>
-          <span>{hasHotspots ? 'CHOOSE A TASK' : isEnd ? 'FLOW COMPLETE' : 'TRY THE FLOW'}</span>
-          <span>{current.counter || String(current.__index + 1).padStart(2, '0')}</span>
+      <div className={cx(styles.shell, theme === 'light' ? styles.light : styles.dark)}>
+        <div className={styles.copyHeader}>
+          <div className={styles.eyebrow}>{eyebrow}</div>
+          {title ? <h3 className={styles.title}>{title}</h3> : null}
+          {description ? <p className={styles.description}>{description}</p> : null}
         </div>
 
-        <div className={cx(styles.stage, device === 'browser' ? styles.browserStage : styles.phoneStage)}>
-          <div className={cx(styles.deviceFrame, device === 'browser' ? styles.browserDevice : styles.phoneDevice)}>
-            {device === 'phone' ? <span className={styles.phoneSpeaker} aria-hidden="true" /> : null}
-            {device === 'browser' ? (
-              <span className={styles.browserChrome} aria-hidden="true">
-                <span /><span /><span />
-              </span>
-            ) : null}
+        <div className={styles.viewer}>
+          <div className={styles.viewerTopline}>
+            <span>{hasHotspots ? 'CHOOSE A TASK' : isEnd ? 'FLOW COMPLETE' : 'TRY THE FLOW'}</span>
+            <span>{current.counter || String(current.__index + 1).padStart(2, '0')}</span>
+          </div>
 
-            <img className={styles.screenImage} src={current.src} alt={current.alt || current.label || ''} />
+          <div className={cx(styles.stage, device === 'browser' ? styles.browserStage : styles.phoneStage)}>
+            <div className={cx(styles.deviceFrame, device === 'browser' ? styles.browserDevice : styles.phoneDevice)}>
+              {device === 'phone' ? <span className={styles.phoneSpeaker} aria-hidden="true" /> : null}
+              {device === 'browser' ? (
+                <span className={styles.browserChrome} aria-hidden="true">
+                  <span /><span /><span />
+                </span>
+              ) : null}
 
-            {hasHotspots ? current.hotspots.map((hotspot, index) => (
-              <button
-                key={`${currentKey}-${hotspot.label}-${index}`}
-                type="button"
-                className={styles.hotspot}
-                style={{
-                  left: `${hotspot.x}%`,
-                  top: `${hotspot.y}%`,
-                  width: `${hotspot.width}%`,
-                  height: `${hotspot.height}%`,
-                }}
-                aria-label={hotspot.label}
-                onClick={() => enter(hotspot.nextKey, {eventName: hotspot.event, interaction: 'choice'})}
-              >
-                <span>{hotspot.label}</span>
+              <img className={styles.screenImage} src={current.src} alt={current.alt || current.label || ''} />
+
+              {hasHotspots ? current.hotspots.map((hotspot, index) => (
+                <button
+                  key={`${currentKey}-${hotspot.label}-${index}`}
+                  type="button"
+                  className={styles.hotspot}
+                  style={{
+                    left: `${hotspot.x}%`,
+                    top: `${hotspot.y}%`,
+                    width: `${hotspot.width}%`,
+                    height: `${hotspot.height}%`,
+                  }}
+                  aria-label={hotspot.label}
+                  onClick={() => enter(hotspot.nextKey, {eventName: hotspot.event, interaction: 'choice'})}
+                >
+                  <span>{hotspot.label}</span>
+                </button>
+              )) : (
+                <button
+                  type="button"
+                  className={styles.screenAdvance}
+                  onClick={goNext}
+                  aria-label={isEnd ? 'Restart prototype' : `Continue from ${current.label || 'current screen'}`}
+                />
+              )}
+            </div>
+          </div>
+
+          <div className={styles.viewerBottom}>
+            <div className={styles.screenCopy}>
+              {current.annotation ? <span className={styles.annotation}>{current.annotation}</span> : null}
+              <strong>{current.label || 'Prototype screen'}</strong>
+              {current.caption ? <span>{current.caption}</span> : null}
+            </div>
+
+            <div className={styles.controls}>
+              <button type="button" onClick={goBack} disabled={!canGoBack} aria-label="Previous screen">←</button>
+              <button type="button" onClick={goNext} disabled={hasHotspots} aria-label={isEnd ? 'Restart prototype' : hasHotspots ? 'Choose a task on screen' : 'Next screen'}>
+                {isEnd ? '↻' : '→'}
               </button>
-            )) : (
+            </div>
+          </div>
+        </div>
+
+        <div className={styles.stepList} aria-label="Prototype screens">
+          {visibleSteps.map((step, index) => {
+            const key = step.key || String(index)
+            const sharesActiveGroup = Boolean(step.navGroup && current.navGroup && step.navGroup === current.navGroup)
+            const isActive = key === activeKey || sharesActiveGroup
+            return (
               <button
+                key={key}
                 type="button"
-                className={styles.screenAdvance}
-                onClick={goNext}
-                aria-label={isEnd ? 'Restart prototype' : `Continue from ${current.label || 'current screen'}`}
-              />
-            )}
-          </div>
+                className={cx(styles.stepButton, isActive && styles.stepButtonActive)}
+                aria-current={isActive ? 'step' : undefined}
+                onClick={() => enter(key, {replaceHistory: false})}
+              >
+                <span className={styles.stepNumber}>{step.navNumber || String(index + 1).padStart(2, '0')}</span>
+                <span>{step.label || `Screen ${index + 1}`}</span>
+              </button>
+            )
+          })}
         </div>
-
-        <div className={styles.viewerBottom}>
-          <div className={styles.screenCopy}>
-            {current.annotation ? <span className={styles.annotation}>{current.annotation}</span> : null}
-            <strong>{current.label || 'Prototype screen'}</strong>
-            {current.caption ? <span>{current.caption}</span> : null}
-          </div>
-
-          <div className={styles.controls}>
-            <button type="button" onClick={goBack} disabled={!canGoBack} aria-label="Previous screen">←</button>
-            <button type="button" onClick={goNext} disabled={hasHotspots} aria-label={isEnd ? 'Restart prototype' : hasHotspots ? 'Choose a task on screen' : 'Next screen'}>
-              {isEnd ? '↻' : '→'}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className={styles.stepList} aria-label="Prototype screens">
-        {visibleSteps.map((step, index) => {
-          const key = step.key || String(index)
-          const sharesActiveGroup = Boolean(step.navGroup && current.navGroup && step.navGroup === current.navGroup)
-          const isActive = key === activeKey || sharesActiveGroup
-          return (
-            <button
-              key={key}
-              type="button"
-              className={cx(styles.stepButton, isActive && styles.stepButtonActive)}
-              aria-current={isActive ? 'step' : undefined}
-              onClick={() => enter(key, {replaceHistory: false})}
-            >
-              <span className={styles.stepNumber}>{step.navNumber || String(index + 1).padStart(2, '0')}</span>
-              <span>{step.label || `Screen ${index + 1}`}</span>
-            </button>
-          )
-        })}
       </div>
     </section>
   )
