@@ -36,6 +36,18 @@
   margin-top: -16px;
 }
 
+.tocColumn {
+  position: sticky;
+  top: calc(var(--navH) + 18px);
+  align-self: start;
+  max-height: calc(100vh - (var(--navH) + 56px));
+}
+
+.tocColumn :global(.tocbox) {
+  position: static;
+  max-height: calc(100vh - (var(--navH) + 56px));
+}
+
 .bodyColumn :global(.prose) {
   width: 100%;
   min-width: 0;
