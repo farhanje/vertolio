@@ -1,28 +1,5 @@
 {
   "version": 1,
   "verifyWrite": false,
-  "operations": [
-    {
-      "id": "revamp-linked-savings-positioning-others-v2-20260830",
-      "type": "patchProjectBySlug",
-      "targetId": "drafts.projectRevamp-bb0c00c669bbd6ff47eb",
-      "slug": "portfolio-revamp-70abaad4",
-      "set": {
-        "title": "Membuat Tabungan Terasa Berbeda di Dalam E-Wallet",
-        "titleEn": "Making Savings Feel Distinct Inside an E-Wallet",
-        "summary": "Research menunjukkan bahwa balance e-wallet sudah punya mental model yang kuat sebagai uang untuk dibelanjakan. Saya menggunakan temuan itu untuk membentuk positioning, hierarchy produk, dan arah branding linked savings agar tetap mudah diakses dari AstraPay tanpa terlihat seperti wallet balance yang sama dengan benefit tambahan.",
-        "summaryEn": "Research showed that e-wallet balance already carried a strong mental model as money to spend. I used that finding to shape the positioning, product hierarchy, and brand direction for linked savings so it stayed easy to access from AstraPay without reading like the same wallet balance with extra benefits.",
-        "tags": ["Product Strategy", "User Research", "Fintech", "Savings", "Branding Architecture"],
-        "tagsEn": ["Product Strategy", "User Research", "Fintech", "Savings", "Branding Architecture"],
-        "cardStat": {
-          "value": "4",
-          "label": "prinsip produk dari research",
-          "labelEn": "research-led product principles"
-        },
-        "featured": false
-      },
-      "bodyFile": "sanity/revamps/linked-savings-positioning-v2.id.json",
-      "bodyEnFile": "sanity/revamps/linked-savings-positioning-v2.en.json"
-    }
-  ]
+  "operations": []
 }
