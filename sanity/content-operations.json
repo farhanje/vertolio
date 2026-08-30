@@ -91,30 +91,6 @@
         {
           "field": "bodyEn",
           "action": "mergeItem",
-          "match": {"eyebrow": "Flow change"},
-          "set": {
-            "title":"Speed came from moving review work, not lowering the standard",
-            "description":"In the old flow, every merchant paid the cost of four steps and two reviews. In the fast track, the second review was reserved for cases that actually needed deeper inspection.",
-            "left":{
-              "_type":"comparisonSide",
-              "label":"Standard flow",
-              "title":"Every case follows the same review model",
-              "description":"A verifier checks the merchant across four steps, then an approver reviews the decision again before the final status.",
-              "note":"Reasonable for a general flow, expensive when repeated 15,000 times."
-            },
-            "right":{
-              "_type":"comparisonSide",
-              "label":"Fast-track cohort",
-              "title":"Second review is reserved for cases that need it",
-              "description":"The same information is still checked, but on one page. Clear cases can use Instant Approve, while exceptions move to secondary review.",
-              "note":"The control moves toward cohort eligibility and exception handling."
-            },
-            "theme":"light"
-          }
-        },
-        {
-          "field": "bodyEn",
-          "action": "mergeItem",
           "match": {"eyebrow": "Eligibility"},
           "set": {
             "title":"The referral code became a gate, not a manual shortcut",
