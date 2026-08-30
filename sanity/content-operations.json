@@ -1,5 +1,16 @@
 {
   "version": 1,
   "verifyWrite": false,
-  "operations": []
+  "operations": [
+    {
+      "id": "clone-project-303894c3-to-others-deep-revamp-20260830",
+      "type": "cloneProjectById",
+      "sourceId": "303894c3-a401-47e0-9064-61fa6b9e7b28",
+      "slug": "portfolio-revamp-303894c3",
+      "organizationId": "f09035ed-9382-4a39-a764-927e4f630afb",
+      "set": {
+        "featured": false
+      }
+    }
+  ]
 }
