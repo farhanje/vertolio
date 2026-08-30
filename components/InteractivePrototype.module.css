@@ -303,8 +303,8 @@
 .controls button:hover:not(:disabled) { background: var(--prototype-panel); }
 .controls button:disabled { opacity: .28; cursor: default; }
 
-/* Tablet and narrow embedding contexts. The screen is no longer squeezed beside the copy. */
-@container (max-width: 860px) {
+/* The shell itself needs a viewport breakpoint. A container cannot query itself. */
+@media (max-width: 860px) {
   .shell {
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas:
@@ -314,7 +314,10 @@
     grid-template-rows: auto auto auto;
     gap: 22px;
   }
+}
 
+/* Tablet and narrow embedding contexts. Contents respond to the shell width. */
+@container (max-width: 860px) {
   .stepList {
     align-self: stretch;
     padding-top: 14px;
@@ -341,14 +344,17 @@
   .phoneDevice { width: min(292px, 72%); }
 }
 
-/* Phone. The prototype screen is the hero, and the step index becomes a full-width vertical list below it. */
-@container (max-width: 520px) {
+/* Phone shell spacing also needs a viewport breakpoint for the same reason. */
+@media (max-width: 520px) {
   .shell {
     margin: 28px 0 34px;
     padding: 18px 14px;
     gap: 18px;
   }
+}
 
+/* Phone. The screen sits above the identifiers, which become a full-width list. */
+@container (max-width: 520px) {
   .title { font-size: clamp(24px, 8vw, 32px); }
   .description { font-size: 13px; }
 
