@@ -1,28 +1,5 @@
 {
   "version": 1,
   "verifyWrite": false,
-  "operations": [
-    {
-      "id": "revamp-kyc-hook-copy-others-v2-20260830",
-      "type": "patchProjectBySlug",
-      "targetId": "drafts.projectRevamp-41587a1e5cdaa181a1a0",
-      "slug": "portfolio-revamp-5a2574be",
-      "set": {
-        "title": "Menguji Apa yang Membuat User Mau Memulai KYC",
-        "titleEn": "Testing What Makes Users Start KYC",
-        "summary": "Copy KYC di homepage sudah lama tidak berubah. Saya menguji tiga framing value langsung di mobile production dengan legacy copy sebagai control, lalu membaca hasilnya sampai downstream funnel. Ketiga variant baru mengungguli legacy. Monetary Highlight dipilih untuk rollout karena lebih kuat mendorong KYC Start tanpa menunjukkan downside berarti di tahap berikutnya, sementara perbedaan final A, B, dan C tidak signifikan.",
-        "summaryEn": "The KYC homepage message had been unchanged for some time. I tested three value framings directly in the live mobile product against the legacy control, then followed the result through the downstream funnel. All three new variants beat legacy. Monetary Highlight was selected for rollout because it drove stronger KYC Start behavior without a meaningful downstream downside, while the final difference among A, B, and C was not significant.",
-        "tags": ["KYC", "Experimentation", "UX Writing", "Product Analytics", "Conversion"],
-        "tagsEn": ["KYC", "Experimentation", "UX Writing", "Product Analytics", "Conversion"],
-        "cardStat": {
-          "value": "3 / 3",
-          "label": "variant baru mengungguli legacy",
-          "labelEn": "new variants beat legacy"
-        },
-        "featured": false
-      },
-      "bodyFile": "sanity/revamps/kyc-hook-copy-production-v2.id.json",
-      "bodyEnFile": "sanity/revamps/kyc-hook-copy-production-v2.en.json"
-    }
-  ]
+  "operations": []
 }
