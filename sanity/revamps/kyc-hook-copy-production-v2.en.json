@@ -1,0 +1,148 @@
+[
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Context",
+    "title": "Before changing the flow, I tested whether users had a strong enough reason to start KYC",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"KYC conversion was sitting around 30–33%. The homepage was one of the main entry points, and the copy in that area had been unchanged for some time."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Before adding more changes to the flow, I wanted to isolate one question. Was the way we explained KYC giving users a strong enough reason to begin verification?"}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"We ran the experiment directly in the live mobile product from 12 September to 1 October 2025. The surrounding KYC entry experience stayed largely the same so behavioral differences were easier to read against the messaging itself."}]}
+    ],
+    "callout": "This was not a page redesign. The variable was the reason we gave users to start KYC.",
+    "width": "wide",
+    "theme": "light"
+  },
+  {
+    "_type": "evidenceGrid",
+    "eyebrow": "Result snapshot",
+    "title": "Legacy lost clearly, while the winner among the three new variants was more nuanced",
+    "description": "The experiment produced two different levels of evidence, and both mattered for the rollout decision.",
+    "columns": 3,
+    "metrics": [
+      {"_type":"evidenceMetric","value":"3 / 3","label":"new variants beat legacy","context":"all three new framings performed better than the existing message"},
+      {"_type":"evidenceMetric","value":"C > A","label":"KYC Start","context":"Monetary Highlight was significantly stronger than Feature Highlight at entry"},
+      {"_type":"evidenceMetric","value":"No sig. diff","label":"final A, B, and C","context":"the final difference among the three new variants was not statistically significant"}
+    ],
+    "theme": "light"
+  },
+  {
+    "_type": "artifactExplorer",
+    "eyebrow": "Experiment evidence",
+    "title": "The variants and the production result",
+    "description": "These two artifacts show what actually changed and the evidence used to decide what should ship.",
+    "theme": "dark",
+    "tabs": [
+      {
+        "_type": "artifactTab",
+        "kind": "image",
+        "label": "Variants",
+        "title": "The interaction stayed familiar while the value framing changed",
+        "description": "The legacy message remained the control. Three new variants tested different reasons to begin KYC.",
+        "image": {"_type":"image","asset":{"_type":"reference","_ref":"image-e781ed265956fa9da8b36142c804a634e916c4a9-1528x906-png"}},
+        "alt": "Control and three KYC copy variants tested on the AstraPay homepage",
+        "caption": "Control with Feature Highlight, General Highlight, and Monetary Highlight."
+      },
+      {
+        "_type": "artifactTab",
+        "kind": "image",
+        "label": "Results",
+        "title": "The difference against legacy was clearer than the difference among the new variants",
+        "description": "All three new variants beat legacy. Choosing a rollout still required the experiment objective and significance tests, not only the final numerical ranking.",
+        "image": {"_type":"image","asset":{"_type":"reference","_ref":"image-416bad609efc7ab50e5230e26a4743ddf5e42f67-1448x1086-png"}},
+        "alt": "Production KYC experiment result across the control and three new variants",
+        "caption": "The result used to separate statistical findings from the product decision."
+      }
+    ]
+  },
+  {
+    "_type": "evidenceGrid",
+    "eyebrow": "Experiment design",
+    "title": "The three variants represented three different reasons to complete KYC",
+    "description": "I treated the copy as a product hypothesis rather than a set of cosmetic rewrites.",
+    "columns": 3,
+    "metrics": [
+      {"_type":"evidenceMetric","value":"A","label":"Feature Highlight","context":"lead with features and benefits unlocked after KYC"},
+      {"_type":"evidenceMetric","value":"B","label":"General Highlight","context":"use a broader and simpler value proposition"},
+      {"_type":"evidenceMetric","value":"C","label":"Monetary Highlight","context":"make the financial and transactional value more concrete"}
+    ],
+    "theme": "light"
+  },
+  {
+    "_type": "flowchart",
+    "eyebrow": "Measurement",
+    "title": "I read the result through the downstream funnel",
+    "description": "More users entering KYC would not count as an improvement if they simply dropped out at the next stage.",
+    "mode": "basic",
+    "direction": "horizontal",
+    "nodes": [
+      {"_type":"flowchartNode","key":"exposure","label":"Homepage exposure","description":"A user sees the control or one of the messaging variants.","badge":"Experiment arm","kind":"start","column":1,"row":1},
+      {"_type":"flowchartNode","key":"start","label":"KYC Start","description":"Does the framing move more users into the flow?","badge":"Entry behavior","kind":"process","column":2,"row":1,"emphasis":true},
+      {"_type":"flowchartNode","key":"progress","label":"Progression","description":"Do the additional starters keep moving through KYC?","badge":"Downstream check","kind":"process","column":3,"row":1},
+      {"_type":"flowchartNode","key":"submit","label":"Submission","description":"Does the entry gain still hold at completion?","badge":"Completion","kind":"end","column":4,"row":1}
+    ],
+    "edges": [
+      {"_type":"flowchartEdge","from":"exposure","to":"start","style":"solid"},
+      {"_type":"flowchartEdge","from":"start","to":"progress","style":"solid"},
+      {"_type":"flowchartEdge","from":"progress","to":"submit","style":"solid"}
+    ],
+    "note": "The experiment was read as behavior through a funnel, not as a homepage click test.",
+    "theme": "dark"
+  },
+  {
+    "_type": "comparison",
+    "eyebrow": "Decision",
+    "title": "The highest final number did not automatically decide what should ship",
+    "description": "Variant B looked strongest on final CVR descriptively. Variant C better matched the entry objective because it was stronger at KYC Start without a meaningful downstream downside.",
+    "left": {
+      "_type": "comparisonSide",
+      "label": "Variant B",
+      "title": "Highest final CVR descriptively",
+      "description": "General Highlight recorded the highest final number among the new variants.",
+      "note": "The final difference among A, B, and C was not statistically significant. Calling B the proven winner would overstate the experiment."
+    },
+    "right": {
+      "_type": "comparisonSide",
+      "label": "Variant C · Shipped",
+      "title": "A better fit for the job of the entry point",
+      "description": "Monetary Highlight significantly beat A at KYC Start, performed close to B, and did not show a meaningful downside later in the funnel.",
+      "note": "C became the rollout direction because it best matched the objective of moving more users into KYC while preserving downstream progression."
+    },
+    "theme": "light"
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Product decision",
+    "title": "We shipped the framing that best matched the job of the entry point",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"The homepage did not need to explain the whole KYC experience. Its job was to give eligible users a strong enough reason to enter the flow without attracting traffic that immediately dropped out."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Variant C made the financial value of verification more concrete. Its KYC Start result matched that objective better, while downstream progression did not show a meaningful decline."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Monetary Highlight then replaced the legacy homepage copy in production."}]}
+    ],
+    "callout": "The rollout followed the experiment objective and the strength of the evidence, not simply the highest final number.",
+    "width": "wide",
+    "theme": "dark"
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Evidence boundary",
+    "title": "The experiment showed that the new framing beat legacy, not that Variant C was an absolute winner",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"The strongest findings were that every new framing beat the legacy message and that C outperformed A at KYC Start. At the end of the funnel, A, B, and C did not differ significantly from one another."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"I therefore would not use the broader KYC uplift after rollout as isolated proof of the copy effect. Other changes, including Autosave and the flexible KYC flow, also entered the experience during the wider improvement period."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"The narrower conclusion is more useful. How value is explained at an entry point can change whether users choose to begin a flow before any structural redesign takes place."}]}
+    ],
+    "width": "normal",
+    "theme": "light"
+  },
+  {
+    "_type": "narrativeSection",
+    "eyebrow": "Next test",
+    "title": "The next useful experiment would be narrower, not another set of broad variants",
+    "body": [
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"Once the legacy framing had been ruled out, the next question was no longer whether new copy worked. It was which part of the General and Monetary framing was actually moving behavior."}]},
+      {"_type":"block","style":"normal","markDefs":[],"children":[{"_type":"span","marks":[],"text":"I would narrow the next test to the closest candidates and change one value proposition element at a time. That would make the mechanism easier to understand than testing several broad concepts again."}]}
+    ],
+    "width": "normal",
+    "theme": "light"
+  }
+]
