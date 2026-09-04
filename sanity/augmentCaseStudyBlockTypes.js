@@ -1,3 +1,5 @@
+import PrototypeHotspotArrayInput from './components/PrototypeHotspotArrayInput'
+
 const PROTOTYPE_PRESETS = [
   {title: 'KYC Autosave Flow B · Indonesian', value: 'kyc-autosave-flow-b-id'},
   {title: 'KYC Autosave Flow B · English', value: 'kyc-autosave-flow-b-en'},
@@ -64,6 +66,37 @@ function augmentInteractivePrototype(type) {
   return {...type, fields}
 }
 
+function augmentPrototypeStep(type) {
+  return {
+    ...type,
+    fields: type.fields.map((field) => {
+      if (field.name !== 'hotspots') return field
+      return {
+        ...field,
+        title: 'Clickable areas / hotspots',
+        description: 'Draw clickable areas directly on the uploaded screen. Drag to move, use the corner handle to resize, then choose the destination screen below.',
+        components: {
+          ...(field.components || {}),
+          input: PrototypeHotspotArrayInput,
+        },
+      }
+    }),
+  }
+}
+
+function augmentPrototypeHotspot(type) {
+  return {
+    ...type,
+    fields: type.fields.map((field) => {
+      if (!['x', 'y', 'width', 'height'].includes(field.name)) return field
+      return {
+        ...field,
+        hidden: true,
+      }
+    }),
+  }
+}
+
 function augmentComparisonSide(type) {
   return {
     ...type,
@@ -104,6 +137,8 @@ function augmentArtifactExplorer(type) {
 export default function augmentCaseStudyBlockTypes(types = []) {
   return types.map((type) => {
     if (type?.name === 'interactivePrototype') return augmentInteractivePrototype(type)
+    if (type?.name === 'prototypeStep') return augmentPrototypeStep(type)
+    if (type?.name === 'prototypeHotspot') return augmentPrototypeHotspot(type)
     if (type?.name === 'comparisonSide') return augmentComparisonSide(type)
     if (type?.name === 'artifactExplorer') return augmentArtifactExplorer(type)
     return type
