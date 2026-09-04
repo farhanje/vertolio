@@ -58,6 +58,9 @@ export default function InteractivePrototype({
   const canGoBack = history.length > 1
   const hasHotspots = Array.isArray(current.hotspots) && current.hotspots.length > 0
   const isEnd = current.isEnd === true
+  const isBrowser = device === 'browser'
+  const isLandscape = device === 'landscape'
+  const isPhone = !isBrowser && !isLandscape
 
   const enter = (key, {eventName, replaceHistory = false, interaction = 'navigate'} = {}) => {
     if (!key || !stepByKey.has(key)) return
@@ -129,14 +132,21 @@ export default function InteractivePrototype({
             <span>{current.counter || String(current.__index + 1).padStart(2, '0')}</span>
           </div>
 
-          <div className={cx(styles.stage, device === 'browser' ? styles.browserStage : styles.phoneStage)}>
-            <div className={cx(styles.deviceFrame, device === 'browser' ? styles.browserDevice : styles.phoneDevice)}>
-              {device === 'phone' ? <span className={styles.phoneSpeaker} aria-hidden="true" /> : null}
-              {device === 'browser' ? (
+          <div className={cx(
+            styles.stage,
+            isBrowser ? styles.browserStage : isLandscape ? styles.landscapeStage : styles.phoneStage,
+          )}>
+            <div className={cx(
+              styles.deviceFrame,
+              isBrowser ? styles.browserDevice : isLandscape ? styles.landscapeDevice : styles.phoneDevice,
+            )}>
+              {isPhone ? <span className={styles.phoneSpeaker} aria-hidden="true" /> : null}
+              {isBrowser ? (
                 <span className={styles.browserChrome} aria-hidden="true">
                   <span /><span /><span />
                 </span>
               ) : null}
+              {isLandscape ? <span className={styles.landscapeCamera} aria-hidden="true" /> : null}
 
               <img className={styles.screenImage} src={current.src} alt={current.alt || current.label || ''} />
 
