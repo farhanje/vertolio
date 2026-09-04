@@ -11,6 +11,22 @@ const PROTOTYPE_PRESETS = [
 
 function augmentInteractivePrototype(type) {
   const fields = type.fields.flatMap((field) => {
+    if (field.name === 'device') {
+      return [{
+        ...field,
+        description: 'Choose the frame that matches the actual product surface. Phone uses 9:19.5, Landscape device uses 4:3, and Browser / desktop uses 16:10 with browser chrome.',
+        options: {
+          ...field.options,
+          list: [
+            {title: 'Phone · 9:19.5', value: 'phone'},
+            {title: 'Landscape device · 4:3', value: 'landscape'},
+            {title: 'Browser / desktop · 16:10', value: 'browser'},
+          ],
+          layout: 'radio',
+        },
+      }]
+    }
+
     if (field.name === 'analyticsPrefix') {
       return [
         {
