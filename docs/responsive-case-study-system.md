@@ -18,13 +18,25 @@ Vertical tabs are desktop-only as a visual layout. Below roughly 860px of compon
 
 ## Interactive Prototype
 
-Desktop uses a two-column artifact room when enough width is available.
+Desktop uses a two-column artifact room when enough width is available. The copy and step index sit beside the interactive surface.
 
-Tablet and narrower embedding contexts stack the explanation above the viewer. Screen navigation becomes a horizontal scroll strip.
+Tablet and narrower embedding contexts stack the explanation above the viewer. The viewer comes before the step index so the actual product surface keeps visual priority. Tablet may use a horizontal scroll strip for the step index when there is enough room.
 
-Phone reduces the surrounding chrome while keeping the actual screen inspectable. Phone and browser devices use different stage heights. Controls are at least 44px where possible.
+Phone always keeps the viewer before navigation. The step index becomes a full-width vertical list below the prototype so long labels remain readable and the product screen is never squeezed by navigation.
 
-Hotspots receive a visible affordance on coarse-pointer devices because hover is unavailable.
+Device ratios are explicit and should match the product surface rather than being treated as interchangeable mockups:
+
+- Phone: 9:19.5
+- Landscape device: 4:3
+- Browser / desktop: 16:10 with browser chrome
+
+Use the Landscape device for tablet, kiosk, touch-screen, dashboard, or other product surfaces where a physical landscape frame is part of the presentation. Use Browser / desktop for web products where browser chrome is meaningful.
+
+On phone, all three device modes remain inside the content rail. Landscape and browser frames scale to the available width instead of widening the document.
+
+Controls are at least 44px where possible. Hotspots receive a visible affordance on coarse-pointer devices because hover is unavailable.
+
+Use `/lab/interactive-prototype-landscape` to QA the dedicated 4:3 landscape mode.
 
 ## Flowchart
 
@@ -66,10 +78,10 @@ Phone keeps large touch controls and also supports horizontal swipe. Vertical pa
 
 ## Narrative
 
-Narrative blocks keep normal editorial width on desktop and tablet. Phone uses a full-bleed artifact treatment with smaller padding and type scaling.
+Narrative blocks keep normal editorial width on desktop and tablet. Phone uses the project content rail with smaller padding and type scaling. It must not widen the document.
 
 ## QA
 
 Use `/lab/responsive-case-study` before introducing a new reusable case-study pattern.
 
-The route renders `/lab/case-study-blocks` inside exact 1440px, 768px, and 390px iframe viewports. This allows media queries, container queries, ResizeObserver logic, touch-sized layout, overflow, and responsive navigation to be checked against three stable viewport classes.
+The route renders `/lab/case-study-blocks` and real-case canaries inside exact 1440px, 768px, and 390px iframe viewports. This allows media queries, container queries, ResizeObserver logic, touch-sized layout, overflow, and responsive navigation to be checked against three stable viewport classes.
