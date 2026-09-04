@@ -137,7 +137,8 @@
 }
 
 .phoneStage { min-height: 500px; }
-.browserStage { min-height: 410px; }
+.browserStage,
+.landscapeStage { min-height: 410px; }
 
 .deviceFrame {
   position: relative;
@@ -159,6 +160,13 @@
   border-radius: 34px;
 }
 
+.landscapeDevice {
+  width: min(100%, 720px);
+  aspect-ratio: 4 / 3;
+  border: 8px solid #151515;
+  border-radius: 26px;
+}
+
 .browserDevice {
   width: min(100%, 760px);
   aspect-ratio: 16 / 10;
@@ -177,6 +185,19 @@
   border-radius: 999px;
   transform: translateX(-50%);
   background: #151515;
+  pointer-events: none;
+}
+
+.landscapeCamera {
+  position: absolute;
+  z-index: 5;
+  top: 2px;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  transform: translateX(-50%);
+  background: #3a3a3a;
   pointer-events: none;
 }
 
@@ -343,8 +364,10 @@
 
   .stepButton:hover { transform: none; }
   .phoneStage { min-height: 470px; }
-  .browserStage { min-height: 340px; }
+  .browserStage,
+  .landscapeStage { min-height: 340px; }
   .phoneDevice { width: min(292px, 72%); }
+  .landscapeDevice { width: min(620px, 96%); }
 }
 
 /* Phone. The screen sits above the identifiers, which become a full-width list. */
@@ -366,9 +389,11 @@
     border-right: 0;
   }
 
-  .phoneStage { min-height: 0; }
-  .browserStage { min-height: 0; }
+  .phoneStage,
+  .browserStage,
+  .landscapeStage { min-height: 0; }
   .phoneDevice { width: min(260px, 88%); border-width: 6px; border-radius: 30px; }
+  .landscapeDevice { width: 100%; border-width: 5px; border-radius: 18px; }
   .browserDevice { width: 100%; border-radius: 6px; }
 
   .viewerBottom {
