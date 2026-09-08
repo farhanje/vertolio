@@ -103,7 +103,7 @@ const interactivePrototype = {
       name: 'steps',
       title: 'Prototype screens',
       type: 'array',
-      validation: (Rule) => Rule.required().min(2).max(16),
+      validation: (Rule) => Rule.required().min(2),
       of: [{type: 'prototypeStep'}],
     },
   ],
