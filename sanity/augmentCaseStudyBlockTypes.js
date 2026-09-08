@@ -52,8 +52,8 @@ function augmentInteractivePrototype(type) {
     if (field.name === 'steps') {
       return [{
         ...field,
-        description: 'Add at least 2 uploaded screens, or choose a Prototype preset above.',
-        validation: (Rule) => Rule.max(16).custom((steps, context) => {
+        description: 'Add at least 2 uploaded screens, or choose a Prototype preset above. There is no maximum screen count.',
+        validation: (Rule) => Rule.custom((steps, context) => {
           if (context?.parent?.preset) return true
           return Array.isArray(steps) && steps.length >= 2 ? true : 'Add at least 2 screens or choose a Prototype preset.'
         }),
