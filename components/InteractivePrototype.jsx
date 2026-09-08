@@ -36,6 +36,7 @@ export default function InteractivePrototype({
   const [activeKey, setActiveKey] = useState(firstKey)
   const [history, setHistory] = useState(firstKey ? [firstKey] : [])
   const didTrackStart = useRef(false)
+  const stepListRef = useRef(null)
 
   useEffect(() => {
     if (!stepByKey.has(activeKey) && firstKey) {
@@ -51,6 +52,15 @@ export default function InteractivePrototype({
     track(first?.event || `${analyticsPrefix}_start`, {screen: first?.key || firstKey})
   }, [analyticsPrefix, firstKey, stepByKey])
 
+  useEffect(() => {
+    const list = stepListRef.current
+    const active = list?.querySelector('[aria-current="step"]')
+    if (!list || !active || list.scrollWidth <= list.clientWidth + 2) return
+
+    const target = active.offsetLeft - Math.max(0, (list.clientWidth - active.offsetWidth) / 2)
+    list.scrollTo({left: Math.max(0, target), behavior: 'smooth'})
+  }, [activeKey])
+
   if (!validSteps.length) return null
 
   const current = stepByKey.get(activeKey) || {...validSteps[0], __index: 0}
@@ -61,6 +71,9 @@ export default function InteractivePrototype({
   const isBrowser = device === 'browser'
   const isLandscape = device === 'landscape'
   const isPhone = !isBrowser && !isLandscape
+  const currentPosition = String(current.__index + 1).padStart(2, '0')
+  const totalSteps = String(validSteps.length).padStart(2, '0')
+  const viewerCounter = current.counter || `${currentPosition} / ${totalSteps}`
 
   const enter = (key, {eventName, replaceHistory = false, interaction = 'navigate'} = {}) => {
     if (!key || !stepByKey.has(key)) return
@@ -129,7 +142,7 @@ export default function InteractivePrototype({
         <div className={styles.viewer}>
           <div className={styles.viewerTopline}>
             <span>{hasHotspots ? 'CHOOSE A TASK' : isEnd ? 'FLOW COMPLETE' : 'TRY THE FLOW'}</span>
-            <span>{current.counter || String(current.__index + 1).padStart(2, '0')}</span>
+            <span>{viewerCounter}</span>
           </div>
 
           <div className={cx(
@@ -193,7 +206,7 @@ export default function InteractivePrototype({
           </div>
         </div>
 
-        <div className={styles.stepList} aria-label="Prototype screens">
+        <nav ref={stepListRef} className={styles.stepList} aria-label="Prototype screens">
           {visibleSteps.map((step, index) => {
             const key = step.key || String(index)
             const sharesActiveGroup = Boolean(step.navGroup && current.navGroup && step.navGroup === current.navGroup)
@@ -211,7 +224,7 @@ export default function InteractivePrototype({
               </button>
             )
           })}
-        </div>
+        </nav>
       </div>
     </section>
   )
