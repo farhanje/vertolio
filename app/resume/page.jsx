@@ -12,10 +12,10 @@ export default async function ResumePage() {
   const settings = await sanityFetch(SITE_SETTINGS_QUERY)
   const accent = settings?.pageAccents?.resume || 'none'
 
-  const url = settings?.resumePdf?.asset?.url
-  const filename = settings?.resumePdf?.asset?.originalFilename || 'resume.pdf'
-
-  const viewerUrl = url ? `${url}#view=FitH` : null
+  const hasResume = Boolean(settings?.resumePdf?.asset?.url)
+  const viewerUrl = hasResume ? '/api/resume-pdf#view=FitH' : null
+  const openUrl = hasResume ? '/api/resume-pdf' : null
+  const downloadUrl = hasResume ? '/api/resume-pdf?download=1' : null
   const nativeClass = lang === 'en' ? ' notranslate' : ''
 
   return (
@@ -26,18 +26,18 @@ export default async function ResumePage() {
             <div className="kicker"><span className="dot" /> <span className="notranslate">Farhan Fauzan Jamaludin</span></div>
             <h1 className={`h1-tight${nativeClass}`}>{copy.resumeTitle}</h1>
             <p className={`lead${nativeClass}`} style={{ marginTop: 10 }}>
-              {url ? copy.resumeLatest : copy.resumeUnavailable}
+              {hasResume ? copy.resumeLatest : copy.resumeUnavailable}
             </p>
-            {url ? (
+            {hasResume ? (
               <div className="cta-row">
-                <a className={`btn primary${nativeClass}`} href={url} target="_blank" rel="noreferrer">{copy.openPdf}</a>
-                <a className={`btn${nativeClass}`} href={url} download={filename}>{copy.download}</a>
+                <a className={`btn primary${nativeClass}`} href={openUrl} target="_blank" rel="noreferrer">{copy.openPdf}</a>
+                <a className={`btn${nativeClass}`} href={downloadUrl}>{copy.download}</a>
               </div>
             ) : null}
           </div>
 
           <div className="col-right" style={{ gridColumn: '6 / span 7' }}>
-            {!url ? (
+            {!hasResume ? (
               <div className="card">
                 <h3 className={lang === 'en' ? 'notranslate' : undefined} style={{ margin: 0 }}>{copy.noResume}</h3>
               </div>
