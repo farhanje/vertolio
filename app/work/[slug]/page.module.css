@@ -40,12 +40,13 @@
   position: sticky;
   top: calc(var(--navH) + 18px);
   align-self: start;
-  max-height: calc(100vh - (var(--navH) + 56px));
+  margin-top: 20px;
+  max-height: calc(100vh - (var(--navH) + 76px));
 }
 
 .tocColumn :global(.tocbox) {
   position: static;
-  max-height: calc(100vh - (var(--navH) + 56px));
+  max-height: calc(100vh - (var(--navH) + 76px));
 }
 
 .bodyColumn :global(.prose) {
