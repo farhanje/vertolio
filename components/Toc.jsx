@@ -3,6 +3,7 @@
 import {useEffect, useRef, useState} from 'react'
 import {normalizeLanguage, uiCopy} from '../lib/i18n'
 import {trackAnalytics} from '../lib/analytics.client'
+import styles from './Toc.module.css'
 
 function slugify(input) {
   return String(input || '')
@@ -69,8 +70,8 @@ export default function Toc({ contentId = 'content', lang = 'en' }) {
 
     const box = root.getBoundingClientRect()
     const eb = el.getBoundingClientRect()
-    const topLimit = box.top + 64
-    const bottomLimit = box.bottom - 24
+    const topLimit = box.top + 8
+    const bottomLimit = box.bottom - 8
 
     if (eb.top < topLimit || eb.bottom > bottomLimit) {
       const elCenterInScrollArea = (eb.top - box.top) + root.scrollTop + (eb.height / 2)
@@ -94,20 +95,22 @@ export default function Toc({ contentId = 'content', lang = 'en' }) {
 
   return (
     <>
-      <div className="tocbox toc-desktop" ref={deskRef}>
+      <div className={`tocbox toc-desktop ${styles.desktopBox}`}>
         <div className="toc-title"><span className={nativeLabelClass}>{copy.contents}</span></div>
-        <nav className="toc">
-          {items.map((it) => (
-            <a
-              key={it.id}
-              href={`#${it.id}`}
-              onClick={() => onClickLink(it)}
-              className={`toc-link ${activeId === it.id ? 'active' : ''} ${it.level === 3 ? 'lvl3' : ''}`}
-            >
-              {it.text}
-            </a>
-          ))}
-        </nav>
+        <div className={styles.desktopScroll} ref={deskRef}>
+          <nav className="toc">
+            {items.map((it) => (
+              <a
+                key={it.id}
+                href={`#${it.id}`}
+                onClick={() => onClickLink(it)}
+                className={`toc-link ${activeId === it.id ? 'active' : ''} ${it.level === 3 ? 'lvl3' : ''}`}
+              >
+                {it.text}
+              </a>
+            ))}
+          </nav>
+        </div>
       </div>
 
       <button className="toc-fab" onClick={() => setOpen(true)} aria-label={copy.openContents}>
