@@ -1,0 +1,26 @@
+:global(.tocbox).desktopBox {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+}
+
+.desktopBox > :global(.toc-title) {
+  position: relative;
+  top: auto;
+  z-index: 3;
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 16px 16px 12px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--hair2);
+}
+
+.desktopScroll {
+  min-height: 0;
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 8px 16px 16px;
+  scrollbar-gutter: stable;
+}
