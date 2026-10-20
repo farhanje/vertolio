@@ -10,6 +10,9 @@
 .featuredGrid figure{margin:0;min-width:0;display:flex;flex-direction:column;background:white;border:1px solid var(--stroke);border-radius:12px;overflow:hidden}
 .featureShot{display:block;width:100%;padding:0;margin:0;background:#e9edf5;border:0;cursor:zoom-in;position:relative}
 .featureShot img{display:block;width:100%;height:auto;max-height:490px;object-fit:cover;object-position:top center}
+.warningFocus,.correctionFocus{aspect-ratio:1/1;overflow:hidden}
+.warningFocus img{position:relative;width:205%;max-width:none;max-height:none;height:auto;object-fit:initial;transform:translate(-22.2%,-13%)}
+.correctionFocus img{position:relative;width:160%;max-width:none;max-height:none;height:auto;object-fit:initial;transform:translate(-20.8%,-13%)}
 .zoomIcon{position:absolute;bottom:11px;right:11px;border-radius:30px;background:rgba(21,34,54,.92);color:#fff;width:33px;height:33px;display:grid;place-items:center;font-size:18px;font-weight:600}
 .featured figcaption{display:flex;gap:13px;padding:19px;align-items:flex-start}
 .featured figcaption>span{font-size:11px;font-weight:800;letter-spacing:.05em;color:#3265ac;background:#eaf1ff;border-radius:5px;padding:7px 9px}
