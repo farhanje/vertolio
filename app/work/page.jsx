@@ -4,6 +4,7 @@ import {placeholderOrganizations, placeholderProjects, placeholderSiteSettings} 
 import EditorialCard from '../../components/EditorialCard'
 import {urlFor} from '../../lib/sanity.image'
 import {getLanguage} from '../../lib/i18n.server'
+import {projectPreviewSummary} from '../../lib/projectPreview'
 import {pickLocalized, uiCopy} from '../../lib/i18n'
 
 export const dynamic = 'force-dynamic'
@@ -61,7 +62,7 @@ function cardData(p, lang, index, featured) {
 
   return {
     title: titlePick.value,
-    summary: summaryPick.value,
+    summary: projectPreviewSummary(p?.slug?.current, lang, summaryPick.value),
     image: p?.cardImage,
     projectSlug: p?.slug?.current,
     alt: altPick.value,
