@@ -39,6 +39,6 @@ export default function ProductProofCover({slug}){
       <img src={x.src} alt="" loading="lazy"/>
     </div>)}
    </div>
-   <div className={styles.footer} aria-hidden="true"><span>REAL PRODUCT UI</span><span>↗</span></div>
+   <div className={styles.footer} aria-hidden="true"><span>{config.key==='kybops'?'DESIGN ARTIFACTS':'ORIGINAL UI SCREENS'}</span><span>↗</span></div>
   </div>
 }
