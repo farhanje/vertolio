@@ -5,7 +5,6 @@ import styles from './KybFastTrackShowcase.module.css'
 
 const ROOT='https://cdn.sanity.io/images/iq6vjwu7/production/'
 const screens=[
- {key:'before',src:ROOT+'fd927af5811529b73ea5f3ae11dbbd81ffa82835-1672x941.png',width:1672,height:941},
  {key:'onepage',src:ROOT+'1f4c2642797b23c15379c66eb690ec4b8e0602fd-2016x982.png',width:2016,height:982},
  {key:'instant',src:ROOT+'f384a00073ff13f23728680bfc8c89f0e6dbc7bb-1440x854.png',width:1440,height:854},
 ]
@@ -16,14 +15,13 @@ const copy={
    intro:'A partner onboarding program targeted roughly 15,000 SRC merchants while a small Operations team continued business-as-usual KYB. I redesigned the desktop review journey around eligibility, a single-page first pass, and a bounded approval path.',
    stat:[{n:'~15K',label:'Partnership cohort target'},{n:'~3',label:'Ops reviewers including BAU'},{n:'3–5 mo',label:'Program rollout window'}],
    qualification:'Program scope, staffing and rollout—not verified throughput, acceptance uplift, or fraud reduction.',
-   original:'REAL ADMIN-WEB DESIGN ARTIFACTS',
+   original:'DESKTOP ADMIN-WEB DESIGN ARTIFACTS',
    visualTitle:'The redesign reduced review navigation before it changed approval authority.',
-   visualBody:'Inspect the actual screens used to communicate the old review flow, consolidated first-pass workspace and Instant Approve control. These are original desktop artifacts, not reconstructed mobile mocks.',
+   visualBody:'The documented baseline required four UI review steps plus verifier and approver. The two design artifacts below show the consolidated first-pass workspace and its separate Instant Approve action—without passing off an unverified baseline illustration as real UI.',
    view:'Inspect original at full size',
    screens:[
-     {key:'before',label:'01 · Before',heading:'Four-step review, then a second approver',desc:'Reviewers navigated separate stages to examine the merchant. Clear cases then moved to another approval pass.',note:'Baseline · Sequential review'},
-     {key:'onepage',label:'02 · One-page review',heading:'Scan the relevant evidence in one continuous view',desc:'A single desktop view brings core merchant information and supporting documents together for the first review.',note:'Changed interface · Fewer navigation steps'},
-     {key:'instant',label:'03 · Instant Approve',heading:'A distinct action for eligible, clear cases',desc:'Instant Approve is separated from Reject. Cases with issues still take a deeper review path.',note:'Controlled action · One pass for clear cases'}
+     {key:'onepage',label:'01 · One-page review',heading:'Scan the relevant evidence in one continuous view',desc:'A single desktop view brings core merchant information and supporting documents together for the first review.',note:'Changed interface · Fewer navigation steps'},
+     {key:'instant',label:'02 · Instant Approve',heading:'A distinct action for eligible, clear cases',desc:'Instant Approve is separated from Reject. Cases with issues still take a deeper review path.',note:'Controlled action · One pass for clear cases'}
    ],
    takeaways:[
      {n:'01',title:'Information density',body:'Keep the data and documents within one scanning context instead of asking an operator to switch between four review steps.'},
@@ -50,7 +48,7 @@ const copy={
    blank:'Choose a cohort route above to explore what happens.',
    reset:'Start again',
    viewUI:'View associated Admin Web design',
-   source:'Source: existing AstraPay Admin Web screenshots and project write-up. The route selector is a transparent illustration of operational rules, not a reproduction of production routing controls.',
+   source:'Source: desktop design artifacts retained in the AstraPay portfolio CMS and project notes. The route selector illustrates documented business rules; it is not a live Admin Web routing control.',
    outcomes:'There is no verified time-to-review reduction, fraud-rate uplift, or approval-rate improvement in this record. The evidence supports a bounded rollout and a changed review design—not quantified operational efficiency.',
    close:'Close full-size screen'
  },
@@ -60,14 +58,13 @@ const copy={
    intro:'Program partnership menargetkan sekitar 15.000 merchant SRC, sementara tim Operations yang kecil tetap menangani KYB BAU. Saya merancang ulang review desktop dengan eligibility yang tervalidasi, first-pass satu halaman, dan jalur approval yang dibatasi.',
    stat:[{n:'~15K',label:'Target cohort partnership'},{n:'~3',label:'Reviewer Ops sekaligus BAU'},{n:'3–5 bln',label:'Periode rollout program'}],
    qualification:'Ini scope program, staffing, dan rollout—bukan data throughput, uplift approval, atau penurunan fraud yang telah diukur.',
-   original:'ARTEFAK ASLI ADMIN WEB',
+   original:'ARTEFAK DESAIN ADMIN WEB DESKTOP',
    visualTitle:'Navigasi review disederhanakan sebelum kewenangan approval diubah.',
-   visualBody:'Lihat layar asli yang menunjukkan flow review sebelumnya, workspace first-pass satu halaman, dan kontrol Instant Approve. Semuanya artefak desktop, bukan mockup mobile yang dibuat ulang.',
+   visualBody:'Baseline terdokumentasi memiliki empat langkah UI serta verifier dan approver. Dua artefak desain ini menunjukkan workspace first-pass satu halaman dan aksi Instant Approve terpisah. Ilustrasi baseline yang belum terverifikasi tidak ditampilkan sebagai UI nyata.',
    view:'Lihat layar asli ukuran penuh',
    screens:[
-    {key:'before',label:'01 · Sebelum',heading:'Empat langkah review lalu second approver',desc:'Reviewer berpindah antar tahap untuk meninjau merchant. Clear case masih diteruskan ke approval berikutnya.',note:'Baseline · Review berurutan'},
-    {key:'onepage',label:'02 · One-page review',heading:'Data dan dokumen dipindai dalam satu halaman',desc:'Informasi merchant dan dokumen pendukung diletakkan bersama agar reviewer tidak perlu berpindah antar langkah.',note:'Perubahan UI · Navigasi lebih ringkas'},
-    {key:'instant',label:'03 · Instant Approve',heading:'Aksi khusus untuk eligible clear case',desc:'Instant Approve terpisah dari Reject. Case yang bermasalah tetap masuk jalur pemeriksaan lebih dalam.',note:'Kontrol · Satu pass untuk clear case'}
+    {key:'onepage',label:'01 · One-page review',heading:'Data dan dokumen dipindai dalam satu halaman',desc:'Informasi merchant dan dokumen pendukung diletakkan bersama agar reviewer tidak perlu berpindah antar langkah.',note:'Perubahan UI · Navigasi lebih ringkas'},
+    {key:'instant',label:'02 · Instant Approve',heading:'Aksi khusus untuk eligible clear case',desc:'Instant Approve terpisah dari Reject. Case yang bermasalah tetap masuk jalur pemeriksaan lebih dalam.',note:'Kontrol · Satu pass untuk clear case'}
    ],
    takeaways:[
     {n:'01',title:'Hierarki informasi',body:'Data dan dokumen berada dalam satu konteks sehingga operator tidak harus berganti empat langkah review.'},
@@ -94,7 +91,7 @@ const copy={
    blank:'Pilih eligibility cohort untuk melihat jalurnya.',
    reset:'Mulai lagi',
    viewUI:'Lihat desain Admin Web terkait',
-   source:'Sumber: screenshot asli Admin Web AstraPay dan isi case study. Pilihan routing ini merupakan ilustrasi aturan operasional, bukan kontrol produksi yang ditiru.',
+   source:'Sumber: artefak desain desktop tersimpan di CMS portofolio AstraPay dan catatan project. Pilihan routing mengilustrasikan business rules terdokumentasi, bukan kontrol Admin Web aktif.',
    outcomes:'Dokumen ini belum membuktikan penurunan waktu review, uplift fraud, atau kenaikan approval rate. Bukti mendukung rollout terbatas dan perubahan desain review—bukan efisiensi operasional terukur.',
    close:'Tutup layar ukuran penuh'
  }
