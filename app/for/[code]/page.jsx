@@ -29,6 +29,7 @@ function projectCardData(p, lang, index, featured = false) {
     title: titlePick.value,
     summary: summaryPick.value,
     image: p?.cardImage,
+    projectSlug: p?.slug?.current,
     alt: altPick.value,
     logo: p?.organization?.logo,
     index: `${String(index).padStart(2, '0')} / ${typeLabel}`,
@@ -84,8 +85,8 @@ export default async function RecruiterPortfolio({params}) {
   const projects = recruiter?.selectedProjects || []
   const [featuredProject, ...supportingProjects] = projects
 
-  const defaultMessageEn = 'A few projects selected for this opportunity, focused on complex product systems, clear decision-making, and measurable outcomes.'
-  const defaultMessageId = 'Beberapa proyek yang saya pilih untuk kesempatan ini, dengan fokus pada sistem produk yang kompleks, keputusan desain yang jelas, dan hasil yang terukur.'
+  const defaultMessageEn = 'A few selected projects showing the actual interface work, design decisions, and evidence behind the outcomes.'
+  const defaultMessageId = 'Beberapa proyek pilihan yang memperlihatkan interface, keputusan desain, dan bukti di balik hasilnya.'
   const messagePick = pickLocalized(recruiter?.message, recruiter?.messageEn, lang)
   const message = messagePick.value || (lang === 'en' ? defaultMessageEn : defaultMessageId)
 
