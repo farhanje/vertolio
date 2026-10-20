@@ -11,7 +11,7 @@
   border-radius: 16px;
   overflow: hidden;
 }
-.top { display: flex; justify-content: space-between; align-items: end; gap: 32px; margin-bottom: 32px; }
+.top { display: flex; justify-content: space-between; align-items: flex-end; gap: 32px; margin-bottom: 32px; }
 .intro { max-width: 680px; }
 .eyebrow, .stageEyebrow {
   display: inline-block;
