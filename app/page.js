@@ -5,6 +5,7 @@ import EditorialCard from '../components/EditorialCard'
 import HeroTicker from '../components/HeroTicker'
 import {urlFor} from '../lib/sanity.image'
 import {getLanguage} from '../lib/i18n.server'
+import {projectPreviewSummary} from '../lib/projectPreview'
 import {pickLocalized, uiCopy} from '../lib/i18n'
 
 export const dynamic = 'force-dynamic'
@@ -41,8 +42,9 @@ function projectCardData(p, lang, index, featured = false) {
 
   return {
     title: titlePick.value,
-    summary: summaryPick.value,
+    summary: projectPreviewSummary(p?.slug?.current, lang, summaryPick.value),
     image: p?.cardImage,
+    projectSlug: p?.slug?.current,
     alt: altPick.value,
     logo: p?.organization?.logo,
     index: `${String(index).padStart(2, '0')} / ${typeLabel}`,
@@ -93,18 +95,15 @@ export default async function Home() {
   const tagline = taglinePick.value || ''
   const subtitle = subtitlePick.value || ''
 
-  const defaultLinks = [
-    {label: `${copy.nav.work} →`, url: '/work', nativeEnglish: lang === 'en'},
-    {label: `${copy.nav.blog} →`, url: '/blog', nativeEnglish: lang === 'en'},
-    {label: `${copy.nav.resume} →`, url: '/resume', nativeEnglish: lang === 'en'},
+  // Recruiters need a direct path to projects and resume before external profiles.
+  const primaryLinks = [
+    {label: lang === 'en' ? 'View work →' : 'Lihat karya →', url: '/work', nativeEnglish: lang === 'en'},
+    {label: lang === 'en' ? 'Resume →' : 'CV →', url: '/resume', nativeEnglish: lang === 'en'},
   ]
-
-  const links = s?.links?.length
-    ? s.links.map((l) => {
-        const labelPick = pickLocalized(l?.label, l?.labelEn, lang)
-        return {...l, label: labelPick.value, nativeEnglish: labelPick.nativeEnglish}
-      })
-    : defaultLinks
+  const externalLinks = (s?.links || [])
+    .filter((item) => /^https?:\/\//.test(item?.url || '') && /linkedin\.com/i.test(item.url))
+    .map((item) => ({...item, label: 'LinkedIn →', nativeEnglish: true}))
+  const links = [...primaryLinks, ...externalLinks].slice(0, 3)
 
   const heroDesk = s?.heroPortraitDesktop
   const heroMob = s?.heroPortraitMobile

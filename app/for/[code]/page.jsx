@@ -2,6 +2,7 @@ import {notFound} from 'next/navigation'
 import {sanityFetch} from '../../../lib/sanity.client'
 import {RECRUITER_LINK_BY_CODE_QUERY} from '../../../lib/sanity.queries'
 import {getLanguage} from '../../../lib/i18n.server'
+import {projectPreviewSummary} from '../../../lib/projectPreview'
 import {pickLocalized} from '../../../lib/i18n'
 import {EditorialCardContent} from '../../../components/EditorialCard'
 import {RecruiterOpenTracker, RecruiterTrackedLink} from '../../../components/RecruiterTracking'
@@ -27,8 +28,9 @@ function projectCardData(p, lang, index, featured = false) {
 
   return {
     title: titlePick.value,
-    summary: summaryPick.value,
+    summary: projectPreviewSummary(p?.slug?.current, lang, summaryPick.value),
     image: p?.cardImage,
+    projectSlug: p?.slug?.current,
     alt: altPick.value,
     logo: p?.organization?.logo,
     index: `${String(index).padStart(2, '0')} / ${typeLabel}`,
@@ -84,8 +86,8 @@ export default async function RecruiterPortfolio({params}) {
   const projects = recruiter?.selectedProjects || []
   const [featuredProject, ...supportingProjects] = projects
 
-  const defaultMessageEn = 'A few projects selected for this opportunity, focused on complex product systems, clear decision-making, and measurable outcomes.'
-  const defaultMessageId = 'Beberapa proyek yang saya pilih untuk kesempatan ini, dengan fokus pada sistem produk yang kompleks, keputusan desain yang jelas, dan hasil yang terukur.'
+  const defaultMessageEn = 'A few selected projects showing the actual interface work, design decisions, and evidence behind the outcomes.'
+  const defaultMessageId = 'Beberapa proyek pilihan yang memperlihatkan interface, keputusan desain, dan bukti di balik hasilnya.'
   const messagePick = pickLocalized(recruiter?.message, recruiter?.messageEn, lang)
   const message = messagePick.value || (lang === 'en' ? defaultMessageEn : defaultMessageId)
 
