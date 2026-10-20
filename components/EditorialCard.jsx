@@ -8,7 +8,6 @@ export function EditorialCardContent({
   title,
   summary,
   image,
-  projectSlug,
   alt,
   logo,
   index,
@@ -27,7 +26,7 @@ export function EditorialCardContent({
       className={featured ? 'editorial-card-inner editorial-card-featured-grid' : 'editorial-card-inner'}
       style={featured ? undefined : {display: 'flex', flexDirection: 'column', height: '100%'}}
     >
-      <CardMedia image={image} alt={alt} logo={logo} ratio="3:2" projectSlug={projectSlug} />
+      <CardMedia image={image} alt={alt} logo={logo} ratio="3:2" />
 
       <div className="editorial-copy" style={{height: 'auto', flex: '1 1 auto'}}>
         <div className="editorial-overline">

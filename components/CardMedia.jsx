@@ -1,5 +1,4 @@
 import {urlFor} from '../lib/sanity.image'
-import ProductProofCover from './ProductProofCover'
 
 function ratioToAspect(r) {
   if (!r || r === 'auto') return null
@@ -11,7 +10,7 @@ function ratioToAspect(r) {
   return null
 }
 
-export default function CardMedia({image, alt, logo, badge, ratio, projectSlug}) {
+export default function CardMedia({image, alt, logo, badge, ratio}) {
   const imgBuilder = image ? urlFor(image) : null
   const imgUrl = imgBuilder ? imgBuilder.width(1400).quality(80).auto('format').url() : null
 
@@ -19,13 +18,6 @@ export default function CardMedia({image, alt, logo, badge, ratio, projectSlug})
   const logoUrl = logoBuilder ? logoBuilder.width(48).height(48).fit('max').quality(80).auto('format').url() : null
 
   const aspect = ratioToAspect(ratio || image?.ratio)
-
-  const hasProofCover = ['kyc-autosave-astrapay', 'qris-topup-astrapay', 'ai-precheck-kyb', 'ai-image-checking-kyb-astrapay'].includes(projectSlug)
-  if (hasProofCover) {
-    return <div className="card-media" style={aspect ? {aspectRatio: aspect} : undefined}>
-      <ProductProofCover slug={projectSlug} />
-    </div>
-  }
 
   if (!imgUrl && !logoUrl && !badge) return null
 
