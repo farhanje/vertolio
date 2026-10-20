@@ -63,7 +63,7 @@ export default async function RootLayout({ children }) {
   const brandLogoUrl = settings?.brandLogo?.asset?.url || null;
   const brandAltPick = pickLocalized(settings?.brandLogo?.alt, settings?.brandLogo?.altEn, lang);
   const brandLogoAlt = brandAltPick.value || settings?.name || '';
-  const brand = settings?.name ? settings.name : 'Farhan Fauzan Jamaludin';
+  const brand = settings?.tagline || 'Farhan Fauzan Jamaludin';
 
   const umamiWebsiteId = process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID || '';
   const umamiScriptUrl = process.env.NEXT_PUBLIC_UMAMI_SCRIPT_URL || '';
