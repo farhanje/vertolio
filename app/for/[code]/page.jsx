@@ -2,6 +2,7 @@ import {notFound} from 'next/navigation'
 import {sanityFetch} from '../../../lib/sanity.client'
 import {RECRUITER_LINK_BY_CODE_QUERY} from '../../../lib/sanity.queries'
 import {getLanguage} from '../../../lib/i18n.server'
+import {projectPreviewSummary} from '../../../lib/projectPreview'
 import {pickLocalized} from '../../../lib/i18n'
 import {EditorialCardContent} from '../../../components/EditorialCard'
 import {RecruiterOpenTracker, RecruiterTrackedLink} from '../../../components/RecruiterTracking'
@@ -27,7 +28,7 @@ function projectCardData(p, lang, index, featured = false) {
 
   return {
     title: titlePick.value,
-    summary: summaryPick.value,
+    summary: projectPreviewSummary(p?.slug?.current, lang, summaryPick.value),
     image: p?.cardImage,
     projectSlug: p?.slug?.current,
     alt: altPick.value,
