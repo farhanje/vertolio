@@ -94,12 +94,6 @@ export default async function Home() {
   const tagline = taglinePick.value || ''
   const subtitle = subtitlePick.value || ''
 
-  const defaultLinks = [
-    {label: `${copy.nav.work} →`, url: '/work', nativeEnglish: lang === 'en'},
-    {label: `${copy.nav.blog} →`, url: '/blog', nativeEnglish: lang === 'en'},
-    {label: `${copy.nav.resume} →`, url: '/resume', nativeEnglish: lang === 'en'},
-  ]
-
   // Recruiters need a direct path to projects and resume before external profiles.
   const primaryLinks = [
     {label: lang === 'en' ? 'View work →' : 'Lihat karya →', url: '/work', nativeEnglish: lang === 'en'},
