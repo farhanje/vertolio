@@ -15,7 +15,7 @@ const images = {
 const copy = {
   en: {
     eyebrow: '01 / THE PRODUCT EXPERIENCE',
-    heading: 'Two tasks. Either order. Nothing to redo.',
+    heading: 'Two tasks. Either order. Progress retained.',
     intro: 'The redesign made ID and Selfie independent tasks. Users could finish one, leave, and return to the Review hub with their completed work intact.',
     choice: 'Explore the two valid paths',
     ktp: 'ID first',
@@ -35,7 +35,7 @@ const copy = {
   },
   id: {
     eyebrow: '01 / PENGALAMAN PRODUK',
-    heading: 'Dua task. Bebas urutan. Tidak perlu mengulang.',
+    heading: 'Dua task. Bebas urutan. Progres tetap ada.',
     intro: 'KTP dan Selfie menjadi task yang berdiri sendiri. Pengguna bisa menyelesaikan satu task, keluar, lalu kembali ke Tinjauan dengan progres yang tetap tersimpan.',
     choice: 'Lihat kedua jalur yang tersedia',
     ktp: 'KTP lebih dulu',
