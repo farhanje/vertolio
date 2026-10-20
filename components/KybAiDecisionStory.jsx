@@ -160,11 +160,11 @@ export default function KybAiDecisionStory({lang='en'}) {
       <span className={styles.sectionEyebrow}>{t.featuredLabel}</span>
       <div className={styles.featuredGrid}>
         <figure>
-          <Capture capture={captures.warning} alt={t.open+' · '+t.warningTitle} className={styles.featureShot} onZoom={()=>zoomCapture('warning')} loading="eager"/>
+          <Capture capture={captures.warning} alt={t.open+' · '+t.warningTitle} className={`${styles.featureShot} ${styles.warningFocus}`} onZoom={()=>zoomCapture('warning')} loading="eager"/>
           <figcaption><span>01</span><div><strong>{t.warningTitle}</strong><p>{t.warningBody}</p></div></figcaption>
         </figure>
         <figure>
-          <Capture capture={captures.correction} alt={t.open+' · '+t.correctionTitle} className={styles.featureShot} onZoom={()=>zoomCapture('correction')} loading="eager"/>
+          <Capture capture={captures.correction} alt={t.open+' · '+t.correctionTitle} className={`${styles.featureShot} ${styles.correctionFocus}`} onZoom={()=>zoomCapture('correction')} loading="eager"/>
           <figcaption><span>02</span><div><strong>{t.correctionTitle}</strong><p>{t.correctionBody}</p></div></figcaption>
         </figure>
       </div>
