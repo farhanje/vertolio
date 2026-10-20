@@ -5,6 +5,7 @@ import {RichText} from '../../../lib/portableText'
 import Toc from '../../../components/Toc'
 import BackSmart from '../../../components/BackSmart'
 import ContentEngagementTracker from '../../../components/ContentEngagementTracker'
+import KycAutosaveShowcase from '../../../components/KycAutosaveShowcase'
 import {getLanguage} from '../../../lib/i18n.server'
 import {pickLocalized, uiCopy} from '../../../lib/i18n'
 import styles from './page.module.css'
@@ -78,6 +79,8 @@ export default async function ProjectPage({ params }) {
       </section>
 
       <div className="hr" />
+
+      {params.slug === 'kyc-autosave-astrapay' ? <KycAutosaveShowcase lang={lang} /> : null}
 
       <section className="section">
         <div className={styles.contentGrid}>
