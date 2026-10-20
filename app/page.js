@@ -100,12 +100,15 @@ export default async function Home() {
     {label: `${copy.nav.resume} →`, url: '/resume', nativeEnglish: lang === 'en'},
   ]
 
-  const links = s?.links?.length
-    ? s.links.map((l) => {
-        const labelPick = pickLocalized(l?.label, l?.labelEn, lang)
-        return {...l, label: labelPick.value, nativeEnglish: labelPick.nativeEnglish}
-      })
-    : defaultLinks
+  // Recruiters need a direct path to projects and resume before external profiles.
+  const primaryLinks = [
+    {label: lang === 'en' ? 'View work →' : 'Lihat karya →', url: '/work', nativeEnglish: lang === 'en'},
+    {label: lang === 'en' ? 'Resume →' : 'CV →', url: '/resume', nativeEnglish: lang === 'en'},
+  ]
+  const externalLinks = (s?.links || [])
+    .filter((item) => /^https?:\/\//.test(item?.url || '') && /linkedin\.com/i.test(item.url))
+    .map((item) => ({...item, label: 'LinkedIn →', nativeEnglish: true}))
+  const links = [...primaryLinks, ...externalLinks].slice(0, 3)
 
   const heroDesk = s?.heroPortraitDesktop
   const heroMob = s?.heroPortraitMobile
