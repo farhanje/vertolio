@@ -8,6 +8,7 @@ import ContentEngagementTracker from '../../../components/ContentEngagementTrack
 import KycAutosaveShowcase from '../../../components/KycAutosaveShowcase'
 import QrisTopUpShowcase from '../../../components/QrisTopUpShowcase'
 import KybAiDecisionStory from '../../../components/KybAiDecisionStory'
+import KybFastTrackShowcase from '../../../components/KybFastTrackShowcase'
 import {getLanguage} from '../../../lib/i18n.server'
 import {pickLocalized, uiCopy} from '../../../lib/i18n'
 import styles from './page.module.css'
@@ -85,6 +86,7 @@ export default async function ProjectPage({ params }) {
       {params.slug === 'kyc-autosave-astrapay' ? <KycAutosaveShowcase lang={lang} /> : null}
       {params.slug === 'qris-topup-astrapay' ? <QrisTopUpShowcase lang={lang} /> : null}
       {params.slug === 'ai-precheck-kyb' ? <KybAiDecisionStory lang={lang} /> : null}
+      {params.slug === 'ai-image-checking-kyb-astrapay' ? <KybFastTrackShowcase lang={lang} /> : null}
 
       <section className="section">
         <div className={styles.contentGrid}>
