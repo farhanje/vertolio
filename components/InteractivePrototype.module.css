@@ -446,3 +446,23 @@
   .hotspot,
   .hotspot span { transition: none; }
 }
+
+/* Optional, explicit simulation of an interrupted session. Not a fake in-app CTA. */
+.resumeAction {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  margin: 0;
+  padding: 13px;
+  border: 1px solid rgba(128, 169, 255, .48);
+  background: rgba(60, 111, 232, .13);
+  color: var(--prototype-fg);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.resumeAction:hover { background: rgba(60, 111, 232, .22); }
+.resumeAction:focus-visible { outline: 3px solid #7ba0ff; outline-offset: 2px; }

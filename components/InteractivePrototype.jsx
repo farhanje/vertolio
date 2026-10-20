@@ -25,6 +25,7 @@ export default function InteractivePrototype({
   device = 'phone',
   steps = [],
   analyticsPrefix = 'portfolio_prototype',
+  returnLabel = 'Simulate returning later',
 }) {
   const validSteps = useMemo(() => steps.filter((step) => step?.src), [steps])
   const stepByKey = useMemo(
@@ -189,6 +190,16 @@ export default function InteractivePrototype({
               )}
             </div>
           </div>
+
+          {current.resumeKey && stepByKey.has(current.resumeKey) ? (
+            <button
+              type="button"
+              className={styles.resumeAction}
+              onClick={() => enter(current.resumeKey, {interaction: 'resume_simulation'})}
+            >
+              <span aria-hidden="true">↗</span> {returnLabel}
+            </button>
+          ) : null}
 
           <div className={styles.viewerBottom}>
             <div className={styles.screenCopy}>
