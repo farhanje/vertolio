@@ -24,7 +24,6 @@ export default function CardMedia({image, alt, logo, badge, ratio, projectSlug})
   if (hasProofCover) {
     return <div className="card-media" style={aspect ? {aspectRatio: aspect} : undefined}>
       <ProductProofCover slug={projectSlug} />
-      {logoUrl ? <img className="card-logo" src={logoUrl} alt="" aria-hidden="true" /> : null}
     </div>
   }
 
