@@ -32,7 +32,7 @@ export default function ProductProofCover({slug}){
  if(!config)return null
  const images=screens[config.key]
  const rootClasses=[styles.cover,config.style==='mobile'?styles.mobile:styles.desktop,styles[config.key]].join(' ')
- return <div className={rootClasses} aria-label={images.map(x=>x.alt).join('; ')}>
+ return <div className={rootClasses} role="img" aria-label={images.map(x=>x.alt).join('; ')}>
    <div className={styles.label}><span className={styles.dot}/> {config.label}</div>
    <div className={styles.imageRow} aria-hidden="true">
     {images.map(x=><div key={x.key} className={[styles.frame,styles[x.key]].join(' ')}>
