@@ -63,6 +63,7 @@ function cardData(p, lang, index, featured) {
     title: titlePick.value,
     summary: summaryPick.value,
     image: p?.cardImage,
+    projectSlug: p?.slug?.current,
     alt: altPick.value,
     logo: p?.organization?.logo,
     index: `${String(index).padStart(2, '0')} / ${typeLabel}`,
