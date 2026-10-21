@@ -1,0 +1,43 @@
+.root{--ink:#172438;--muted:#5d6e83;--line:#dbe4ef;margin:18px 0 42px;padding:clamp(18px,3.2vw,38px);border:1px solid var(--line);background:#f5f7fb;border-radius:14px;color:var(--ink);min-width:0}
+.root *{box-sizing:border-box}
+.eyebrow{font-size:10px;font-weight:850;letter-spacing:.12em;text-transform:uppercase;color:#2c62b4}
+.heading{max-width:780px}.heading h2{font-size:clamp(28px,3.8vw,48px);letter-spacing:-.045em;line-height:1.09;color:var(--ink);margin:13px 0}.heading>p,.sectionIntro>p{color:var(--muted);font-size:13px;line-height:1.68;margin:0}
+.hero{display:grid;grid-template-columns:minmax(180px,.8fr) minmax(0,1.2fr);gap:16px;margin-top:25px}
+.mainMetric{display:flex;flex-direction:column;justify-content:center;padding:25px 20px;border-radius:11px;background:#183963;color:#fff}
+.mainMetric strong{font-size:clamp(54px,7vw,83px);letter-spacing:-.07em;line-height:1}
+.mainMetric span{font-size:12px;color:#d6e7ff;margin-top:14px;line-height:1.55;max-width:250px}
+.heroBars{background:#fff;border:1px solid var(--line);border-radius:11px;padding:19px}
+.heroCaption{font-size:11px;margin:10px 0 0;color:var(--muted);line-height:1.5}
+.pair h4{font-size:13px;font-weight:800;line-height:1.35;margin:0 0 15px;color:var(--ink)}
+.compareRow{margin:13px 0}
+.compareHeading{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:7px}
+.compareHeading span{font-size:12px;font-weight:700;color:#3c516b}
+.compareHeading strong{font-size:17px;letter-spacing:-.025em;color:var(--ink);font-variant-numeric:tabular-nums}
+.barTrack{width:100%;height:12px;border-radius:6px;background:#e7edf5;overflow:hidden}
+.barTrack>div{height:100%;border-radius:6px;transition:width .2s ease}
+.barNeutral{background:#8493a7}.barAccent{background:#2870d5}
+.compareRow small{display:block;margin-top:5px;color:var(--muted);font-size:10px}
+.outcomes{display:grid;grid-template-columns:1fr .78fr;gap:14px;margin-top:20px}
+.approval{background:white;border:1px solid var(--line);padding:18px 21px;border-radius:10px}
+.approval>strong{display:block;line-height:1.3;font-size:clamp(22px,3vw,33px);letter-spacing:-.045em;margin:12px 0;color:var(--ink);font-variant-numeric:tabular-nums}
+.approval>strong span{color:#8293a8;font-weight:450}
+.approval>p{font-size:11px;color:var(--muted);line-height:1.6;margin:0}
+.coverage{padding:18px;border-left:3px solid #c7d5e8;background:#ecf2fa;border-radius:0 9px 9px 0;color:#455d77;font-size:12px;line-height:1.65;margin:0}
+.sectionIntro{max-width:775px;margin:32px 0 16px}
+.sectionIntro h3{margin:11px 0 10px;font-size:clamp(24px,2.9vw,34px);letter-spacing:-.035em;line-height:1.16;color:var(--ink)}
+.toggle{display:flex;gap:5px;width:max-content;max-width:100%;border:1px solid var(--line);background:#e8eef8;border-radius:9px;padding:4px;margin:18px 0}
+.toggle button{font:inherit;font-size:11px;font-weight:800;color:#456181;border:0;border-radius:6px;padding:11px 13px;background:transparent;cursor:pointer}
+.toggle button[aria-pressed=true]{background:#fff;color:#1b4f9d;box-shadow:0 2px 7px rgba(20,47,91,.11)}
+.pairGrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,.72fr);gap:13px}
+.pairGrid>.pair{border:1px solid var(--line);padding:19px 21px;background:#fff;border-radius:10px}
+.signalAside,.guidance{border:1px solid #cbdcf3;background:#e6efff;padding:20px;border-radius:10px;display:flex;flex-direction:column;justify-content:center}
+.signalAside>strong{font-size:15px;line-height:1.45;color:#173d72}
+.signalAside>span{font-size:clamp(34px,4vw,49px);font-weight:850;line-height:1;margin-top:20px;letter-spacing:-.05em;color:#173e7a}
+.signalAside>p,.guidance>p{font-size:12px;line-height:1.6;color:#3d5b7e;margin:9px 0 0}
+.guidance h4{color:#173e75;font-size:20px;line-height:1.25;margin:0}
+.caution,.source{color:#5c6f86;font-size:11px;line-height:1.7;margin:16px 0 0}
+.source{border-top:1px solid var(--line);padding-top:14px}
+.root button:focus-visible{outline:3px solid #79aaf4;outline-offset:2px}
+@media(max-width:750px){.hero,.outcomes,.pairGrid{grid-template-columns:minmax(0,1fr)}.mainMetric{padding:20px}.mainMetric strong{font-size:58px}.mainMetric span{max-width:none}.sectionIntro{margin-top:28px}.signalAside{display:block}.signalAside>span{display:block;margin-top:14px}}
+@media(max-width:520px){.root{padding:17px 13px}.heading h2{font-size:30px}.hero{margin-top:18px}.pairGrid>.pair,.heroBars{padding:15px}.toggle button{font-size:10px;padding:11px}.approval{padding:17px}}
+@media(prefers-reduced-motion:reduce){.barTrack>div{transition:none}}
