@@ -93,7 +93,7 @@ export default async function ProjectPage({ params }) {
       <section className="section">
         <div className={styles.contentGrid}>
           <div id="content" className={`${styles.bodyColumn} ${bodyPick.nativeEnglish ? 'notranslate' : ''}`}>
-            <RichText value={bodyPick.value} />
+            <RichText value={bodyPick.value} lang={lang} />
           </div>
           <div className={styles.tocColumn}>
             <Toc contentId="content" lang={lang} />
