@@ -60,7 +60,7 @@ const locales = {
       {label:'Merchant choice',value:'Fix the flagged data or continue'},
       {label:'Final authority',value:'Normal human-led KYB verification'},
     ],
-    outcome:'Observed after launch: targeted mismatch remarks fell 22–90% and approval rose by about 7%, with relatively stable submissions. These observations do not isolate causal impact from the AI pre-check.',
+    outcome:'From May–June to the stable September rollout, targeted KYB mismatches fell from 54.6% to 35.0% of submissions, a 35.9% relative reduction. Approval among decided cases rose from 35.8% to 56.6%. These observed changes are not an isolated causal estimate of the AI pre-check.',
     source:'Original AstraPay KYB dashboard screenshots and original caution-group mapping supplied by the designer. UI copy remains in its original Indonesian.',
   },
   id: {
@@ -109,7 +109,7 @@ const locales = {
       {label:'Pilihan merchant',value:'Perbaiki data atau tetap lanjut'},
       {label:'Keputusan final',value:'Verification KYB oleh manusia'},
     ],
-    outcome:'Setelah rilis, targeted mismatch remarks turun 22–90% dan approval rate bergerak naik sekitar 7%, dengan submission relatif stabil. Observasi ini tidak memisahkan dampak kausal fitur AI.',
+    outcome:'Dari Mei–Juni ke periode rollout stabil pada September, targeted mismatch KYB turun dari 54,6% menjadi 35,0% dari submission, atau turun 35,9% secara relatif. Approval pada case yang sudah diputuskan naik dari 35,8% menjadi 56,6%. Perubahan ini observasional dan bukan estimasi dampak kausal AI secara terisolasi.',
     source:'Screenshot asli dashboard KYB AstraPay dan artefak grouping caution asli yang diberikan desainer. Copy pada UI tetap memakai Bahasa Indonesia aslinya.',
   },
 }
