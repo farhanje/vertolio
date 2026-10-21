@@ -25,7 +25,7 @@ const copy = {
     eyebrow: 'THE SHIPPED PRODUCT',
     heading: 'A top-up experience built around one scannable bill.',
     intro: 'The interface makes the payable amount explicit, gives the payer a QR they can scan or receive, and confirms success only after the payment resolves.',
-    metrics: [{value: '9.3%',label: 'Share of cash-in by 2026'},{value: 'Top 2',label: 'Cash-in channel rank'}],
+    metrics: [{value: '#3',label: '2026 YTD transaction rank'},{value: '10.61%',label: '2026 YTD transaction share'}],
     cards: [
       {number: '01 / DEFINE',title: 'Show the total before creating a QR',desc: 'The user selects Rp50,000 while the interface shows an additional Rp1,000 admin fee, making the payable total Rp51,000.'},
       {number: '02 / HAND OFF',title: 'Make the payment artifact unambiguous',desc: 'The QR displays the exact payable amount, recipient, one-use instruction, and payment deadline.'},
@@ -49,7 +49,7 @@ const copy = {
     eyebrow: 'PRODUK YANG DIRILIS',
     heading: 'Satu tagihan top up, satu QR yang bisa dibayar.',
     intro: 'UI memperlihatkan nominal yang harus dibayar, QR yang bisa dipindai atau dibagikan, dan status berhasil setelah pembayaran terkonfirmasi.',
-    metrics: [{value: '9,3%',label: 'Porsi cash-in pada 2026'},{value: 'Top 2',label: 'Peringkat channel cash-in'}],
+    metrics: [{value: '#3',label: 'Peringkat transaksi 2026 YTD'},{value: '10,61%',label: 'Porsi transaksi 2026 YTD'}],
     cards: [
       {number: '01 / NOMINAL',title: 'Total pembayaran terlihat sejak awal',desc: 'Pengguna memilih Rp50.000 dengan biaya admin Rp1.000 sehingga total yang dibayarkan adalah Rp51.000.'},
       {number: '02 / QR',title: 'Instruksi pembayaran dibuat eksplisit',desc: 'QR menampilkan jumlah tagihan, penerima, ketentuan satu kali transaksi, dan batas waktu pembayaran.'},
