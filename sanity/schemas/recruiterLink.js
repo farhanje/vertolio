@@ -96,6 +96,13 @@ export default {
       validation: (Rule) => Rule.required().unique().min(1).max(8),
     },
     {
+      name: 'coverLetter',
+      title: 'Cover letter PDF (optional)',
+      type: 'file',
+      description: 'Upload a PDF tailored to this recruiter link. The View cover letter button only appears when a PDF is attached. Existing links work without it.',
+      options: {accept: '.pdf,application/pdf'},
+    },
+    {
       name: 'showResume',
       title: 'Show Resume shortcut',
       type: 'boolean',
