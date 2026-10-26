@@ -6,6 +6,7 @@ import {projectPreviewSummary} from '../../../lib/projectPreview'
 import {pickLocalized} from '../../../lib/i18n'
 import {EditorialCardContent} from '../../../components/EditorialCard'
 import {RecruiterOpenTracker, RecruiterTrackedLink} from '../../../components/RecruiterTracking'
+import RecruiterCoverLetterPreview from '../../../components/RecruiterCoverLetterPreview'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
@@ -94,6 +95,8 @@ export default async function RecruiterPortfolio({params}) {
   const curatedLabel = lang === 'en' ? 'Curated portfolio' : 'Portofolio pilihan'
   const resumeLabel = lang === 'en' ? 'View resume' : 'Lihat resume'
   const allWorkLabel = lang === 'en' ? 'View all work' : 'Lihat semua karya'
+  const hasCoverLetter = recruiter?.coverLetter?.asset?.mimeType === 'application/pdf' &&
+    Boolean(recruiter?.coverLetter?.asset?.url)
   const projectsLabel = lang === 'en' ? 'Selected work' : 'Karya pilihan'
   const projectCountLabel = lang === 'en' ? (projects.length === 1 ? 'project' : 'projects') : 'proyek'
 
@@ -142,7 +145,7 @@ export default async function RecruiterPortfolio({params}) {
               {message}
             </p>
 
-            {(recruiter?.showResume !== false || recruiter?.showAllWork !== false) ? (
+            {(recruiter?.showResume !== false || recruiter?.showAllWork !== false || hasCoverLetter) ? (
               <div className="cta-row recruiter-cta" style={{marginTop: 16}}>
                 {recruiter?.showResume !== false ? (
                   <RecruiterTrackedLink
@@ -155,6 +158,15 @@ export default async function RecruiterPortfolio({params}) {
                   >
                     {resumeLabel}
                   </RecruiterTrackedLink>
+                ) : null}
+
+                {hasCoverLetter ? (
+                  <RecruiterCoverLetterPreview
+                    code={code}
+                    company={company}
+                    lang={lang}
+                    filename={recruiter.coverLetter.asset.originalFilename}
+                  />
                 ) : null}
 
                 {recruiter?.showAllWork !== false ? (
