@@ -13,7 +13,7 @@ export const metadata = {
 }
 
 export default async function DearEmaPage({searchParams}) {
-  const {experience, error} = await getBirthdayDraftPreview()
+  const {experience, error, warning, source} = await getBirthdayDraftPreview()
   const showIntro = searchParams?.intro === '1'
   const ready = isBirthdayReady(experience)
 
@@ -21,7 +21,7 @@ export default async function DearEmaPage({searchParams}) {
     <div className={showIntro ? "birthday-standalone birthday-standalone--intro" : "birthday-standalone"}>
       <nav className="birthday-preview-toolbar notranslate" aria-label="Private birthday preview controls">
         <div className="birthday-preview-label">
-          <strong>PRIVATE PREVIEW</strong>
+          <strong>PRIVATE PREVIEW {source === 'published' ? '/ PUBLISHED FALLBACK' : '/ SAVED DRAFT'}</strong>
           <span>{experience?.active === true ? 'Homepage ON in draft' : 'Homepage OFF'} · {ready ? 'Story ready' : 'Work in progress'}</span>
         </div>
         <div className="birthday-preview-actions">
@@ -30,6 +30,9 @@ export default async function DearEmaPage({searchParams}) {
           <a href={showIntro ? '/dear-ema?intro=1' : '/dear-ema'}>Refresh draft</a>
         </div>
       </nav>
+      {warning ? (
+        <div className="birthday-preview-warning notranslate" role="status">{warning}</div>
+      ) : null}
       {experience ? (
         showIntro ? (
           <BirthdayTakeover
@@ -38,7 +41,7 @@ export default async function DearEmaPage({searchParams}) {
             introLines={experience.introLines}
           />
         ) : (
-          <BirthdayExperience experience={experience} />
+          <BirthdayExperience experience={experience} preview />
         )
       ) : (
         <main className="birthday-preview-empty">
