@@ -50,3 +50,15 @@ states rather than fabricated memories when the story is still empty.
 Background music is **off by default**, and can only play after a visitor actively presses
 Play. The public homepage takeover remains governed solely by the published Sanity
 `active` switch and the content readiness guard.
+
+## Adjustable intro timings (Sanity Studio)
+
+Open **Ema's Birthday → Opening transition timing (seconds)**. Each numeric value is independently editable:
+- Homepage glimpse, first sentence hold, second sentence hold, final sentence hold
+- Curtain wipe duration
+
+The Studio **Opening timeline** panel shows the estimated total in seconds and a proportional timeline. **Saving your draft** updates the protected `/dear-ema?intro=1` replay upon refresh; this does not require publishing, turning the campaign on, or redeploying. The live homepage always reads published values only.
+
+The default has deliberately been slowed from ~3.9 seconds to **8.2 seconds overall**: 1.5 + 1.8 + 1.5 + 2.2 seconds before the reveal, then a 1.2-second wipe. These durations are approximate; actual display can vary slightly with browser rendering.
+
+The fields use seconds (decimals accepted). Reduced-motion preferences still skip the long opening for accessibility.

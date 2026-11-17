@@ -1,11 +1,13 @@
 'use client'
 
 import {useEffect, useRef, useState} from 'react'
+import {getOpeningTimeline} from '../lib/birthday-timing'
 
 // Keeps the real portfolio in view briefly, then reveals the birthday edition
 // through a typographic interlude and a single cinematic wipe.
-export default function BirthdayTakeover({portfolio, birthday, introLines = []}) {
+export default function BirthdayTakeover({portfolio, birthday, introLines = [], transitionTiming}) {
   const [phase, setPhase] = useState('portfolio')
+  const timeline = getOpeningTimeline(transitionTiming)
   const overlayRef = useRef(null)
   const snapshotRef = useRef(null)
   const showing = phase !== 'portfolio'
@@ -23,13 +25,13 @@ export default function BirthdayTakeover({portfolio, birthday, introLines = []})
       return () => window.clearTimeout(timer)
     }
     const steps = [
-      window.setTimeout(() => setPhase('intro-1'), 750),
-      window.setTimeout(() => setPhase('intro-2'), 1450),
-      window.setTimeout(() => setPhase('intro-3'), 2150),
-      window.setTimeout(() => setPhase('birthday'), 2950),
+      window.setTimeout(() => setPhase('intro-1'), Math.round(timeline.firstLineAt * 1000)),
+      window.setTimeout(() => setPhase('intro-2'), Math.round(timeline.secondLineAt * 1000)),
+      window.setTimeout(() => setPhase('intro-3'), Math.round(timeline.thirdLineAt * 1000)),
+      window.setTimeout(() => setPhase('birthday'), Math.round(timeline.revealAt * 1000)),
     ]
     return () => steps.forEach(window.clearTimeout)
-  }, [])
+  }, [timeline.firstLineAt, timeline.secondLineAt, timeline.thirdLineAt, timeline.revealAt])
 
   useEffect(() => {
     if (!showing) return undefined
@@ -54,7 +56,7 @@ export default function BirthdayTakeover({portfolio, birthday, introLines = []})
   const introIndex = phase === 'intro-1' ? 0 : phase === 'intro-2' ? 1 : 2
 
   return (
-    <div className={'birthday-takeover-shell' + (showing ? ' has-started' : '')}>
+    <div className={'birthday-takeover-shell' + (showing ? ' has-started' : '')} style={{'--birthday-curtain-duration': `${timeline.revealSeconds}s`}}>
       <div ref={snapshotRef} className="birthday-portfolio-snapshot" aria-hidden={showing ? 'true' : undefined}>{portfolio}</div>
 
       <div
