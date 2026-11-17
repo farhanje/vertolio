@@ -144,3 +144,53 @@
   .birthday-takeover-layer { transition: none; }
   .birthday-intro { animation: none; }
 }
+
+/* The only entrance to /dear-ema is Studio Basic Auth; the controls are
+   available in both story mode and the replayed full-screen intro. */
+.birthday-preview-toolbar {
+  position: fixed;
+  z-index: 2500;
+  top: 0;
+  right: 0;
+  left: 0;
+  min-height: 56px;
+  background: #f9f6f2;
+  color: #28211d;
+  border-bottom: 1px solid rgba(40,33,29,.16);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 9px 16px;
+  font: 12px/1.45 Arial, sans-serif;
+}
+.birthday-preview-label {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.birthday-preview-label strong { letter-spacing: .075em; }
+.birthday-preview-label span { color: #74655c; }
+.birthday-preview-actions { display: flex; flex-wrap: wrap; gap: 15px; }
+.birthday-preview-actions a {
+  color: #322b26;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.birthday-preview-actions a:focus-visible {
+  outline: 2px solid #322b26;
+  outline-offset: 3px;
+}
+.birthday-preview-empty {
+  min-height: 100dvh;
+  padding: 140px max(24px, 8vw) 80px;
+  background: #f6f0e8;
+  color: #322b26;
+}
+.birthday-preview-empty h1 { font: 400 clamp(2.5rem, 6vw, 5rem)/1.1 Georgia, serif; margin: 18px 0; }
+.birthday-preview-empty p { max-width: 680px; line-height: 1.6; }
+@media (max-width: 680px) {
+  .birthday-preview-toolbar { flex-direction: column; align-items: flex-start; gap: 6px; }
+  .birthday-preview-actions { gap: 12px; }
+}
