@@ -1,33 +1,31 @@
-# Birthday infrastructure (Sanity-managed)
+# Birthday Experience — Sanity controls and private draft preview
 
-The experience is OFF by default and has no birthday photos, music, or chapters yet.
+## Preview while the public takeover is OFF
 
-## How to prepare content
+1. Open `/studio`, then **Ema's Birthday**.
+2. Click **Open private preview** to open `/dear-ema` in another tab.
+3. Authenticate using the **existing Studio username/password** when prompted.
+4. The preview reads **unpublished Sanity drafts** using a server-side token. No publish and no activation required.
+5. After making and saving edits in Sanity, refresh the preview tab to see your changes.
+6. Click **Preview opening transition** (or the preview page's **Replay opening** link) to test the real portfolio → intro → birthday sequence.
 
-1. Open Sanity Studio at /studio and select **Ema's Birthday**.
-2. Upload a hero photograph and add at least one populated story/photo/quote block.
-3. Optionally upload a soundtrack. Browsers require user interaction to play music.
-4. Publish the document with **Homepage birthday takeover — ACTIVE** still OFF.
-5. When ready to reveal: toggle ACTIVE on and **Publish**. The change is read at request time without a redeploy.
-6. To end the takeover: toggle ACTIVE off and **Publish**. Optionally enable **Keep /dear-ema available after the takeover** before disabling.
+The preview stays protected by HTTP Basic Auth and always carries noindex/no-store response headers. If Studio credentials or a server-side Sanity token are absent, it fails closed rather than exposing draft content. Sanity asset URLs themselves are served by Sanity and may be independently accessible if someone has the asset URL.
 
-## Routing and safety
+## Public activation remains independent
 
-- /: Normal homepage unless active AND a hero image and a populated chapter exist.
-- /portfolio: Always the normal homepage. The navbar Home link points here during an active takeover.
-- /dear-ema: Returns 404 until content is ready AND either takeover is active or keepStoryPublic is enabled.
-- /for/*, /work/*, /blog/*, /resume, /about, /studio, /api/*: Not redirected.
-- On the homepage, users first see the real portfolio briefly, then the intro lines, then the birthday story.
-- Content is fetched from the published Sanity dataset with no-store caching.
-- Sanity query failure or incomplete content always falls back to the normal portfolio.
-- This is a content-management and routing foundation; photography curation, final creative design, and polished soundtrack handoff follow separately.
+- `/`: Normal portfolio when `active` is OFF, or if essential birthday content is missing.
+- `/`: Birthday experience only when `active` is ON **and published**, with a hero photo and a populated chapter.
+- `/portfolio`: Always the original portfolio homepage.
+- `/dear-ema`: Always private, regardless of `active` or `keepStoryPublic`.
+- `/for/*`, `/work/*`, `/blog/*`, `/resume`, `/about`, `/studio` and `/api/*`: Unaffected.
 
-## Testing checklist
+The older `keepStoryPublic` field is hidden and retired for compatibility, not used for public access.
 
-- OFF: / displays existing portfolio, navbar Home remains /.
-- OFF: /portfolio displays existing portfolio, /dear-ema returns 404.
-- ON with missing assets: / remains normal portfolio (fails safe).
-- ON with valid assets: / briefly shows the portfolio and then birthday story.
-- ON: /work/some-slug, /for/valid-code, /blog/some-slug and /resume remain normal.
-- ON: navbar Home targets /portfolio, preventing accidental birthday navigation from case studies.
-- OFF after launch: / returns to the normal homepage immediately after publishing.
+## Verification
+
+- No credentials: `GET /dear-ema` returns 401 challenge when configured (404 if missing credentials configuration).
+- With Studio credentials: `GET /dear-ema` renders the saved draft even without photos or chapters.
+- `?intro=1`: Replays the transformation from a real portfolio homepage snapshot into the story.
+- The published `active: false` setting keeps the homepage normal.
+- Sanity outage or missing assets fails closed for public takeover.
+- Do not share preview credentials. Browser Basic Auth may prompt again outside `/studio`.

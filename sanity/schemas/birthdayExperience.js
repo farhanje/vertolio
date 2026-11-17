@@ -1,4 +1,5 @@
 import {defineType, defineField, defineArrayMember} from 'sanity'
+import BirthdayPreviewLink from '../components/BirthdayPreviewLink'
 
 const photoFields = [
   defineField({name: 'alt', type: 'string', title: 'Alternative text'}),
@@ -40,6 +41,13 @@ export default defineType({
   },
   fields: [
     defineField({
+      name: 'privatePreviewLink',
+      title: 'Preview Ema’s birthday website',
+      type: 'string',
+      readOnly: true,
+      components: {input: BirthdayPreviewLink},
+    }),
+    defineField({
       name: 'active',
       title: 'Homepage birthday takeover — ACTIVE',
       type: 'boolean',
@@ -49,11 +57,11 @@ export default defineType({
     }),
     defineField({
       name: 'keepStoryPublic',
-      title: 'Keep /dear-ema available after the takeover',
+      title: 'Retired: public /dear-ema setting',
       type: 'boolean',
-      description: 'Optional. Leave OFF while preparing the surprise. After launch, turn ON to keep the story accessible when the homepage takeover ends.',
-      initialValue: false,
-      validation: (Rule) => Rule.custom(readinessValidation),
+      readOnly: true,
+      hidden: true,
+      deprecated: {reason: '/dear-ema is now always private. This old setting is retained only for data compatibility.'},
     }),
     defineField({name: 'title', type: 'string', title: 'Story title'}),
     defineField({name: 'heroSubtitle', type: 'text', rows: 2}),

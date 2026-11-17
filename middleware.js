@@ -104,6 +104,19 @@ export function middleware(req) {
     return notFound()
   }
 
+  // Private birthday draft preview. Unlike Studio's legacy route, this fails closed
+  // when credentials are not configured; unpublished story content is never public.
+  if (pathname === '/dear-ema' || pathname.startsWith('/dear-ema/')) {
+    const user = process.env.STUDIO_USER
+    const pass = process.env.STUDIO_PASS
+    if (!user || !pass) return notFound()
+    if (!hasBasicAuth(req, user, pass)) return unauthorized('Studio')
+    const response = withoutGoogleTranslate(req)
+    response.headers.set('Cache-Control', 'private, no-store, max-age=0')
+    response.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive, nosnippet')
+    return response
+  }
+
   if (pathname.startsWith('/studio')) {
     const user = process.env.STUDIO_USER
     const pass = process.env.STUDIO_PASS
