@@ -404,7 +404,7 @@
 .birthday-takeover-layer.is-revealed .birthday-audio {
   opacity: 1;
   pointer-events: auto;
-  transition: opacity .45s ease .95s;
+  transition: opacity .45s ease var(--birthday-curtain-duration, 1.2s);
 }
 .birthday-takeover-content {
   position: relative;
@@ -422,7 +422,7 @@
   background: var(--fg,#0b0b0b);
   color: #fff;
   clip-path: inset(0 0 0 0);
-  transition: clip-path .95s cubic-bezier(.76,0,.23,1);
+  transition: clip-path var(--birthday-curtain-duration, 1.2s) cubic-bezier(.76,0,.23,1);
 }
 .birthday-takeover-layer.is-revealed .birthday-intro-curtain {
   clip-path: inset(0 0 0 100%);
@@ -585,7 +585,7 @@
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
-  transition-delay: .95s;
+  transition-delay: var(--birthday-curtain-duration, 1.2s);
 }
 .birthday-preview-empty {
   min-height: 100dvh;

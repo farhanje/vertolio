@@ -223,6 +223,7 @@ export default async function Home() {
       portfolio={<PortfolioHome />}
       birthday={<BirthdayExperience experience={experience} />}
       introLines={experience.introLines}
+      transitionTiming={experience.transitionTiming}
     />
   )
 }

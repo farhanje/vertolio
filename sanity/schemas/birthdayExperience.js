@@ -1,5 +1,7 @@
 import {defineType, defineField, defineArrayMember} from 'sanity'
 import BirthdayPreviewLink from '../components/BirthdayPreviewLink'
+import BirthdayTimingSummary from '../components/BirthdayTimingSummary'
+import {DEFAULT_OPENING_TIMING} from '../../lib/birthday-timing'
 
 const photoFields = [
   defineField({name: 'alt', type: 'string', title: 'Alternative text'}),
@@ -38,6 +40,7 @@ export default defineType({
       "Today, it's all about her.",
     ],
     chapters: [],
+    transitionTiming: {...DEFAULT_OPENING_TIMING},
   },
   fields: [
     defineField({
@@ -72,6 +75,60 @@ export default defineType({
       of: [defineArrayMember({type: 'string'})],
       validation: (Rule) => Rule.max(3),
       description: 'Up to three short lines appearing after the brief glimpse of the real portfolio homepage.',
+    }),
+    defineField({
+      name: 'transitionTiming',
+      title: 'Opening transition timing (seconds)',
+      type: 'object',
+      description: 'Control how long the homepage stays visible, how long each sentence holds, and the final wipe reveal. Changes appear in the private draft preview after saving.',
+      initialValue: {...DEFAULT_OPENING_TIMING},
+      fields: [
+        defineField({
+          name: 'portfolioSeconds',
+          title: 'Actual homepage glimpse (seconds)',
+          type: 'number',
+          description: 'How long Ema sees your real portfolio before the intro begins.',
+          initialValue: DEFAULT_OPENING_TIMING.portfolioSeconds,
+          validation: (Rule) => Rule.min(0.5).max(15),
+        }),
+        defineField({
+          name: 'firstLineSeconds',
+          title: 'First sentence hold (seconds)',
+          type: 'number',
+          initialValue: DEFAULT_OPENING_TIMING.firstLineSeconds,
+          validation: (Rule) => Rule.min(0.5).max(15),
+        }),
+        defineField({
+          name: 'secondLineSeconds',
+          title: 'Second sentence hold (seconds)',
+          type: 'number',
+          initialValue: DEFAULT_OPENING_TIMING.secondLineSeconds,
+          validation: (Rule) => Rule.min(0.5).max(15),
+        }),
+        defineField({
+          name: 'thirdLineSeconds',
+          title: 'Final sentence hold (seconds)',
+          type: 'number',
+          description: 'Give the final reveal line a little more breathing room.',
+          initialValue: DEFAULT_OPENING_TIMING.thirdLineSeconds,
+          validation: (Rule) => Rule.min(0.5).max(15),
+        }),
+        defineField({
+          name: 'revealSeconds',
+          title: 'Curtain wipe duration (seconds)',
+          type: 'number',
+          description: 'How long the last animation takes to uncover Ema\'s birthday page.',
+          initialValue: DEFAULT_OPENING_TIMING.revealSeconds,
+          validation: (Rule) => Rule.min(0.3).max(8),
+        }),
+      ],
+    }),
+    defineField({
+      name: 'transitionTimingReadout',
+      title: 'Opening timeline',
+      type: 'string',
+      readOnly: true,
+      components: {input: BirthdayTimingSummary},
     }),
     defineField({
       name: 'heroImage',

@@ -3,6 +3,7 @@ import BirthdayTakeover from '../../components/BirthdayTakeover'
 import {PortfolioHome} from '../page'
 import {getBirthdayDraftPreview} from '../../lib/birthday.preview.server'
 import {isBirthdayReady} from '../../lib/birthday'
+import {resolveOpeningTiming} from '../../lib/birthday-timing'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
@@ -16,9 +17,10 @@ export default async function DearEmaPage({searchParams}) {
   const {experience, error, warning, source} = await getBirthdayDraftPreview()
   const showIntro = searchParams?.intro === '1'
   const ready = isBirthdayReady(experience)
+  const revealSeconds = resolveOpeningTiming(experience?.transitionTiming).revealSeconds
 
   return (
-    <div className={showIntro ? "birthday-standalone birthday-standalone--intro" : "birthday-standalone"}>
+    <div className={showIntro ? "birthday-standalone birthday-standalone--intro" : "birthday-standalone"} style={{'--birthday-curtain-duration': `${revealSeconds}s`}}>
       <nav className="birthday-preview-toolbar notranslate" aria-label="Private birthday preview controls">
         <div className="birthday-preview-label">
           <strong>PRIVATE PREVIEW {source === 'published' ? '/ PUBLISHED FALLBACK' : '/ SAVED DRAFT'}</strong>
@@ -39,6 +41,7 @@ export default async function DearEmaPage({searchParams}) {
             portfolio={<PortfolioHome />}
             birthday={<BirthdayExperience experience={experience} preview />}
             introLines={experience.introLines}
+            transitionTiming={experience.transitionTiming}
           />
         ) : (
           <BirthdayExperience experience={experience} preview />
