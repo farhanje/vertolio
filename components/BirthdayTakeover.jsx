@@ -1,9 +1,12 @@
 'use client'
 
-import {useEffect, useState} from 'react'
+import {useEffect, useRef, useState} from 'react'
 
+// Keeps the real portfolio in view briefly, then reveals the birthday edition
+// through a typographic interlude and a single cinematic wipe.
 export default function BirthdayTakeover({portfolio, birthday, introLines = []}) {
   const [phase, setPhase] = useState('portfolio')
+  const overlayRef = useRef(null)
   const lines = [
     introLines[0] || 'Usually, this little corner of the internet is about me.',
     introLines[1] || 'But not today.',
@@ -13,14 +16,14 @@ export default function BirthdayTakeover({portfolio, birthday, introLines = []})
   useEffect(() => {
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     if (reducedMotion) {
-      const timer = window.setTimeout(() => setPhase('birthday'), 700)
+      const timer = window.setTimeout(() => setPhase('birthday'), 650)
       return () => window.clearTimeout(timer)
     }
     const steps = [
-      window.setTimeout(() => setPhase('intro-1'), 900),
-      window.setTimeout(() => setPhase('intro-2'), 1800),
-      window.setTimeout(() => setPhase('intro-3'), 2750),
-      window.setTimeout(() => setPhase('birthday'), 3900),
+      window.setTimeout(() => setPhase('intro-1'), 850),
+      window.setTimeout(() => setPhase('intro-2'), 1730),
+      window.setTimeout(() => setPhase('intro-3'), 2570),
+      window.setTimeout(() => setPhase('birthday'), 3530),
     ]
     return () => steps.forEach(window.clearTimeout)
   }, [])
@@ -32,21 +35,47 @@ export default function BirthdayTakeover({portfolio, birthday, introLines = []})
     return () => { document.body.style.overflow = previousOverflow }
   }, [phase])
 
+  useEffect(() => {
+    if (phase === 'birthday') {
+      overlayRef.current?.focus({preventScroll: true})
+    }
+  }, [phase])
+
   const showing = phase !== 'portfolio'
   const ready = phase === 'birthday'
-  const index = phase === 'intro-1' ? 0 : phase === 'intro-2' ? 1 : 2
+  const introIndex = phase === 'intro-1' ? 0 : phase === 'intro-2' ? 1 : 2
 
   return (
-    <>
-      <div aria-hidden={showing ? 'true' : undefined}>{portfolio}</div>
-      <div className={'birthday-takeover-layer' + (showing ? ' is-showing' : '') + (ready ? ' is-revealed' : '')} aria-hidden={!showing}>
-        {!ready ? (
-          <div className="birthday-intro" key={phase} aria-live="polite">
-            <span>FARHANJE.COM</span>
-            <p>{lines[index]}</p>
-          </div>
-        ) : birthday}
+    <div className={'birthday-takeover-shell' + (showing ? ' has-started' : '')}>
+      <div className="birthday-portfolio-snapshot" aria-hidden={showing ? 'true' : undefined}>{portfolio}</div>
+
+      <div
+        ref={overlayRef}
+        className={'birthday-takeover-layer' + (showing ? ' is-showing' : '') + (ready ? ' is-revealed' : '')}
+        aria-hidden={!showing}
+        role={showing ? 'region' : undefined}
+        aria-label={showing ? 'Birthday story' : undefined}
+        tabIndex={ready ? -1 : undefined}
+      >
+        <div className="birthday-takeover-content" aria-hidden={!ready}>
+          {birthday}
+        </div>
+        <div className="birthday-intro-curtain" aria-hidden={ready}>
+          {showing && !ready ? (
+            <div className="birthday-intro" key={phase} aria-live="polite">
+              <div className="birthday-intro-masthead">
+                <span>FARHANJE.COM</span>
+                <span>AN INTERRUPTION / 01</span>
+              </div>
+              <div className="birthday-intro-copy">
+                <span className="birthday-intro-index">{String(introIndex + 1).padStart(2, '0')} / 03</span>
+                <p>{lines[introIndex]}</p>
+              </div>
+              <div className="birthday-intro-rule"><span /></div>
+            </div>
+          ) : null}
+        </div>
       </div>
-    </>
+    </div>
   )
 }

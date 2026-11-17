@@ -18,7 +18,7 @@ export default async function DearEmaPage({searchParams}) {
   const ready = isBirthdayReady(experience)
 
   return (
-    <div className="birthday-standalone">
+    <div className={showIntro ? "birthday-standalone birthday-standalone--intro" : "birthday-standalone"}>
       <nav className="birthday-preview-toolbar notranslate" aria-label="Private birthday preview controls">
         <div className="birthday-preview-label">
           <strong>PRIVATE PREVIEW</strong>
@@ -34,7 +34,7 @@ export default async function DearEmaPage({searchParams}) {
         showIntro ? (
           <BirthdayTakeover
             portfolio={<PortfolioHome />}
-            birthday={<BirthdayExperience experience={experience} />}
+            birthday={<BirthdayExperience experience={experience} preview />}
             introLines={experience.introLines}
           />
         ) : (
