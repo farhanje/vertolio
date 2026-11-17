@@ -10,19 +10,19 @@ function isActive(path, href) {
   return path === href || path.startsWith(href + '/')
 }
 
-export default function SiteNav({brand = 'Farhan', brandLogoUrl = null, brandLogoAlt = '', lang = 'en'}) {
+export default function SiteNav({brand = 'Farhan', brandLogoUrl = null, brandLogoAlt = '', lang = 'en', homeHref = '/'}) {
   const pathname = usePathname() || '/'
   const [open, setOpen] = useState(false)
   const language = normalizeLanguage(lang)
   const copy = uiCopy(language)
 
   const links = useMemo(() => [
-    {href: '/', label: copy.nav.home},
+    {href: homeHref, label: copy.nav.home},
     {href: '/work', label: copy.nav.work},
     {href: '/blog', label: copy.nav.blog},
     {href: '/resume', label: copy.nav.resume},
     {href: '/about', label: copy.nav.about},
-  ], [copy])
+  ], [copy, homeHref])
 
   const active = useMemo(() => {
     const matches = {}
@@ -56,7 +56,7 @@ export default function SiteNav({brand = 'Farhan', brandLogoUrl = null, brandLog
       </header>
 
       <div className={`nav-mobilebar${nativeClass}`} role="navigation" aria-label="Primary">
-        <a href="/" className={active['/'] ? 'mnav active' : 'mnav'}>{copy.nav.home}</a>
+        <a href={homeHref} className={active[homeHref] ? 'mnav active' : 'mnav'}>{copy.nav.home}</a>
         <a href="/work" className={active['/work'] ? 'mnav active' : 'mnav'}>{copy.nav.work}</a>
         <a href="/blog" className={active['/blog'] ? 'mnav active' : 'mnav'}>{copy.nav.blog}</a>
         <button

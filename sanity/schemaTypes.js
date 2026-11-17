@@ -3,6 +3,7 @@ import project from './schemas/project'
 import post from './schemas/post'
 import siteSettings from './schemas/siteSettings'
 import recruiterLink from './schemas/recruiterLink'
+import birthdayExperience from './schemas/birthdayExperience'
 import researchStudy from './schemaTypes/researchStudy'
 import normalizeProjectCaseStudyBlocks from './normalizeProjectCaseStudyBlocks'
 import augmentCaseStudyBlockTypes from './augmentCaseStudyBlockTypes'
@@ -22,5 +23,6 @@ export const schemaTypes = [
   normalizedProject,
   post,
   recruiterLink,
+  birthdayExperience,
   researchStudy,
 ]

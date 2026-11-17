@@ -1,4 +1,7 @@
 import {sanityFetch} from '../lib/sanity.client'
+import {getBirthdayExperience, isBirthdayTakeoverActive} from '../lib/birthday'
+import BirthdayTakeover from '../components/BirthdayTakeover'
+import BirthdayExperience from '../components/BirthdayExperience'
 import {SITE_SETTINGS_QUERY, HOME_FEATURED_PROJECTS_QUERY, HOME_FEATURED_POSTS_QUERY} from '../lib/sanity.queries'
 import {placeholderSiteSettings} from '../lib/placeholders'
 import EditorialCard from '../components/EditorialCard'
@@ -78,7 +81,7 @@ function postCardData(p, lang, index) {
   }
 }
 
-export default async function Home() {
+export async function PortfolioHome() {
   const lang = getLanguage()
   const copy = uiCopy(lang)
 
@@ -209,5 +212,17 @@ export default async function Home() {
         </div>
       </section>
     </main>
+  )
+}
+
+export default async function Home() {
+  const experience = await getBirthdayExperience()
+  if (!isBirthdayTakeoverActive(experience)) return <PortfolioHome />
+  return (
+    <BirthdayTakeover
+      portfolio={<PortfolioHome />}
+      birthday={<BirthdayExperience experience={experience} />}
+      introLines={experience.introLines}
+    />
   )
 }
