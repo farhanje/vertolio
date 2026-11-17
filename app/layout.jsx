@@ -1,5 +1,6 @@
 import './globals.css';
 import './overrides.css';
+import './birthday.css';
 import SiteNav from '../components/SiteNav';
 import SiteFooter from '../components/SiteFooter';
 import AnalyticsBridge from '../components/AnalyticsBridge';
@@ -7,6 +8,7 @@ import UmamiRecorder from '../components/UmamiRecorder';
 import GoogleTranslateGate from '../components/GoogleTranslateGate';
 import { GeistSans, GeistMono } from 'geist/font';
 import {sanityFetch} from '../lib/sanity.client';
+import {getBirthdayExperience, isBirthdayTakeoverActive} from '../lib/birthday';
 import {SITE_SETTINGS_QUERY} from '../lib/sanity.queries';
 import {placeholderSiteSettings} from '../lib/placeholders';
 import { Analytics } from '@vercel/analytics/next';
@@ -53,6 +55,8 @@ export async function generateMetadata() {
 
 export default async function RootLayout({ children }) {
   const lang = getLanguage();
+  const birthdayExperience = await getBirthdayExperience();
+  const homeHref = isBirthdayTakeoverActive(birthdayExperience) ? '/portfolio' : '/';
   let settings = null;
   try {
     settings = await sanityFetch(SITE_SETTINGS_QUERY);
@@ -86,7 +90,7 @@ export default async function RootLayout({ children }) {
         <AnalyticsBridge />
         <UmamiRecorder trackerUrl={umamiScriptUrl} websiteId={umamiWebsiteId} />
 
-        <SiteNav brand={brand} brandLogoUrl={brandLogoUrl} brandLogoAlt={brandLogoAlt} lang={lang} />
+        <SiteNav brand={brand} brandLogoUrl={brandLogoUrl} brandLogoAlt={brandLogoAlt} lang={lang} homeHref={homeHref} />
         {children}
         <SiteFooter lang={lang} />
 

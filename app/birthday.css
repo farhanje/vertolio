@@ -1,0 +1,146 @@
+.birthday-takeover-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: #1b1917;
+  color: #f4eee5;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity .55s ease, visibility .55s ease;
+}
+.birthday-takeover-layer.is-showing {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+.birthday-intro {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 2rem;
+  animation: birthday-fade-in .65s ease both;
+}
+.birthday-intro span {
+  font-size: .68rem;
+  letter-spacing: .18em;
+  opacity: .6;
+}
+.birthday-intro p {
+  margin: 2rem auto;
+  max-width: 850px;
+  font-family: Georgia, serif;
+  font-size: clamp(2rem, 5vw, 5rem);
+  line-height: 1.14;
+  letter-spacing: -.035em;
+}
+.birthday-experience {
+  background: #f6f0e8;
+  color: #322b26;
+  font-family: Georgia, 'Times New Roman', serif;
+  min-height: 100dvh;
+}
+.birthday-hero {
+  position: relative;
+  display: flex;
+  min-height: 100dvh;
+  align-items: flex-end;
+  overflow: hidden;
+  color: #fffaf1;
+  background: #43362f;
+}
+.birthday-hero-photo,
+.birthday-hero-shade {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.birthday-hero-photo { object-fit: cover; }
+.birthday-hero-shade { background: linear-gradient(0deg, rgba(20,14,10,.77), rgba(20,14,10,.06) 75%); }
+.birthday-hero-content {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 1100px);
+  margin: 0 auto;
+  padding: clamp(2rem, 7vw, 6rem);
+}
+.birthday-eyebrow {
+  letter-spacing: .17em;
+  font: 600 .7rem/1.5 Arial, sans-serif;
+}
+.birthday-hero h1 {
+  font-size: clamp(3.5rem, 10vw, 9rem);
+  line-height: .98;
+  letter-spacing: -.045em;
+  font-weight: 400;
+  margin: 1.3rem 0;
+}
+.birthday-hero p {
+  font-size: clamp(1.1rem, 2vw, 1.45rem);
+  line-height: 1.5;
+  max-width: 640px;
+}
+.birthday-entry {
+  display: inline-block;
+  border: 1px solid currentColor;
+  padding: .8rem 1.15rem;
+  margin-top: 1.5rem;
+  color: inherit;
+  font: 500 .82rem Arial, sans-serif;
+  text-decoration: none;
+}
+.birthday-entry:hover { background: #fffaf1; color: #322b26; }
+.birthday-story { max-width: 1200px; margin: 0 auto; padding: 4rem clamp(1.4rem, 6vw, 5rem); }
+.birthday-chapter { margin: 4rem 0 7rem; }
+.birthday-chapter h2 {
+  font-size: clamp(2.3rem, 6vw, 5.5rem);
+  line-height: 1.08;
+  font-weight: 400;
+  letter-spacing: -.035em;
+  margin: 0 0 2rem;
+}
+.birthday-prose { max-width: 740px; font-size: clamp(1.05rem, 2vw, 1.35rem); line-height: 1.85; }
+.birthday-chapter figure { margin: 2rem 0 0; }
+.birthday-chapter img { display: block; max-width: 100%; width: 100%; height: auto; }
+.birthday-chapter figcaption { margin-top: .75rem; font: .8rem Arial, sans-serif; color: #766a60; }
+.birthday-photo-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: 1rem; }
+.birthday-photo-grid figure:nth-child(2n) { margin-top: 3rem; }
+.birthday-note { text-align: center; padding: 4rem 0; }
+.birthday-note blockquote { font-size: clamp(2rem, 5vw, 4.5rem); line-height: 1.25; font-style: italic; margin: 0; }
+.birthday-note p { margin-top: 1.5rem; }
+.birthday-ending { text-align: center; padding: 4rem 0 8rem; font-style: italic; font-size: 1.65rem; }
+.birthday-audio {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 2100;
+  background: rgba(28,24,20,.9);
+  color: #fff9f0;
+  border-radius: 10px;
+  padding: .6rem .9rem;
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+  font: .75rem Arial, sans-serif;
+  max-width: calc(100vw - 2rem);
+}
+.birthday-audio audio { width: min(220px, 44vw); height: 35px; }
+.app:has(.birthday-standalone) > .nav,
+.app:has(.birthday-standalone) > .nav-mobilebar,
+.app:has(.birthday-standalone) > .footer { display: none !important; }
+@keyframes birthday-fade-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 600px) {
+  .birthday-photo-grid { grid-template-columns: 1fr; }
+  .birthday-photo-grid figure:nth-child(2n) { margin-top: 0; }
+  .birthday-audio { left: 1rem; right: 1rem; justify-content: space-between; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .birthday-takeover-layer { transition: none; }
+  .birthday-intro { animation: none; }
+}

@@ -5,6 +5,9 @@ import {schemaTypes} from '../sanity/schemaTypes.js'
 
 const structure = (S) => S.list().title('Content').items([
   S.documentTypeListItem('siteSettings').title('Site Settings'),
+  S.listItem().title("Ema's Birthday").child(
+    S.document().schemaType('birthdayExperience').documentId('birthday-experience')
+  ),
   S.documentTypeListItem('organization').title('Organizations'),
   S.documentTypeListItem('project').title('Projects'),
   S.documentTypeListItem('post').title('Posts'),
