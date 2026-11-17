@@ -7,6 +7,9 @@ import {useEffect, useRef, useState} from 'react'
 export default function BirthdayTakeover({portfolio, birthday, introLines = []}) {
   const [phase, setPhase] = useState('portfolio')
   const overlayRef = useRef(null)
+  const snapshotRef = useRef(null)
+  const showing = phase !== 'portfolio'
+  const ready = phase === 'birthday'
   const lines = [
     introLines[0] || 'Usually, this little corner of the internet is about me.',
     introLines[1] || 'But not today.',
@@ -20,20 +23,27 @@ export default function BirthdayTakeover({portfolio, birthday, introLines = []})
       return () => window.clearTimeout(timer)
     }
     const steps = [
-      window.setTimeout(() => setPhase('intro-1'), 850),
-      window.setTimeout(() => setPhase('intro-2'), 1730),
-      window.setTimeout(() => setPhase('intro-3'), 2570),
-      window.setTimeout(() => setPhase('birthday'), 3530),
+      window.setTimeout(() => setPhase('intro-1'), 750),
+      window.setTimeout(() => setPhase('intro-2'), 1450),
+      window.setTimeout(() => setPhase('intro-3'), 2150),
+      window.setTimeout(() => setPhase('birthday'), 2950),
     ]
     return () => steps.forEach(window.clearTimeout)
   }, [])
 
   useEffect(() => {
-    if (phase === 'portfolio') return undefined
+    if (!showing) return undefined
     const previousOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
     return () => { document.body.style.overflow = previousOverflow }
-  }, [phase])
+  }, [showing])
+
+  useEffect(() => {
+    if (!showing) return undefined
+    const elements = [snapshotRef.current, document.querySelector('.nav'), document.querySelector('.nav-mobilebar'), document.querySelector('.footer')].filter(Boolean)
+    elements.forEach((element) => element.setAttribute('inert', ''))
+    return () => elements.forEach((element) => element.removeAttribute('inert'))
+  }, [showing])
 
   useEffect(() => {
     if (phase === 'birthday') {
@@ -41,13 +51,11 @@ export default function BirthdayTakeover({portfolio, birthday, introLines = []})
     }
   }, [phase])
 
-  const showing = phase !== 'portfolio'
-  const ready = phase === 'birthday'
   const introIndex = phase === 'intro-1' ? 0 : phase === 'intro-2' ? 1 : 2
 
   return (
     <div className={'birthday-takeover-shell' + (showing ? ' has-started' : '')}>
-      <div className="birthday-portfolio-snapshot" aria-hidden={showing ? 'true' : undefined}>{portfolio}</div>
+      <div ref={snapshotRef} className="birthday-portfolio-snapshot" aria-hidden={showing ? 'true' : undefined}>{portfolio}</div>
 
       <div
         ref={overlayRef}

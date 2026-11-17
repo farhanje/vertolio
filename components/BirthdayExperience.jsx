@@ -13,6 +13,14 @@ function imageUrl(image, width = 1400) {
   }
 }
 
+function imagePosition(image) {
+  const x = image?.hotspot?.x
+  const y = image?.hotspot?.y
+  return Number.isFinite(x) && Number.isFinite(y)
+    ? {objectPosition: (x * 100).toFixed(1) + '% ' + (y * 100).toFixed(1) + '%'}
+    : undefined
+}
+
 function indexLabel(index) {
   return String(index + 1).padStart(2, '0')
 }
@@ -29,6 +37,7 @@ function EditorialPicture({image, label, className = '', eager = false}) {
           loading={eager ? 'eager' : 'lazy'}
           fetchPriority={eager ? 'high' : undefined}
           decoding="async"
+          style={imagePosition(image)}
         />
       </div>
       <figcaption>
@@ -64,10 +73,10 @@ export default function BirthdayExperience({experience, preview = false}) {
               </a>
             </div>
 
-            <div className="birthday-hero-visual">
+            <div className="birthday-hero-visual" data-birthday-parallax>
               {hero ? (
                 <div className="birthday-hero-image-wrap">
-                  <img src={hero} alt={experience?.heroImage?.alt || 'Portrait of Ema'} fetchPriority="high" decoding="async" />
+                  <img src={hero} alt={experience?.heroImage?.alt || 'Portrait of Ema'} fetchPriority="high" decoding="async" style={imagePosition(experience?.heroImage)} />
                 </div>
               ) : (
                 <div className="birthday-image-placeholder" role="note">
@@ -84,7 +93,7 @@ export default function BirthdayExperience({experience, preview = false}) {
           </div>
 
           <div className="birthday-hero-bottom">
-            <span>DESIGNED FOR ONE PERSON, NOT A RECRUITER.</span>
+            <span>NOT A CASE STUDY. JUST A STORY ABOUT YOU.</span>
             <span>SCROLL TO CONTINUE <span aria-hidden="true">↓</span></span>
           </div>
         </section>

@@ -149,7 +149,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transform: scale(1.025);
+  transform: translate3d(0, var(--birthday-parallax-y, 0px), 0) scale(1.025);
   animation: birthday-cover-settle 1.4s cubic-bezier(.21,.66,.24,1) both;
 }
 .birthday-image-placeholder {
@@ -403,7 +403,7 @@
   background: var(--fg,#0b0b0b);
   color: #fff;
   clip-path: inset(0 0 0 0);
-  transition: clip-path 1.05s cubic-bezier(.76,0,.23,1);
+  transition: clip-path .95s cubic-bezier(.76,0,.23,1);
 }
 .birthday-takeover-layer.is-revealed .birthday-intro-curtain {
   clip-path: inset(0 0 0 100%);
@@ -471,8 +471,8 @@
   to { opacity: 1; transform: translate3d(0, 0, 0); }
 }
 @keyframes birthday-cover-settle {
-  from { transform: scale(1.08); }
-  to { transform: scale(1.025); }
+  from { transform: translate3d(0, 0, 0) scale(1.08); }
+  to { transform: translate3d(0, var(--birthday-parallax-y, 0px), 0) scale(1.025); }
 }
 
 /* Sound is always opt-in; controls borrow the portfolio's square buttons. */
