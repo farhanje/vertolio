@@ -29,3 +29,24 @@ The older `keepStoryPublic` field is hidden and retired for compatibility, not u
 - The published `active: false` setting keeps the homepage normal.
 - Sanity outage or missing assets fails closed for public takeover.
 - Do not share preview credentials. Browser Basic Auth may prompt again outside `/studio`.
+
+## Editorial design and motion (November 2026)
+
+The birthday edition deliberately reuses the portfolio's white/black, Geist typography,
+12-column/editorial grids, numeric overlines, and hairline dividers. No new font system or
+off-brand beige/serif theme is introduced.
+
+The transition is the actual homepage (roughly 850 ms), then three short typographic
+interludes, then a left-to-right curtain reveal into the birthday cover. The same
+sequence is available under `/dear-ema?intro=1`, behind Studio authentication.
+
+Native vertical scrolling is never hijacked. Headings, quotations, captions and
+individual photographs reveal once via IntersectionObserver. Photos carry subtle,
+requestAnimationFrame-throttled parallax and the page has a slender scroll-progress rule.
+Motion respects `prefers-reduced-motion` and bandwidth-saving preferences. Images and
+soundtrack are loaded from Sanity, but the preview deliberately shows editorial empty
+states rather than fabricated memories when the story is still empty.
+
+Background music is **off by default**, and can only play after a visitor actively presses
+Play. The public homepage takeover remains governed solely by the published Sanity
+`active` switch and the content readiness guard.
