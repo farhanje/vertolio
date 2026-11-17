@@ -554,6 +554,20 @@
 .birthday-preview-actions a:focus-visible { outline: 2px solid var(--fg,#0b0b0b); outline-offset: 2px; }
 .birthday-standalone:not(.birthday-standalone--intro) .birthday-experience { padding-top: 56px; }
 .birthday-standalone .birthday-scroll-indicator { top: 56px; }
+/* During the replay, keep the preview chrome out of the cinematic opening.
+   It returns after the curtain has revealed the birthday page. */
+.birthday-standalone--intro .birthday-preview-toolbar {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity .4s ease, visibility .4s ease;
+}
+.birthday-standalone--intro:has(.birthday-takeover-layer.is-revealed) .birthday-preview-toolbar {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition-delay: .95s;
+}
 .birthday-preview-empty {
   min-height: 100dvh;
   padding: 145px max(24px,calc((100vw - var(--max,1120px))/2)) 80px;
