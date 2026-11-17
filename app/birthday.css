@@ -387,6 +387,25 @@
   visibility: visible;
   pointer-events: auto;
 }
+/* Keep wheel/touch gestures from moving the story before the opening finishes. */
+.birthday-takeover-layer.is-showing:not(.is-revealed) {
+  overflow: hidden;
+  touch-action: none;
+}
+.birthday-takeover-layer.is-revealed {
+  overflow-y: auto;
+  touch-action: auto;
+}
+/* Sound controls never sit on top of the cinematic introduction. */
+.birthday-takeover-layer:not(.is-revealed) .birthday-audio {
+  opacity: 0;
+  pointer-events: none;
+}
+.birthday-takeover-layer.is-revealed .birthday-audio {
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity .45s ease .95s;
+}
 .birthday-takeover-content {
   position: relative;
   pointer-events: none;
